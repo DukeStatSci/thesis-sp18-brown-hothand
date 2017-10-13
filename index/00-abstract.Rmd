@@ -1,3 +1,11 @@
-The preface pretty much says it all.  \par
+#Abstract {#abstract}
 
-Second paragraph of abstract starts here.
+The proposed study is an investigation of Bayesian statistical models and analyses for problems arising in shooting a basketball. Goals will be to explore, develop and apply Bayesian models to existing and new data on shooting outcomes, to understand and evaluate questions of inherent random variation, changes over time in shooting performance, and issues related to the "Hot Hand" concept in sports.
+
+\par
+
+(talk about models you fit)
+
+\par
+
+(talk about results)
