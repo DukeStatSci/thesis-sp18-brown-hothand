@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 <!--
 The bib chunk below must go last in this document according to how R Markdown renders.  More info is at http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
 -->
@@ -34,5 +39,6 @@ This is just for testing with more citations for the bibliography at the end.  A
 
 ---
 nocite: | 
-  @angel2000, @angel2001, @angel2002a
+  <!--@albert93, @albert13, @abc123, @west97 -->
+  @gilovich85, @miller16
 ...

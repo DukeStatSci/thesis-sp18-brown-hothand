@@ -1,3 +1,11 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+#DGLM On Simulated Data {#sim}
+
+```{r everything, warning = FALSE, message=FALSE}
 #things I'm having trouble with:
   #positive definite sCt[,,t]
   #interpretation
@@ -50,7 +58,7 @@ par(xpd=TRUE)
 plot(0,0,type="n",xlim = c(0,T),ylim=c(0,1), ylab = "probability", xlab = "time interval", main = "GLM")
 points(tshot, q[tshot], pch=4, col = "blue")
 points(tshot, y[tshot], pch=1, col = "red")
-legend(x=T/2, y=1.2, legend=c("probability", "outcome"), pch = c(4,1), col=c("blue", "red"))
+legend(x=T*0.75, y=1.21, legend=c("probability", "outcome"), pch = c(4,1), col=c("blue", "red"))
 plot(x[iy,], ylim=c(0,ym), xlim=c(-xm,xm), col = "red", pch = 3)
 points(x[-iy,], col ="blue", pch = 1)
 points(0,0,col="red", cex=2)
@@ -129,7 +137,7 @@ par(xpd=TRUE)
 plot(0,0,type="n",xlim = c(0,T),ylim=c(0,1), ylab = "probability", xlab = "time interval", main = "GLM")
 points(tshot, spt[tshot], pch=4, col = "blue")
 points(tshot, y[tshot], pch=1, col = "red")
-legend(x=T/2, y=1.2, legend=c("probability", "outcome"), pch = c(4,1), col=c("blue", "red"))
+legend(x=T*0.75, y=1.21, legend=c("probability", "outcome"), pch = c(4,1), col=c("blue", "red"))
 
 #Backward sampling
 nmc <- 1000
@@ -156,21 +164,14 @@ for(t in (T-1):1){
 }
 
 #retrospective posterior summaries
-pr <- t(apply(MCq[tshot,], 1, quantile, c(.025, .25, .5, .75, .975))) #get quantiles of each row
-plot() #I can't do ciplot...
+pr <- t(apply(MCq[tshot,], 1, quantile, c(.025, .25, .5, .75, .975), na.rm=TRUE)) #get quantiles of each row
+#plot() #I can't do ciplot...
 
-for(j in 1:p){
-
-}
-
-# library(matconv)
-# setwd("C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand")
-# matfile <- "binarylogisticDGLMindevelopment.m"
-# matstr <- readChar(matfile, file.info(matfile)$size)
-# mat2r(matstr)
+# for(j in 1:p){
 # 
+# }
 
-
+```
 
 
 
