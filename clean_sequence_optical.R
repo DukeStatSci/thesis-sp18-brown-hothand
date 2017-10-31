@@ -4,7 +4,7 @@ datafolder <- "C:/Users/Nathaniel Brown/Desktop/sample"
 #"F:/sample"
 #gameid <- #201401250173 #FSU
 #   201311150173 #vermont
-gameid <- 201311150173
+gameid <- 201311150173 #florida atl
 list.files(datafolder) %>% .[endsWith(., "XML")] %>% gsub(x=., pattern='[0-9]',replacement='\\1')
 
 readoptical <- function(opticalname){
@@ -123,6 +123,7 @@ xml_to_df_clean <- function(opticalname){
 # game <- rbind(dat1, dat2)
 # save(game, file=paste0(datafolder,"/game.RData"))
 load(file=paste0(datafolder,"/game.RData"))
+game$ball_global_id <- -1
 
 readpbp <- function(pbpname){
   pbpxml <- read_html(paste0(pbpname))
@@ -213,7 +214,7 @@ eventid_map <- arrange(eventid_map, eventid)
 #later: also investigate when players enter and exit game
 
 #THERE SEEM TO BE ABOUT FOUR SHOTS MISSING. TIP-INS? CALLED BACK? WILL INVESTIGATE LATER.
-shots <- pbp %>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select_("globalplayerid", "time", "result", "globalteamid") #%>% group_by(playername) %>% summarize(n=n(), k=sum(result))
+shots <- pbp %>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select_("globalplayerid", "time", "result", "globalteamid", "gameclock") #%>% group_by(playername) %>% summarize(n=n(), k=sum(result))
 non_loc_cols <- grep("ball|team|shotclock|gameeventid|gameclock",colnames(game))
 second_half_start <- game$time[game$half == 2][1]
 locs <- game %>% 
@@ -232,26 +233,30 @@ dim(locs)
 View(locs)
 
 shot_locs <- merge(shots, locs, by=c("time", "globalplayerid")) %>% filter(globalteamid == 1388)
-
+#FOR NOW THESE ARE ONLY THE STARTERS' SHOTS!!!
 #transform x and y so that basket is origin, and all shots occur on one half of court
 #then transform into r and theta.
-plot(shot_locs$time, shot_locs$x2)
-plot(shot_locs$time, shot_locs$y2)
-
-shot_locs$x2 = shot_locs$x - 25
-shot_locs$y2 = shot_locs$y
+shot_locs$x2 <- shot_locs$x - 25
+shot_locs$y2 <- shot_locs$y
 shot_locs$y2[shot_locs$time < second_half_start] = (94 - shot_locs$y2[shot_locs$time < second_half_start])
-
+shot_locs$y2 <- shot_locs$y2 - 4 #so the hoop is 0, not the baseline
 shot_locs$r <- sqrt(shot_locs$x2^2 + shot_locs$y2^2)
 shot_locs$theta <- atan(shot_locs$y2/shot_locs$x2)
-plot(shot_locs$time, shot_locs$r)
-plot(shot_locs$time, shot_locs$theta)
-plot(shot_locs$time, abs(shot_locs$theta))
+shot_locs$gametime <- shot_locs$gameclock
+shot_locs$gametime[shot_locs$time < second_half_start] <- 2*shot_locs$gameclock[shot_locs$time < second_half_start]
+shot_locs$gametime <- 2400 - shot_locs$gametime
+
+plot(shot_locs$gametime, shot_locs$x2)
+plot(shot_locs$gametime, shot_locs$y2)
+
+plot(shot_locs$gametime, shot_locs$r)
+plot(shot_locs$gametime, shot_locs$theta)
+plot(shot_locs$gametime, abs(shot_locs$theta))
 
 mod <- glm(result ~ r + theta, data = shot_locs, family="binomial")
 
 
-shotlocs <- merge(shots, locs, by=c("time", "globalplayerid")) %>% select(-rowid)
+#shotlocs <- merge(shots, locs, by=c("time", "globalplayerid")) %>% select(-rowid)
 
 locs <- melt(select_(game, -"gameclock", "time", "gameeventid", "shotclock", "ball_x", "ball_y", "ball_z"), id = "time")
 

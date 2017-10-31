@@ -1,0 +1,758 @@
+---
+author: 'Nathaniel Brown'
+date: 'May 20xx'
+institution: 'Duke University'
+division: 'Trinity College of Arts and Sciences'
+advisor: 'Advisor F. Name'
+#altadvisor: 'Your Other Advisor'
+# Delete line 7 if you only have one advisor
+committeememberone: 'Committeemember O. Name'
+committeemembertwo: 'Committeemember T. Name'
+dus: 'Dus X. Name'
+department: 'Department of Statistical Science'
+degree: 'Bachelor of Science in Statistical Science'
+title: 'My Final College Paper'
+knit: "bookdown::render_book"
+site: bookdown::bookdown_site
+output: 
+  thesisdowndss::thesis_pdf: default
+#  thesisdowndss::thesis_gitbook: default
+#  thesisdowndss::thesis_word: default
+#  thesisdowndss::thesis_epub: default
+# If you are creating a PDF you'll need to write your preliminary content here or
+# use code similar to line 20 for the files.  If you are producing in a different
+# format than PDF, you can delete or ignore lines 20-31 in this YAML header.
+abstract: |
+  `r if(knitr:::is_latex_output()) paste(readLines("00-abstract.Rmd"), collapse = '\n  ')`
+# If you'd rather include the preliminary content in files instead of inline
+# like below, use a command like that for the abstract above.  Note that a tab is 
+# needed on the line after the |.
+acknowledgements: |
+  I want to thank a few people.
+dedication: |
+  You can have a dedication here if you wish. 
+preface: |
+  This is an example of a thesis setup to use the reed thesis document class
+  (for LaTeX) and the R bookdown package, in general.
+bibliography: bib/thesis.bib
+# Refer to your specific bibliography file in the line above.
+csl: csl/apa.csl
+# Download your specific csl file and refer to it in the line above.
+lot: true
+lof: true
+#space_between_paragraphs: true
+# Delete the # at the beginning of the previous line if you'd like
+# to have a blank new line between each paragraph
+#header-includes:
+#- \usepackage{tikz}
+---
+
+<!--
+Above is the YAML (YAML Ain't Markup Language) header that includes a lot of metadata used to produce the document.  Be careful with spacing in this header!
+
+If you'd prefer to not include a Dedication, for example, simply delete lines 17 and 18 above or add a # before them to comment them out.  If you have other LaTeX packages you would like to include, delete the # before header-includes and list the packages after hyphens on new lines.
+
+If you'd like to include a comment that won't be produced in your resulting file enclose it in a block like this.
+-->
+
+<!--
+If you receive a duplicate label error after knitting, make sure to delete the index.Rmd file and then knit again.
+-->
+
+```{r include_packages, include = FALSE}
+# This chunk ensures that the thesisdowndss package is
+# installed and loaded. This thesisdowndss package includes
+# the template files for the thesis.
+if(!require(devtools))
+  install.packages("devtools", repos = "http://cran.rstudio.com")
+if(!require(thesisdowndss))
+  devtools::install_github("mine-cetinkaya-rundel/thesisdowndss")
+library(thesisdowndss)
+```
+
+<!-- You'll need to include the order that you'd like Rmd files to appear in the _bookdown.yml file for
+PDF files and also delete the # before rmd_files: there.  You'll want to not include 00(two-hyphens)prelim.Rmd
+and 00-abstract.Rmd since they are handled in the YAML above differently for the PDF version.
+-->
+
+<!-- The {.unnumbered} option here means that the introduction will be "Chapter 0." You can also use {-} for no numbers
+on chapters.
+-->
+
+# Introduction {.unnumbered}
+
+Welcome to the _R Markdown_ thesis template. This template is based on (and in many places copied directly from) the Reed College LaTeX template, but hopefully it will provide a nicer interface for those that have never used TeX or LaTeX before.  Using _R Markdown_ will also allow you to easily keep track of your analyses in **R** chunks of code, with the resulting plots and output included as well.  The hope is this _R Markdown_ template gets you in the habit of doing reproducible research, which benefits you long-term as a researcher, but also will greatly help anyone that is trying to reproduce or build onto your results down the road.
+
+Hopefully, you won't have much of a learning period to go through and you will reap the benefits of a nicely formatted thesis.  The use of LaTeX in combination with _Markdown_ is more consistent than the output of a word processor, much less prone to corruption or crashing, and the resulting file is smaller than a Word file. While you may have never had problems using Word in the past, your thesis is likely going to be about twice as large and complex as anything you've written before, taxing Word's capabilities.  After working with _Markdown_ and **R** together for a few weeks, we are confident this will be your reporting style of choice going forward.
+
+**Why use it?**
+
+_R Markdown_ creates a simple and straightforward way to interface with the beauty of LaTeX.  Packages have been written in **R** to work directly with LaTeX to produce nicely formatting tables and paragraphs. In addition to creating a user friendly interface to LaTeX, _R Markdown_ also allows you to read in your data, to analyze it and to visualize it using **R** functions, and also to provide the documentation and commentary on the results of your project.  Further, it allows for **R** results to be passed inline to the commentary of your results.  You'll see more on this later.  
+
+Having your code and commentary all together in one place has a plethora of benefits!
+
+**Who should use it?**
+
+Anyone who needs to use data analysis, math, tables, a lot of figures, complex cross-references, or who just cares about the final appearance of their document should use _R Markdown_. Of particular use should be anyone in the sciences, but the user-friendly nature of _Markdown_ and its ability to keep track of and easily include figures, automatically generate a table of contents, index, references, table of figures, etc. should make it of great benefit to nearly anyone writing a thesis project.
+
+<!--chapter:end:index.Rmd-->
+
+#Abstract {#abstract}
+
+The proposed study is an investigation of Bayesian statistical models and analyses for problems arising in shooting a basketball. Goals will be to explore, develop and apply Bayesian models to existing and new data on shooting outcomes, to understand and evaluate questions of inherent random variation, changes over time in shooting performance, and issues related to the "Hot Hand" concept in sports.
+
+\par
+
+(talk about models you fit)
+
+\par
+
+(talk about results)
+
+<!--chapter:end:00-abstract.Rmd-->
+
+#Literature Review {#litreview}
+
+@gilovich85
+
+A. survey of basketball fans
+
+  1. qualitative questions, opinions
+  2. hypothetical preditions (FT% on #2 given #1 was a hit)
+  3. streak detection
+    a. asked to classify sequences as "chance", "streak", or "alternate"
+    b. alternation probability = 0.5 was considered streaky by 62% of subjects
+    c. people not only perceive random sequences as positively correlated, they also perceive negatively correlated sequences as random
+
+B. FG analysis from NBA games
+
+  1. autocorrelation between conditional probs P(H|M1), P(H), P(H|H1), etc.
+  2. paired t-test between the diff conditional probs (like P(H|M1) and P(H|H1))
+  3. Wald-Wolfowitz run test
+  4. Stationarity:
+    a. Chi-Sq test to look at if disjoint bins of shots followed expected distribution of "high", "med", and "low" performance.
+  5. Hot and Cold Night variability
+    a. look at flucutation between std erros of games and std error of season
+    b. Lexis ratio (SE obs / SE expc) should be significantly > 1
+    
+C. FT analysis from NBA games
+
+  1.	autocorrelation again
+
+D.	controlled experiment with Cornell basketball player.
+
+  1.	 process:
+
+    a. For each player we determined a distance from which his or her shooting percentage was roughly 50%. At this distance we then drew two 15-ft arcs on the floor from which each player took all of his or her shots. The centers of the arcs were located 60 degrees out from the left and right sides of the basket. When shooting baskets, the players were required to move along the arc between shots so that consecutive shots were never taken from exactly the same spot. Each player was to take 100 shots, 50 from each arc.
+
+  
+    b. We tested players' ability to predict hits and misses by having them bet on the outcome of each upcoming shot. Before every shot, each player chose whether to bet high in which case he or she would win 5 cents for a hit and lose 4 cents for a miss; or bet low, in which case he or she would win 2 cents for a hit and lose 1 cent for a miss. The players were advised to bet high when they felt confident in their shooting ability, and to bet low when they did not. We also obtained betting data fro another player who observed the shooter.
+
+  2. data analysis was the same tests as NBA FG
+  3. reports prediction correlations with result, other predictions, and prev result, etc.
+
+E. Conclusion
+
+  1. there is no hot hand.
+
+@albert99
+
+A. Introduction
+
+  1. discussion of previous research.
+    a. the 1985 Gilovich tests lacked statistical power
+  2. streakiness is the presence of nonstationarity or autocorrelation in a binary sequence:
+    a. nonstationarity (nonconstant prob between trials)
+      i. can be modeled with overdispersion model
+    b. autocorrelation (sequential dependency)
+
+B. Simulating models and data
+
+  1. Using "nearly" sufficient statistics to approximate posterior density of interest, condidional on the statistic falline in a small interval about the observed value.
+  2. simulate using regular gibbs algorithm
+
+C. Fitting overdispersion model (on data where one suspects nonstationarity)
+
+  1. Mike Schmidt batting data
+    a. 14 baseball seasons, split each into 13 2-week sets, count num HR per set
+    b. observed that var(y) > mean(y)
+    c. fit overdispersion mixture model on poisson y.
+
+D. Another example (from a baseballer with a reputation of streakiness)
+
+  1. Javy Lopez 1998 hitting data
+    a. num hits and num at-bats for each of 132 games of the season
+  2. how do we measure streakiness/non-homogeneity?
+    a. sufficient stats included:
+      i. T1 = difference between max and min moving average (10-game bins)
+      ii. T2 = sum of the abs difference of moving avgs and season avg
+      iii. T3 = number of "runs" (consecutive 1s and 0s) in sequence
+      iv. T4 = length of the longest run in seq
+      v. T5 = number of runs exceeding a specified length
+      vi. T6 = $log[(n_{00}n_{11})/(n_{01}n_{10})]$
+        $n_{ij}$ = ijth index of matrix classifying game i and j as hot or cold. (j=i+1)
+        
+        T6 > 0 if strong autocorrelation
+
+      vii. using logistic function where p = hit% and xk = batting avg for last k games; logit(p) = B0 + B1*xk
+      T7(k) = B1 > 0
+      
+      viii. T8 = sd(p1, ..., pN) (given N bins of batting data)
+  3. Markov switching model
+    a. two hitting states $p_{hot}$ and $p_{cold}$
+    b. compared to "coin toss" model with constant prbability
+    c. simulating results of games showed that there is not evidence for hot hand
+
+E. Free throw shooting
+
+  1. data
+    a. College bball player shot 100 shots for 20 days. 20 x 100 matrix
+  2. model
+    a. dispersion instead of Markov switching
+  3. analysis:
+    a. group 100 shots for each day into 20 bins of 5. (i <= 20, j <= 20)
+    b. record proportions $hat{y_{1}}...hat{y_20}$
+  4. results
+    a. dispersion decreases as days go on. (practice makes perfect)
+
+@koehler03
+
+A. prior research
+
+B. procedure
+
+  1. analyze NBA 3-pt contest footage (4 years, 23 shooters (some rpt contestants), 56 total rounds)
+  2. search for seq dependency within shooters across all shots, and per set of 25 shots
+
+C. results
+
+  1. no evidence of hotness or seq dependencies
+  2. runs analysis from each shooter
+  3. conditional probability analysis
+  4. analysis of how they shot when announcers said a player was getting hot
+    a. the 3 before the announcer jinx were high but not the one immediately after.
+    
+D. discussion
+
+  1. recent streaks of success are not predictive of future performance; use base rate 
+  2. irrational hot hand belief may lead to exploiting market inefficiencies
+  3. future research might focus more on implications of the false belief in the hot hand rather than on pinpointing where hotness exists
+
+@bareli06
+
+A.	Introduction
+
+  1. a review of 20 years of hot hand research.
+  2. in short: 11 support, 13 not support
+    a. but the supportive ones are typically weaker/have questionable data or unrealistic model
+  3. so far, the scientific support for the hot hand is controversial and fairly limited
+  4. but the belief in it is important.
+
+B. Preliminary Hot hand research
+
+  1. assumption that prob of success is affected by physical or psychological state.
+  2. the scientific norm of randomness may present it as a fallacy but it's useful because it affects real life decisions
+  3. after gilovich 1985 paper, more applications appeared
+    a. other sports: baseball, volleyball, golf, tennis, bowling, darts, horseshoes
+    b. non sports: economics, cognitive science, law, religion
+
+C. The Origin of the belief
+
+  1. memory bias: streaks are more memorable and thus wrongly regarded as nonrandom
+  2. general misconception: people often disregard sample size. people expect more alternations than what is normal.
+    a. law of small numbers (fallicious belief that law of large numbers applies to small samples)
+  3. gambler's fallacy (states that a streak of events is likely to end)
+    a. basically the opposite of the hot hand fallacy
+    b. but both can be explained by "representativeness" and sequence recency.
+    c. they're interpreted inversely because slot machines are seen as unintentional while shooting a basketball is seen as intentional.
+    
+D. The validity of the Belief
+
+  1. studies that provide evidence against some investigate the link between belief and behavior instead of just a simple "is it real?"
+  2. evidence for
+    a. Larkey et al 1989: 
+      i. they used shorter chunks within a game (seq of 20 baskets) because extracting individual sequences from an actual game is too complicated
+      ii. found out that Vinnie Johnson was indeed streaky
+      iii. but they only used 7 makes within a string of 20 in one game.
+      iv.	and turns out that the stats were incorrectly recorded and the 7 in a  row never even happened! 
+    b. Waldrop 1995
+      i. interesting insight about the Simpson's paradox and how shooting better after a make may be seen in aggregated data but not individually.
+    c. Gilden and Wilson (1995)
+      i. asked random ppl to do darts and putts, but with little compensation
+      ii. therefore streakiness could be lack of motivation
+      iii. also sample size was huge, which means lower p-vals in general
+    d. Clark 2003
+      i. PGA stuff. Any clustering of scores thought to be explained by hotness was actually explained by course difficulty
+    e. Klaasen and Magnus 2001
+      i. very very very tiny momentum effect in tennis
+    f. Frame et al 2003
+      i. basketball, baseball, tennis results are dep. on strategy of opposition
+      ii. there was modest evidence in horsehoe tossing tho!!!
+    g. Dorsey-Palmateer and Smith 2004
+      i. results bowling games exhibited some hotness (maybe just because next opponent was sitting and waiting)
+      ii. results of indiv rolls within games did not exhibit this.
+      
+E. Hot Hand Test Statistics
+
+  1. Gilovich 1985 (used simplification of binomial model; has questionable power.)
+    a. prob of hit conditioned on results of previous shot(s)
+    b. first-order correlation coef
+    c. Wald-Wolfowitz runs analysis test
+    d. grouping blocks of 4 shots
+  2. Wardrop (1999) simulated streaky data to see how binom tests detected it
+    a. it wasn't good; they didn't detect unless the change was extreme, partially because of small sample sizes too
+  3. Miyoshi (2000) suggested 4 variables that affected power of model:
+    a. frequency of hot periods
+    b. number of shots in all hot periods for a season
+    c. number of shots in each hot period
+    d. magnitude of probability increase during a hot period
+      i. with these parameters set realistically, Gilovich's power would have only been 0.12
+  4. so no matter how you slice it, it's difficult to model basketball events
+    a. the alternative hypothesis is not that streakines exists, but that it exists for everybody in the same way. this is unreasonable.
+    b. an effective and powerful test for one person may not work for another
+    c. 1 person may exhibit non stationarity while another exhibits autocorrelation.
+    
+F. Implications of hot hand belief
+
+  1. sports gambling
+    a. the market believes it
+    b. teams on winning streaks marginally underperform & vice versa
+  2. game strategy
+    a. hot players are more likely to force bad shots
+    b. hotness should be taken as a piece of information including base rate, def strategy, player strengths, other stuff; it should not replace your game plan tho.
+
+G.	Discussion
+
+  1. Task segregation
+    a. baseball & basketball are the most popular experiments, but repetitive solo events like darts & golf make more sense; horseshoes & bowling had strongest evidence
+    b. quality of data was often poor
+    c. the supportive studies used professional
+    d. IF hotness exists, then it depends on much more than has been controlled for in prev studies
+      i. participant expertise, task difficulty, atmosphere, motivation, etc.
+
+  2. hot hand definitions
+    a. most common test is the runs test that Gilovich used
+    b. Hales (1999) defined it in the following terms (none of which were found in sports data)
+      i. success breeds success
+      ii. streaks are statistically unlikely
+      iii. num. of consecutive successes must exceed those predicted by chance
+    c. Hales argued that "being hot does not have to do with the fecundity, duration, or even frequency of streaks. It has to do with their existence" (p. 86). 
+    d. When one believes he has a hot hand, he may well be usually right.
+    e. some say "a player has a hot hand when he is playing better than average"
+  3. the cold hand 
+    a. hot hand is based on notion that success motivates ppl and raises confidence
+    b. Berry and Wood (2004) found that icing the kicker in NFL is effective strategy
+  4. Evaluation procedure
+    a. eval. of indiv. studies is essential 4 future research (wide range of outcomes)
+    b. but also consider big picture
+    c. good idea to combine and reanalyze data from separate studies that used same sport and got diff conclusions.
+
+H. Concluding Remarks
+
+  1. this paper looked at studies that collected real data and simmed data
+  2. question remains unanswered
+  3. Gilovich somewhat strongly showed evidence against seq dep. but the nonstate test wasn't powerful enough according to simulation studies.
+  4. stepping further than the "is there a hot hand?" question
+    a. investigating the norms used by people to justify belief in it
+    b. look at situational factors that enable us to judge the value of the belief (strategic advantage vs detrimental fallacy)
+    c. investigate how important it is to real decisions (gambling, coaching, etc.)
+    d. if hot hand doesn't exist, then training and preparation and sports psych methods should reflect this (but they don't, of course)
+
+@wetzels16
+
+A. Introduction 
+
+  1. (past studies and stuff you've already read)
+  2. Albert (1993) and Markov logic
+    a. difference: albert used constant ?? = p(switch) = 0.1, but makes ?? a free param
+    b. diff: albert may switch states btwn games, wetzels may switch @ arbitrary
+    c. similarity: first order markov chain (pi only depends on pi-1)
+
+B. A two-state Bernoulli hidden markov model
+
+  1. consider first order hidden markov model (HMM)
+    a. binary state (S) at each timeunit (t). St = 1 ??? hot; St = 0 ??? cold
+    b. if switching prob < 0.5 ??? "sticky" states (exhibits streakiness)	(free param!)
+      iii.	the data Yt comes from Bern dist with different hot and cold probs
+      
+C. simulation study to assess performance of Bayesian test
+
+  1. evidence of HMM in favor of CPM will be assed by bayes factor
+    a. BF = ratio of marginal likeyhoods = p(Y(T) = y(T) | HMM) / p(Y(T) = y(T) | CPM)
+
+D. application: free throw shooting of Shaq n Kobe
+
+  1. Kobe's are closer to CPM according to Bayes Factor test
+  2. Shaq's are closer to HMM according to Bayes Factors
+
+E. application: perceptual identification test from test of visual discernment test
+
+  1. BF: 42% showed evidence for HMM; 22% for CPM (rest weren't strong either way)
+  2. WW-runs test: 47% were streaky (rest EITHER not strong or strong for CPM)
+    a. much overlap in the accept/reject regions of both tests. 
+
+F. Conclusion and ramifications
+
+  1. restrictions on BF test:
+    a.	p(switch) = alpha < 0.5 to ensure stickiness
+  2.	comments on BF test
+    a.	HMM was not good at simulating data.concludes that "streakiness" hurts CPM more than it helps HMM. 
+    b.	BFs are a measure of relative support, so one model being bad does not mean  the other one is good, even though it may look that way by BF
+  3.	future improvements
+    a.	subject-specific priors can create a more power, instead of indep unif dists.
+    b.	continuous variables instead of binary variables?
+    c.	allowing switching prob to depend on the state may improve HMM
+    d.	hierarchichal structure that accounts for season effects and indiv effects
+			
+@miller16
+
+A.	Intro
+
+  1.	Inherent subtle but substantial selection bias when measuring conditional dependence of current outcomes on past outcomes in sequential data.
+  2.	We prove that for any finite sequence of binary data, in which each outcome of "success" or "failure" is determined by an i.i.d. random variable, the proportion of 1s among the outcomes that immediately follow a streak of consecutive 1s is expected to be strictly less than the underlying (conditional) probability of success.
+  3.	P(H) > P(H | H) > P(H | H, H) > P(H | H, H, ... Hk) > ...
+  4.	bias decreases as sequence (experimental trials, num coinflips) gets longer; bias increases as streak (condition, num heads) size increased
+  5.	example table with n=3, k=1
+    a.	for HHH and HHT, there are two flips after the streak prereq
+    b.	for THT, HTT, HTH, THH, there is one flip after the streak
+    c.	for TTH, TTT, there are zero
+    d.	each seq has an equal prob of happening, but in group a. you record 2 events, b. is 1, and c. is 0. Therefore, the group a. flips are individually weighted the least.
+    e.	This means that individual flips among a small group of heads inherently get a lower weight. --> heads get a lower prob.
+  6.	how to unbias
+    a.	flip indefinitely until you get m trials that follow a streak, instead of flipping exactly n times (negbinom sampling)
+    b.	eliminate overlap by dividing your n trials into bins (that may or may not break up some streaks) (explanation was confusing)
+  7.	the bias implies that streaks within finite sequences are expected to end more often than continue (relative to the underlying probability)
+    a.	which can lead both the gambler to think that an i.i.d process has a tendency towards reversal,
+    b.	and the hot hand researcher to think that a process is i.i.d. when it actually has a tendency towards momentum.
+  8.	you should write a function to simulate this using binomial trials!
+
+B.	Bias (theoretical results)
+
+  1.	proof
+    a.	show that: if X is binary seq of iid randvars s/t p = p(x_i = 1) = p(x_i = 1| k-length streak), then this procedure yields a biased estimate of the conditional probability
+      i.	the probability of seeing a streak is < p, ==> E[p(x=1|streak)] < p
+  2.	relationship to know results (like SWOR)
+    a.	any binary seq of n trials will have n1 successes and n0 := n-n1 failures
+    b.	prior odds of success = n1/n0
+    c.	for trials following streak of k 1s ( denoted in paper as I_1k(x) ), odds dec.
+    d.	prior odds have 2 updating factors & they both cause drop in odds when t < n
+      i.	first factor: (n1-k)/n1 < 1
+      ii.	reflects constraint of the finite number of available trials to select from
+      iii.	info gained upon learning k of the n1 successes are no longer available, which leads to a SWOR effect on the prior odds
+      iv.	bias increases as k (streak length) increases
+      v.	second factor: too complicated to type out. some ratio of expectations.
+      vi.	reflects constraint of arrangement of successes in the seq
+      vii.	info gained upon learning that k 1s are consec. and precede t.
+      viii.	if k-streak occurs, x(t+1) WILL be in I_1k, and x(t+2),...,x(t+k) MIGHT be. else, x(t+1), ..., x(t+k) CANNNOT be in I_1k.
+    e.	SWOR formula
+    f.	bias is determined not by size of n1, but by number of (overlapping) instances of k consecutive 1s in the first n???1 trials, which depends on both n1 and their arr.
+    g.	overlapping words paradox?
+  3.	Quantifying the Bias
+    a.	enumerating all possible seqs for given n and n1 is computationally expensive
+    b.	cool magnitude of bias plots
+    c.	visualizing P1k - P0k
+
+C.	Hot Hand Application
+
+  1.	debiasing GVT data/tests
+    a.	t-test
+      i.	shift the estimated difference Dk := p1k - p0k
+      ii.	"the bias adjustment is made by subtracting the expected difference (a player's overall percentage) from each player's observed difference.
+      iii.	"results in 19 of the 25 players exhibiting hot hand shooting" p<0.01
+    b.	permutations test
+      i.	permutation test is invulnerable to the bias
+      ii.	under the null of constant prob, each perm. of 1s and 0s is eq. likely
+      iii.	process:
+        .	record n1 hits and n0 misses
+        .	calculate Dk for each possible arrangement of the sequence
+        .	the distribution of Dks should be left skewed
+        .	use dist to find how "significant"ly off obs Dk is.
+        .	agreeable with t-test thing
+  2.	debiasing other studies
+    a.	these studies are:
+      i.	Jagacinski et al. (1979) (read this!!!)
+      ii.	Koehler and Conley (2003), (the three-point shootout one)
+      iii.	Avugos et al. (2013a) (no raw data provided ???) 
+      iv.	and Miller and Sanjurjo (2014). (read this too)
+    b.	2003:
+      i.	only median 49 shots per player. severly underpowered.
+      ii.	when debiasing, there is a significant improvement.
+    c.	1979 & 2014:
+      i.	few players, but many shots per players
+      ii.	debiasing agrees and players exhibit streakiness
+  3.	belief in the hot hand
+      a.	GVT: players believe in hot hand, hot hand does not exist
+      b.	this: of course people can still overreact to a few consecutive makes, but it is not completely a fallacy
+      c.	"an understanding of the extent to which decision makers' beliefs and behavior do not corecposnd to the actual degree of hot hand shooting may have important implications for decision making more generally.
+      d.	hot hand is not a binary issue. it can exist, and belief can be too strong.
+        i.	ask fans, players, and decision makers. ironically, after one make, ppl tend 2 predict miss more, cause theyre biased towards alternating seqs.
+      e. prediction questions are more informative of HH belief than qualitative ones
+      f.	GVT calculated avg correlation of .04 from prediction/betting game. However, even with an assumed knowledge of the change in shooting states, the expected correlation would be .07, assuming pc = 0.45 and ph = 0.55.
+      g.	reanalysis of betting data, using pooled data instead of indiv.
+        i.	avg correlation bumps up to 0.07, and p<0.001
+        ii.	weakness in GVT prediction exercise: under the null, the predictions should be more accurate than chance following streaks, but under the alt, if the players are correctly perceiving when hot state activates, then there won't be much of a difference in their accuracy between hot and cold states. hmmmm interesting logic.
+      h.	2014 paper found that semi-pro players' rankings of teammates respective increases in FG% following 3-streaks are highly correlated with actual increase in performance (-0.60)
+      i.	players may be able to perceive hot hand in real time, which would require seeing more factors than binary streaks. (technique, body lang, etc.) "this suggest the possibility of conducting experiements in which experienced players (or coaches) are incenivixed to predict the shot outcomes of players that they are familiar with, but only predict when they feel sufficiently confident about their ability to do so accurately"
+
+  D.	Gambler Application
+
+
+    1.	gamblers mistakenly apply large sample properties to small samples (they expect things to even out)
+    2.	humans typically remember things in (relatively) small sample sizes, so sample size neglect occurs naturally (we overfit to what most recently happened) even for experienced decision makers.
+    3.	there is scientific reasoning to gamb fall bias tho:
+      a.	when n > 4, 1110 is mathematically more likely to occur than 1111, which may explain why people believe that probability of 0 is greater than 0.5 after three 1s in a row.
+
+  E.	Conclusion
+
+
+    1.	gambler sees reversal in an iid process, 
+    2.	while researchers see iid in a momentous process
+
+@jagacinski79
+
+A.	Abstract
+
+  1.	college ballers predicting their own shots outcome either before release, right after release, or halfway to the basket, were no better at predicting than passive observers.
+  2.	some evidence found for seq. dep., but not to the degree one found in bball lore
+
+B.	Intro
+
+  1.	1977 paper found bball players cannot predict immediate performance outcomes better than an observer.
+  2.	but they can better predict their own outcomes during the execution of their action.
+    a.	internal, non-visual cues from their own receptive feedback
+  3.	signal detection analysis (sensitivity = true positive rate)
+    a.	two motivations: player sensitivity and existence of seq. dep.
+
+C.	the experiment:
+
+  1.	subjects: 3 pairs of U of Ill. grad students who played mens college ball as undergrads
+  2.	apparatus:
+    a.	portable wooden panel with sensors that shut off lights when a basketball passed thru.
+    b.	placed at midpoint of shot location, in a regular bball gym
+  3.	procedure:
+    a.	10 sessions, approx 1.5 hr each, one  pair per session.
+    b.	subjects alternate roles of shooter and observer for 6 blocks of 60 trials.
+    c.	session 1 is for practice, while 2-10 were experimental
+    d.	in prax, there was lights on, lights off on midpt, and lights off on release. to familiarize subjects with conditions, and find distance with 55% success rate
+    e.	both subjects would predict outcome on 6-point scale.
+    f.	both subjects had headphones with white noise playing
+    g.	shots were taken every 10ish seconds.
+    h.	incentive of 5 cents per successful shot, and -10 for each late prediction
+    i.	540*3 = 1620 shots per person?
+  4.	results
+    a.	signal detection analysis
+      i.	the measure of sensitivity (A_g) was area under ROC curve
+      ii.	average sensitivities were 0.5ish (approx chance) for pre-release pred.
+      iii.	but good for at release or post release
+      iv.	shooters were not more sensitive than observers
+    b.	seq dep analysis
+      i.	4 subjects had a significant p-value for alt hyp: p(H|H) > p(H|M)
+      ii.	in general, subjects as shoots & obs were optimistic in that p(Hpred|H) > p(Hpred|M)
+  5.	discussion
+    a.	equivalent sensitivity in shot prediction from shooters and observers suggests that shooters can't use internal cues to predict shot EVEN WHEN THE LIGHTS WERE OFF AFTER RELEASE!!!
+    b.	only subjects 5 & 6 were slightly above chance in predictions as shooters when lights stayed on
+    c.	OFF 1st < OFF 2nd < OFF 3rd
+    d.	weak positive recency (streakiness, for makes or misses)  WAS FOUND!!!! occurred mostly in OFF trial.
+    e.	optimism thing occurred mostly in the ON trial, even though it would have been more justified in the OFF trial. suggests that shooters' beliefs in hotness may depend on other factors such as bball lore rather than visual feedback.
+    f.	possible that the lore is a result of lack of awareness of statistical fluctuations within a game, players usually take a small number of shots, so it would take very large changes in hot hit prob to be measurable in-game. this controlled data does not suggest these large changes exist.
+
+
+@albert93
+
+A.	intro
+
+  1.	Albright used 2 models on 501 players: 
+    a.	"null" binom model with test stats related to streaks
+    b.	logis regress using predictors abt "recent success" aka history, & situation
+    c.	concluded that few players were signif streaky; not enough to reject null tho
+    d.	streakiness effects are small in magnitude if they exist (overstated by media)
+    e.	concerns about power (signal detection)
+  2.	simple technique: look for peaks and valleys in moving avg plot
+
+B.	Situational Variables
+
+  1.	control for factors such as Home/Away, pitcher handedness, runners on bases, etc.
+  2.	forward selection to determine significant ones for each player!
+  3.	predictor measuring recent success (hits in last 20 AB) the effect was negative! :O
+
+C.	does hit prob change across season?
+
+  1.	pitcher ERA seemed to be the only generally signif predictor. try diff approach.
+  2.	if we ignore all situational & historical vars, then we get binom trial
+  3.	moving average using d-length bins, also lag-d autocorr of moving avgs (d=4)
+
+D.	one model for streakiness
+
+  1.	Markov sqitching again!
+  2.	latent variables Z1.ZT. Zi = 1(hot during game i)
+  3.	symmetric transition matrix with rows ((0.9, 0.1),(0.1,0.9)) (pswitch = 0.1)
+  4.	after they run on real data, they sim binom data to observe false negative possibility
+  5.	"random data can display similar patterns"
+
+E.	conclusion
+
+  1.	difficult to distinguish batters from coin tosses ???
+  2.	doesn't mean streakiness doesn't exist, just that it's subtle.
+  3.	model could improve by having more than two states
+
+@albert13
+
+A.	Intro
+
+  1.	sneaky patterns in baseball
+    a.	many ways of measuring success (hits, strikeouts, HR)	
+    b.	many ways of measuring streakiness, (runs, variation of movavgs, BF) & they all may vary in how well they can detect deviation from a binomial model
+    c.	under null mod, some players will appear streaky by chance (multiplicity). so look at streakiness dist. btwn all players to see if there is really streakiness
+  2.	overview of the paper (Albert, 2008)
+    a.	binary outcomes grouped into bins. and testing for diff in probs across bins.
+    b.	measure lack of randomness (clumpiness) by sum2 of spacings, then perm test
+    c.	natural model for spacings assumes iid geom dists with diff probs.
+    d.	streaky mod assumes probs are diff and dist according to beta dist.
+
+B.	Binary seq and "spacings"
+
+  1.	intro
+    a.	consider binary data for a player. spacings {y}1n = num(0)s btwn conseq 1s 101000001100 ??? y={0,1,5,0,2}
+  2.	classical perm test
+    a.	to quantify the amount of non-random streakiness in data
+    b.	clump stats u can use: runs, bins, lag-1 autocorr, fxn of spacings f(y) like (SSq(y), Entropy(y), sum of 3 largest spacings, etc.
+    c.	here they use SSqs. S = SUM(yi2)
+    d.	given n1 successes, there are (n choose n1) arrangements
+    e.	for each combination simulated:
+      i.	randomly permute 0s and 1s and compute clumpiness stat S
+      ii.	repeat m times (they used m=1000) to get approx null distribution of S
+      iii.	then calculate p-value of Sobs	 
+  3.	Bayesian "test" (BF)
+    a.	BFstreak = p(y|Mstreak)/p(y|Mconst) = amount of support for Mstreak over Mconst
+
+C.	Actually doing a Bayesian test
+
+  1.	Consistent and streaky models
+    a.	since yI represents discrete waiting time (in units of "outs") we use geom 
+      i.	f(y1|pi) = pi(1-pi)^(yi) where y is any natural number
+    b.	consistent model
+      i.	if not streaky then all pi are equal
+      ii.	unknown constant hitting prob p has the prior g(p) = 1/(p(1-p))
+    c.	streaky model
+      i.	pi vary
+      ii.	pi ~ Beta(K\eta, K(1-\eta) for all i (K=precision, \eta=mean)
+      iii.	as K ??? \inf, Mk ??? Mconst
+  2.	BF
+    a.	yeah just showing calculus methods and stuff
+  3.	Specifying K (difficult to assess)
+    a.	calculate BF's for varying K's
+      i.	K inc ??? BF inc
+    b.	you could also do a true subjective prior
+      i.	make guess at std dev of pi's, then calc K using empirical mean \eta.
+      ii.	n=100, \eta = approx 0.3, prior sd = 0.1 ??? prior K = 3
+
+D.	Patterns of Streakiness in Hits
+
+  1.	streakiness in 2011 data
+    a.	more at-bats ??? lower BF ??? more evidence towards null
+    b.	p-vals and BF's generally agree with each other.
+  2.	alternative BF method (by Albert (2008))
+    a.	group data into bins (nb=10) and see if probs change much across bins
+    b.	used same beta dist for p of each bin. results were similar ????
+  3.	comparing to chance
+    a.	calced BFs on 200 simulations of 2011 season with all batters using null model
+    b.	expect ??-error rate of 19ish% under null model.this is LARGER than theobserved proportion of streaky hitters (16%).???
+    c.	"predictive p-value" = prob that simmed ??-errors exceed observed positives
+
+E.	changing definition of success: strikeouts instead of hits
+
+  1.	patterns in 2011 season
+    a.	hitting is not indicative of skill, while striking out indicates a lack of skill
+    b.	expect ??-error rate of 17ish% under null model.this is SMALLER than the observed proportion of streaky hitters (19.5%).????
+  2.	looking deeper into strikeout data
+    a.	observing indiv players. instead of just fraction of streaky players in a season.
+    b.	only two players were streaky for > 2 seasons.only 12 for 2 consec seasons
+
+F.	conclusion
+
+  1.	a new way of presenting streakiness.spacings
+  2.	looked at moving percentages, not correlations
+  3.	BF quantifies evidence for null or alt.freq test only quantifies evidence 
+
+@west97
+
+@west85
+
+@west10
+
+<!--chapter:end:01-litreview.Rmd-->
+
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Data {#data}
+
+The data for this analysis is from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball 25 times per second. The Duke University Men's Basketball team permitted the use of their SportVU data from the _blank_ to _blank_ basketball seasons. However, since the ability to record this data depends on six specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games. Therefore, there is some missing data _blank_.
+
+Each game has the following associated files:
+
+- Box Score Optical:
+
+- Final Sequence Optical (one for each half and each overtime period):
+
+- Final Sequence Play-by-Play Optical:
+
+<!--chapter:end:02-data.Rmd-->
+
+# Procedure {#proc}
+
+1. Using data that consists of a time-stamped sequence of shot attempts and outcomes, I will develop a novel analysis using dynamic models for binary time series that allow for time-varying shot attempt and success parameters over the game.  These Bayesian models have core elements that are technically similar to widely used "volatility" models, and have well-known attributes (Prado and West, 2010) (West and Harrison, 1997). This first project component will apply and tune such models to the player-specific data for a series of games or shooting drills. The models provide flexibility in adapting to changes of time intensity of shot attempts, and of changes in time in scoring probabilities conditional on a shot attempt. The use of a formal Bayesian analysis means that I will produce full quantified inferences on such patterns over time, with probabilistic summaries of the within-game outcomes. For each game, this will be a full statistical characterization and quantification of the player shooting outcomes---based on the limited data alone, of course---which across multiple games provides understanding of inherent variability (or "randomness") for the player, and formal assessments of differences in patterns game-to-game. I am also considering a two-state Hidden Markov Switching Model that parallels and extends these models; the two potential states for each shot attempt are a "high" probability or a "low" probability of making the next shot, given the features of the current and previous possessions.
+
+2. If I am given data that adds on-court position for each shot attempt in a game, I will extend the above models to more explanatory, and potentially predictive, dynamic generalized linear models, or DGLMs (West, Migon, and Harrison, 1985) (West and Harrison, 1997), for binary time series. In these models the characterization of variation in shooting behaviour and outcomes will be then linked to time within the game coupled with the x-y location of the player on the shot attempt. For example, two coupled logistic regression DGLMs for binary outcomes will model (a) the probability of a shot attempt being made as a function of both time within the game and of the x-y position of the player, and (b) the probability of success on a shot attempt, conditional on that attempt being made at, as a function of both time and location. Important to the project is the evaluation of dynamic models that allow for and estimate any changes over time within the game in how strongly the x-y location might relate to the attempt and success probabilities. Developing full Bayesian statistical inferences on these patterns over time will be of central interest game-by-game, and this will then feed into cross-game comparisons.
+
+<!--chapter:end:03-proc.Rmd-->
+
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+<!--
+The bib chunk below must go last in this document according to how R Markdown renders.  More info is at http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
+-->
+
+\backmatter
+
+<!-- 
+If you'd like to change the name of the bibliography to something else,
+delete "References" and replace it.
+-->
+
+# References {-}
+<!--
+This manually sets the header for this unnumbered chapter.
+-->
+\markboth{References}{References}
+<!--
+To remove the indentation of the first entry.
+-->
+\noindent
+
+<!--
+To create a hanging indent and spacing between entries.  These three lines may need to be removed for styles that don't require the hanging indent.
+-->
+
+\setlength{\parindent}{-0.20in}
+\setlength{\leftskip}{0.20in}
+\setlength{\parskip}{8pt}
+
+
+<!--
+This is just for testing with more citations for the bibliography at the end.  Add other entries into the list here if you'd like them to appear in the bibliography even if they weren't explicitly cited in the document.
+-->
+
+---
+nocite: | 
+  <!--@albert93, @albert13, @abc123, @west97 -->
+  @gilovich85, @miller16
+...
+
+<!--chapter:end:99-references.Rmd-->
+

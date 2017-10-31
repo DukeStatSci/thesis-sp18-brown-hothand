@@ -123,6 +123,8 @@ class (for LaTeX) and the R bookdown package, in general.
 }
 
 \Abstract{
+\chapter{Abstract}\label{abstract}
+
 The proposed study is an investigation of Bayesian statistical models
 and analyses for problems arising in shooting a basketball. Goals will
 be to explore, develop and apply Bayesian models to existing and new
@@ -181,6 +183,8 @@ and issues related to the ``Hot Hand'' concept in sports.
 
   \listoffigures
   \begin{abstract}
+    \chapter{Abstract}\label{abstract}
+    
     The proposed study is an investigation of Bayesian statistical models
     and analyses for problems arising in shooting a basketball. Goals will
     be to explore, develop and apply Bayesian models to existing and new
@@ -253,760 +257,1950 @@ figures, automatically generate a table of contents, index, references,
 table of figures, etc. should make it of great benefit to nearly anyone
 writing a thesis project.
 
-\hypertarget{rmd-basics}{\chapter{R Markdown Basics}\label{rmd-basics}}
+\chapter{Abstract}\label{abstract}
 
-Here is a brief introduction into using \emph{R Markdown}.
-\emph{Markdown} is a simple formatting syntax for authoring HTML, PDF,
-and MS Word documents. \emph{R Markdown} provides the flexibility of
-\emph{Markdown} with the implementation of \textbf{R} input and output.
-For more details on using \emph{R Markdown} see
-\url{http://rmarkdown.rstudio.com}.
+The proposed study is an investigation of Bayesian statistical models
+and analyses for problems arising in shooting a basketball. Goals will
+be to explore, develop and apply Bayesian models to existing and new
+data on shooting outcomes, to understand and evaluate questions of
+inherent random variation, changes over time in shooting performance,
+and issues related to the ``Hot Hand'' concept in sports.
 
-Be careful with your spacing in \emph{Markdown} documents. While
-whitespace largely is ignored, it does at times give \emph{Markdown}
-signals as to how to proceed. As a habit, try to keep everything left
-aligned whenever possible, especially as you type a new paragraph. In
-other words, there is no need to indent basic text in the Rmd document
-(in fact, it might cause your text to do funny things if you do).
+\par
 
-\section{Lists}\label{lists}
+(talk about models you fit)
 
-It's easy to create a list. It can be unordered like
-\begin{itemize}
-\tightlist
-\item
-  Item 1
-\item
-  Item 2
-\end{itemize}
-or it can be ordered like
+\par
+
+(talk about results)
+
+\chapter{Literature Review}\label{litreview}
+
+Gilovich, Vallone, \& Tversky (1985)
+
+A. survey of basketball fans
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  Item 1
+  qualitative questions, opinions
 \item
-  Item 2
+  hypothetical preditions (FT\% on \#2 given \#1 was a hit)
+\item
+  streak detection
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    asked to classify sequences as ``chance'', ``streak'', or
+    ``alternate''
+  \item
+    alternation probability = 0.5 was considered streaky by 62\% of
+    subjects
+  \item
+    people not only perceive random sequences as positively correlated,
+    they also perceive negatively correlated sequences as random
+  \end{enumerate}
 \end{enumerate}
-Notice that I intentionally mislabeled Item 2 as number 4.
-\emph{Markdown} automatically figures this out! You can put any numbers
-in the list and it will create the list. Check it out below.
-
-To create a sublist, just indent the values a bit (at least four spaces
-or a tab). (Here's one case where indentation is key!)
+B. FG analysis from NBA games
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  Item 1
+  autocorrelation between conditional probs P(H\textbar{}M1), P(H),
+  P(H\textbar{}H1), etc.
 \item
-  Item 2
+  paired t-test between the diff conditional probs (like
+  P(H\textbar{}M1) and P(H\textbar{}H1))
 \item
-  Item 3
-  \begin{itemize}
+  Wald-Wolfowitz run test
+\item
+  Stationarity:
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
   \tightlist
   \item
-    Item 3a
+    Chi-Sq test to look at if disjoint bins of shots followed expected
+    distribution of ``high'', ``med'', and ``low'' performance.
+  \end{enumerate}
+\item
+  Hot and Cold Night variability
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
   \item
-    Item 3b
-  \end{itemize}
+    look at flucutation between std erros of games and std error of
+    season
+  \item
+    Lexis ratio (SE obs / SE expc) should be significantly
+    \textgreater{} 1
+  \end{enumerate}
 \end{enumerate}
-\section{Line breaks}\label{line-breaks}
-
-Make sure to add white space between lines if you'd like to start a new
-paragraph. Look at what happens below in the outputted document if you
-don't:
-
-Here is the first sentence. Here is another sentence. Here is the last
-sentence to end the paragraph. This should be a new paragraph.
-
-\emph{Now for the correct way:}
-
-Here is the first sentence. Here is another sentence. Here is the last
-sentence to end the paragraph.
-
-This should be a new paragraph.
-
-\section{R chunks}\label{r-chunks}
-
-When you click the \textbf{Knit} button above a document will be
-generated that includes both content as well as the output of any
-embedded \textbf{R} code chunks within the document. You can embed an
-\textbf{R} code chunk like this (\texttt{cars} is a built-in \textbf{R}
-dataset):
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{summary}\NormalTok{(cars)}
-\end{Highlighting}
-\end{Shaded}
+C. FT analysis from NBA games
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
 \begin{verbatim}
-     speed           dist       
- Min.   : 4.0   Min.   :  2.00  
- 1st Qu.:12.0   1st Qu.: 26.00  
- Median :15.0   Median : 36.00  
- Mean   :15.4   Mean   : 42.98  
- 3rd Qu.:19.0   3rd Qu.: 56.00  
- Max.   :25.0   Max.   :120.00  
+autocorrelation again
 \end{verbatim}
-\section{Inline code}\label{inline-code}
-
-If you'd like to put the results of your analysis directly into your
-discussion, add inline code like this:
-\begin{quote}
-The \texttt{cos} of \(2 \pi\) is 1.
-\end{quote}
-Another example would be the direct calculation of the standard
-deviation:
-\begin{quote}
-The standard deviation of \texttt{speed} in \texttt{cars} is 5.2876444.
-\end{quote}
-One last neat feature is the use of the \texttt{ifelse} conditional
-statement which can be used to output text depending on the result of an
-\textbf{R} calculation:
-\begin{quote}
-The standard deviation is less than 6.
-\end{quote}
-Note the use of \texttt{\textgreater{}} here, which signifies a
-quotation environment that will be indented.
-
-As you see with \texttt{\$2\ \textbackslash{}pi\$} above, mathematics
-can be added by surrounding the mathematical text with dollar signs.
-More examples of this are in {[}Mathematics and Science{]} if you
-uncomment the code in \protect\hyperlink{math}{Math}.
-
-\section{Including plots}\label{including-plots}
-
-You can also embed plots. For example, here is a way to use the base
-\textbf{R} graphics package to produce a plot using the built-in
-\texttt{pressure} dataset:
-
-\includegraphics{thesis_files/figure-latex/pressure-1.pdf}
-
-Note that the \texttt{echo=FALSE} parameter was added to the code chunk
-to prevent printing of the \textbf{R} code that generated the plot.
-There are plenty of other ways to add chunk options. More information is
-available at \url{http://yihui.name/knitr/options/}.
-
-Another useful chunk option is the setting of \texttt{cache=TRUE} as you
-see here. If document rendering becomes time consuming due to long
-computations or plots that are expensive to generate you can use knitr
-caching to improve performance. Later in this file, you'll see a way to
-reference plots created in \textbf{R} or external figures.
-
-\hypertarget{loading-and-exploring-data}{\section{Loading and exploring
-data}\label{loading-and-exploring-data}}
-
-Included in this template is a file called \texttt{flights.csv}. This
-file includes a subset of the larger dataset of information about all
-flights that departed from Seattle and Portland in 2014. More
-information about this dataset and its \textbf{R} package is available
-at \url{http://github.com/ismayc/pnwflights14}. This subset includes
-only Portland flights and only rows that were complete with no missing
-values. Merges were also done with the \texttt{airports} and
-\texttt{airlines} data sets in the \texttt{pnwflights14} package to get
-more descriptive airport and airline names.
-
-We can load in this data set using the following command:
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{flights <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"data/flights.csv"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-The data is now stored in the data frame called \texttt{flights} in
-\textbf{R}. To get a better feel for the variables included in this
-dataset we can use a variety of functions. Here we can see the
-dimensions (rows by columns) and also the names of the columns.
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{dim}\NormalTok{(flights)}
-\end{Highlighting}
-\end{Shaded}
-\begin{verbatim}
-[1] 52808    16
-\end{verbatim}
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{names}\NormalTok{(flights)}
-\end{Highlighting}
-\end{Shaded}
-\begin{verbatim}
- [1] "month"        "day"          "dep_time"     "dep_delay"   
- [5] "arr_time"     "arr_delay"    "carrier"      "tailnum"     
- [9] "flight"       "dest"         "air_time"     "distance"    
-[13] "hour"         "minute"       "carrier_name" "dest_name"   
-\end{verbatim}
-Another good idea is to take a look at the dataset in table form. With
-this dataset having more than 50,000 rows, we won't explicitly show the
-results of the command here. I recommend you enter the command into the
-Console \textbf{\emph{after}} you have run the \textbf{R} chunks above
-to load the data into \textbf{R}.
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{View}\NormalTok{(flights)}
-\end{Highlighting}
-\end{Shaded}
-While not required, it is highly recommended you use the \texttt{dplyr}
-package to manipulate and summarize your data set as needed. It uses a
-syntax that is easy to understand using chaining operations. Below I've
-created a few examples of using \texttt{dplyr} to get information about
-the Portland flights in 2014. You will also see the use of the
-\texttt{ggplot2} package, which produces beautiful, high-quality
-academic visuals.
-
-We begin by checking to ensure that needed packages are installed and
-then we load them into our current working environment:
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# List of packages required for this analysis}
-\NormalTok{pkg <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"dplyr"}\NormalTok{, }\StringTok{"ggplot2"}\NormalTok{, }\StringTok{"knitr"}\NormalTok{, }\StringTok{"bookdown"}\NormalTok{, }\StringTok{"devtools"}\NormalTok{)}
-\CommentTok{# Check if packages are not installed and assign the}
-\CommentTok{# names of the packages not installed to the variable new.pkg}
-\NormalTok{new.pkg <-}\StringTok{ }\NormalTok{pkg[!(pkg %in%}\StringTok{ }\KeywordTok{installed.packages}\NormalTok{())]}
-\CommentTok{# If there are any packages in the list that aren't installed,}
-\CommentTok{# install them}
-\NormalTok{if (}\KeywordTok{length}\NormalTok{(new.pkg))}
-  \KeywordTok{install.packages}\NormalTok{(new.pkg, }\DataTypeTok{repos =} \StringTok{"http://cran.rstudio.com"}\NormalTok{)}
-\CommentTok{# Load packages (thesisdowndss will load all of the packages as well)}
-\KeywordTok{library}\NormalTok{(thesisdowndss)}
-\end{Highlighting}
-\end{Shaded}
-\clearpage
-
-The example we show here does the following:
-\begin{itemize}
-\item
-  Selects only the \texttt{carrier\_name} and \texttt{arr\_delay} from
-  the \texttt{flights} dataset and then assigns this subset to a new
-  variable called \texttt{flights2}.
-\item
-  Using \texttt{flights2}, we determine the largest arrival delay for
-  each of the carriers.
-\end{itemize}
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{flights2 <-}\StringTok{ }\NormalTok{flights %>%}\StringTok{ }
-\StringTok{  }\KeywordTok{select}\NormalTok{(carrier_name, arr_delay)}
-\NormalTok{max_delays <-}\StringTok{ }\NormalTok{flights2 %>%}\StringTok{ }
-\StringTok{  }\KeywordTok{group_by}\NormalTok{(carrier_name) %>%}
-\StringTok{  }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{max_arr_delay =} \KeywordTok{max}\NormalTok{(arr_delay, }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{))}
-\end{Highlighting}
-\end{Shaded}
-A useful function in the \texttt{knitr} package for making nice tables
-in \emph{R Markdown} is called \texttt{kable}. It is much easier to use
-than manually entering values into a table by copying and pasting values
-into Excel or LaTeX. This again goes to show how nice reproducible
-documents can be! (Note the use of \texttt{results="asis"}, which will
-produce the table instead of the code to create the table.) The
-\texttt{caption.short} argument is used to include a shorter title to
-appear in the List of Tables.
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{kable}\NormalTok{(max_delays, }
-      \DataTypeTok{col.names =} \KeywordTok{c}\NormalTok{(}\StringTok{"Airline"}\NormalTok{, }\StringTok{"Max Arrival Delay"}\NormalTok{),}
-      \DataTypeTok{caption =} \StringTok{"Maximum Delays by Airline"}\NormalTok{,}
-      \DataTypeTok{caption.short =} \StringTok{"Max Delays by Airline"}\NormalTok{,}
-      \DataTypeTok{longtable =} \OtherTok{TRUE}\NormalTok{,}
-      \DataTypeTok{booktabs =} \OtherTok{TRUE}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-\begin{longtable}[t]{lr}
-\caption[Max Delays by Airline]{\label{tab:maxdelays}Maximum Delays by Airline}\\
-\toprule
-Airline & Max Arrival Delay\\
-\midrule
-Alaska Airlines Inc. & 338\\
-American Airlines Inc. & 1539\\
-Delta Air Lines Inc. & 651\\
-Frontier Airlines Inc. & 575\\
-Hawaiian Airlines Inc. & 407\\
-\addlinespace
-JetBlue Airways & 273\\
-SkyWest Airlines Inc. & 421\\
-Southwest Airlines Co. & 694\\
-United Air Lines Inc. & 472\\
-US Airways Inc. & 347\\
-Virgin America & 366\\
-\bottomrule
-\end{longtable}
-The last two options make the table a little easier-to-read.
-
-We can further look into the properties of the largest value here for
-American Airlines Inc. To do so, we can isolate the row corresponding to
-the arrival delay of 1539 minutes for American in our original
-\texttt{flights} dataset.
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{flights %>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(arr_delay ==}\StringTok{ }\DecValTok{1539}\NormalTok{, }
-                  \NormalTok{carrier_name ==}\StringTok{ "American Airlines Inc."}\NormalTok{) %>%}
-\StringTok{  }\KeywordTok{select}\NormalTok{(-}\KeywordTok{c}\NormalTok{(month, day, carrier, dest_name, hour, }
-            \NormalTok{minute, carrier_name, arr_delay))}
-\end{Highlighting}
-\end{Shaded}
-\begin{verbatim}
-Warning: package 'bindrcpp' was built under R version 3.3.3
-\end{verbatim}
-\begin{verbatim}
-  dep_time dep_delay arr_time tailnum flight dest air_time distance
-1     1403      1553     1934  N595AA   1568  DFW      182     1616
-\end{verbatim}
-We see that the flight occurred on March 3rd and departed a little after
-2 PM on its way to Dallas/Fort Worth. Lastly, we show how we can
-visualize the arrival delay of all departing flights from Portland on
-March 3rd against time of departure.
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{flights %>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(month ==}\StringTok{ }\DecValTok{3}\NormalTok{, day ==}\StringTok{ }\DecValTok{3}\NormalTok{) %>%}
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \NormalTok{dep_time, }\DataTypeTok{y =} \NormalTok{arr_delay)) +}\StringTok{ }\KeywordTok{geom_point}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/march3plot-1.pdf}
-
-\section{Additional resources}\label{additional-resources}
-\begin{itemize}
-\item
-  \emph{Markdown} Cheatsheet -
-  \url{https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet}
-\item
-  \emph{R Markdown} Reference Guide -
-  \url{https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf}
-\item
-  \texttt{dplyr} Documentation - \url{http://dplyr.tidyverse.org/}
-\item
-  \texttt{ggplot2} Documentation - \url{http://ggplot2.tidyverse.org/}
-\end{itemize}
-\hypertarget{math}{\chapter{Math typesetting}\label{math}}
-
-\hypertarget{math}{\section{Math}\label{math}}
-
-\TeX~is the best way to typeset mathematics. Donald Knuth designed
-\TeX~when he got frustrated at how long it was taking the typesetters to
-finish his book, which contained a lot of mathematics. One nice feature
-of \emph{R Markdown} is its ability to read LaTeX code directly.
-
-If you are doing a thesis that will involve lots of math, you will want
-to read the following section.
-
-\[\sum_{j=1}^n (\delta\theta_j)^2 \leq {{\beta_i^2}\over{\delta_i^2 + \rho_i^2}}
-\left[ 2\rho_i^2 + {\delta_i^2\beta_i^2\over{\delta_i^2 + \rho_i^2}} \right] \equiv \omega_i^2
-\]
-
-From Informational Dynamics, we have the following (Dave Braden):
-
-After \emph{n} such encounters the posterior density for \(\theta\) is
-
-\[
-\pi(\theta|X_1< y_1,\dots,X_n<y_n) \varpropto \pi(\theta) \prod_{i=1}^n\int_{-\infty}^{y_i}
-   \exp\left(-{(x-\theta)^2\over{2\sigma^2}}\right)\ dx
-\]
-
-Another equation:
-
-\[\det\left|\,\begin{matrix}%
-c_0&c_1\hfill&c_2\hfill&\ldots&c_n\hfill\cr
-c_1&c_2\hfill&c_3\hfill&\ldots&c_{n+1}\hfill\cr
-c_2&c_3\hfill&c_4\hfill&\ldots&c_{n+2}\hfill\cr
-\,\vdots\hfill&\,\vdots\hfill&
-  \,\vdots\hfill&&\,\vdots\hfill\cr
-c_n&c_{n+1}\hfill&c_{n+2}\hfill&\ldots&c_{2n}\hfill\cr
-\end{matrix}\right|>0\]
-Lapidus and Pindar, Numerical Solution of Partial Differential Equations
-in Science and Engineering. Page 54
-
-\[
-\int_t\left\{\sum_{j=1}^3 T_j \left({d\phi_j\over dt}+k\phi_j\right)-kT_e\right\}w_i(t)\ dt=0,
-   \qquad\quad i=1,2,3.
-\]
-
-L\&P Galerkin method weighting functions. Page 55
-
-\[
-\sum_{j=1}^3 T_j\int_0^1\left\{{d\phi_j\over dt} + k\phi_j\right\} \phi_i\ dt
-   = \int_{0}^1k\,T_e\phi_idt, \qquad i=1,2,3 \]
-
-Another L\&P (p145)
-
-\[
-\int_{-1}^1\!\int_{-1}^1\!\int_{-1}^1 f\big(\xi,\eta,\zeta\big)
-   = \sum_{k=1}^n\sum_{j=1}^n\sum_{i=1}^n w_i w_j w_k f\big( \xi,\eta,\zeta\big).
-\]
-
-Another L\&P (p126)
-
-\[
-\int_{A_e} (\,\cdot\,) dx dy = \int_{-1}^1\!\int_{-1}^1 (\,\cdot\,) \det[J] d\xi d\eta.
-\]
-
-\chapter{Tables, Graphics, References, and Labels}\label{ref-labels}
-
-\section{Tables}\label{tables}
-
-In addition to the tables that can be automatically generated from a
-data frame in \textbf{R} that you saw in
-\protect\hyperlink{rmd-basics}{R Markdown Basics} using the
-\texttt{kable} function, you can also create tables using \emph{pandoc}.
-(More information is available at
-\url{http://pandoc.org/README.html\#tables}.) This might be useful if
-you don't have values specifically stored in \textbf{R}, but you'd like
-to display them in table form. Below is an example. Pay careful
-attention to the alignment in the table and hyphens to create the rows
-and columns.
-\begin{longtable}[]{@{}ccc@{}}
-\caption{\label{tab:inher} Correlation of Inheritance Factors for Parents
-and Child}\tabularnewline
-\toprule
-\begin{minipage}[b]{0.29\columnwidth}\centering\strut
-Factors\strut
-\end{minipage} & \begin{minipage}[b]{0.47\columnwidth}\centering\strut
-Correlation between Parents \& Child\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\centering\strut
-Inherited\strut
-\end{minipage}\tabularnewline
-\midrule
-\endfirsthead
-\toprule
-\begin{minipage}[b]{0.29\columnwidth}\centering\strut
-Factors\strut
-\end{minipage} & \begin{minipage}[b]{0.47\columnwidth}\centering\strut
-Correlation between Parents \& Child\strut
-\end{minipage} & \begin{minipage}[b]{0.16\columnwidth}\centering\strut
-Inherited\strut
-\end{minipage}\tabularnewline
-\midrule
-\endhead
-\begin{minipage}[t]{0.29\columnwidth}\centering\strut
-Education\strut
-\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\centering\strut
--0.49\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\centering\strut
-Yes\strut
-\end{minipage}\tabularnewline
-\begin{minipage}[t]{0.29\columnwidth}\centering\strut
-Socio-Economic Status\strut
-\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\centering\strut
-0.28\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\centering\strut
-Slight\strut
-\end{minipage}\tabularnewline
-\begin{minipage}[t]{0.29\columnwidth}\centering\strut
-Income\strut
-\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\centering\strut
-0.08\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\centering\strut
-No\strut
-\end{minipage}\tabularnewline
-\begin{minipage}[t]{0.29\columnwidth}\centering\strut
-Family Size\strut
-\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\centering\strut
-0.18\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\centering\strut
-Slight\strut
-\end{minipage}\tabularnewline
-\begin{minipage}[t]{0.29\columnwidth}\centering\strut
-Occupational Prestige\strut
-\end{minipage} & \begin{minipage}[t]{0.47\columnwidth}\centering\strut
-0.21\strut
-\end{minipage} & \begin{minipage}[t]{0.16\columnwidth}\centering\strut
-Slight\strut
-\end{minipage}\tabularnewline
-\bottomrule
-\end{longtable}
-We can also create a link to the table by doing the following: Table
-\ref{tab:inher}. If you go back to
-\protect\hyperlink{loading-and-exploring-data}{Loading and exploring
-data} and look at the \texttt{kable} table, we can create a reference to
-this max delays table too: Table \ref{tab:maxdelays}. The addition of
-the \texttt{(\textbackslash{}\#tab:inher)} option to the end of the
-table caption allows us to then make a reference to Table
-\texttt{\textbackslash{}@ref(tab:label)}. Note that this reference could
-appear anywhere throughout the document after the table has appeared.
-
-\clearpage
-
-\section{Figures}\label{figures}
-
-If your thesis has a lot of figures, \emph{R Markdown} might behave
-better for you than that other word processor. One perk is that it will
-automatically number the figures accordingly in each chapter. You'll
-also be able to create a label for each figure, add a caption, and then
-reference the figure in a way similar to what we saw with tables
-earlier. If you label your figures, you can move the figures around and
-\emph{R Markdown} will automatically adjust the numbering for you. No
-need for you to remember! So that you don't have to get too far into
-LaTeX to do this, a couple \textbf{R} functions have been created for
-you to assist. You'll see their use below.
-
-In the \textbf{R} chunk below, we will load in a picture stored as
-\texttt{duke.png} in our main directory. We then give it the caption of
-``Duke logo'', the label of ``dukelogo'', and specify that this is a
-figure. Make note of the different \textbf{R} chunk options that are
-given in the R Markdown file (not shown in the knitted document).
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{include_graphics}\NormalTok{(}\DataTypeTok{path =} \StringTok{"figure/duke.png"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-\begin{figure}
-\includegraphics[width=2.26in]{figure/duke} \caption{Duke logo}\label{fig:dukelogo}
-\end{figure}
-Here is a reference to the Duke logo: Figure \ref{fig:dukelogo}. Note
-the use of the \texttt{fig:} code here. By naming the \textbf{R} chunk
-that contains the figure, we can then reference that figure later as
-done in the first sentence here. We can also specify the caption for the
-figure via the R chunk option \texttt{fig.cap}.
-
-\clearpage 
-
-Below we will investigate how to save the output of an \textbf{R} plot
-and label it in a way similar to that done above. Recall the
-\texttt{flights} dataset from Chapter \ref{rmd-basics}. (Note that we've
-shown a different way to reference a section or chapter here.) We will
-next explore a bar graph with the mean flight departure delays by
-airline from Portland for 2014. Note also the use of the \texttt{scale}
-parameter which is discussed on the next page.
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{flights %>%}\StringTok{ }\KeywordTok{group_by}\NormalTok{(carrier) %>%}
-\StringTok{  }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{mean_dep_delay =} \KeywordTok{mean}\NormalTok{(dep_delay)) %>%}
-\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =} \NormalTok{carrier, }\DataTypeTok{y =} \NormalTok{mean_dep_delay)) +}
-\StringTok{  }\KeywordTok{geom_bar}\NormalTok{(}\DataTypeTok{position =} \StringTok{"identity"}\NormalTok{, }\DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{, }\DataTypeTok{fill =} \StringTok{"red"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-\begin{figure}[htbp]
-\centering
-\includegraphics{thesis_files/figure-latex/delaysboxplot-1.pdf}
-\caption{\label{fig:delaysboxplot}Mean Delays by Airline}
-\end{figure}
-Here is a reference to this image: Figure \ref{fig:delaysboxplot}.
-
-A table linking these carrier codes to airline names is available at
-\url{https://github.com/ismayc/pnwflights14/blob/master/data/airlines.csv}.
-
-\clearpage
-
-Next, we will explore the use of the \texttt{out.extra} chunk option,
-which can be used to shrink or expand an image loaded from a file by
-specifying \texttt{"scale=\ "}. Here we use the mathematical graph
-stored in the ``subdivision.pdf'' file.
-\begin{figure}
-\includegraphics[scale=0.75]{figure/subdivision} \caption{Subdiv. graph}\label{fig:subd}
-\end{figure}
-Here is a reference to this image: Figure \ref{fig:subd}. Note that
-\texttt{echo=FALSE} is specified so that the \textbf{R} code is hidden
-in the document.
-
-\textbf{More Figure Stuff}
-
-Lastly, we will explore how to rotate and enlarge figures using the
-\texttt{out.extra} chunk option. (Currently this only works in the PDF
-version of the book.)
-\begin{figure}
-\includegraphics[angle=180, scale=1.1]{figure/subdivision} \caption{A Larger Figure, Flipped Upside Down}\label{fig:subd2}
-\end{figure}
-As another example, here is a reference: Figure \ref{fig:subd2}.
-
-\section{Footnotes and Endnotes}\label{footnotes-and-endnotes}
-
-You might want to footnote something.\footnote{footnote text} The
-footnote will be in a smaller font and placed appropriately. Endnotes
-work in much the same way.
-
-\section{Bibliographies}\label{bibliographies}
-
-Of course you will need to cite things, and you will probably accumulate
-an armful of sources. There are a variety of tools available for
-creating a bibliography database (stored with the .bib extension). In
-addition to BibTeX suggested below, you may want to consider using the
-free and easy-to-use tool called Zotero. The Duke librarians have
-created Zotero documentation at
-\url{https://library.duke.edu/research/zotero}. In addition, a tutorial
-is available from Middlebury College at
-\url{http://sites.middlebury.edu/zoteromiddlebury/}.
-
-\emph{R Markdown} uses \emph{pandoc} (\url{http://pandoc.org/}) to build
-its bibliographies. One nice caveat of this is that you won't have to do
-a second compile to load in references as standard LaTeX requires. To
-cite references in your thesis (after creating your bibliography
-database), place the reference name inside square brackets and precede
-it by the ``at'' symbol. For example, here's a reference to a book about
-worrying: (Molina \& Borkovec, 1994). This \texttt{Molina1994} entry
-appears in a file called \texttt{thesis.bib} in the \texttt{bib} folder.
-This bibliography database file was created by a program called BibTeX.
-You can call this file something else if you like (look at the YAML
-header in the main .Rmd file) and, by default, is to placed in the
-\texttt{bib} folder.
-
-For more information about BibTeX and bibliographies, see the following
-documentation from Reed College at
-(\url{http://web.reed.edu/cis/help/latex/index.html})\footnote{Reed~College
-  (2007)}. There are three pages on this topic: \emph{bibtex} (which
-talks about using BibTeX, at
-\url{http://web.reed.edu/cis/help/latex/bibtex.html}),
-\emph{bibtexstyles} (about how to find and use the bibliography style
-that best suits your needs, at
-\url{http://web.reed.edu/cis/help/latex/bibtexstyles.html}) and
-\emph{bibman} (which covers how to make and maintain a bibliography by
-hand, without BibTeX, at
-\url{http://web.reed.edu/cis/help/latex/bibman.html}). The last page
-will not be useful unless you have only a few sources.
-
-If you look at the YAML header at the top of the main .Rmd file you can
-see that we can specify the style of the bibliography by referencing the
-appropriate csl file. You can download a variety of different style
-files at \url{https://www.zotero.org/styles}. Make sure to download the
-file into the csl folder.
-
-\textbf{Tips for Bibliographies}
-\begin{itemize}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{3}
 \tightlist
 \item
-  Like with thesis formatting, the sooner you start compiling your
-  bibliography for something as large as thesis, the better. Typing in
-  source after source is mind-numbing enough; do you really want to do
-  it for hours on end in late April? Think of it as procrastination.
+  controlled experiment with Cornell basketball player.
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
 \item
-  The cite key (a citation's label) needs to be unique from the other
-  entries.
+\begin{verbatim}
+ process:
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    For each player we determined a distance from which his or her
+    shooting percentage was roughly 50\%. At this distance we then drew
+    two 15-ft arcs on the floor from which each player took all of his
+    or her shots. The centers of the arcs were located 60 degrees out
+    from the left and right sides of the basket. When shooting baskets,
+    the players were required to move along the arc between shots so
+    that consecutive shots were never taken from exactly the same spot.
+    Each player was to take 100 shots, 50 from each arc.
+  \item
+    We tested players' ability to predict hits and misses by having them
+    bet on the outcome of each upcoming shot. Before every shot, each
+    player chose whether to bet high in which case he or she would win 5
+    cents for a hit and lose 4 cents for a miss; or bet low, in which
+    case he or she would win 2 cents for a hit and lose 1 cent for a
+    miss. The players were advised to bet high when they felt confident
+    in their shooting ability, and to bet low when they did not. We also
+    obtained betting data fro another player who observed the shooter.
+  \end{enumerate}
 \item
-  When you have more than one author or editor, you need to separate
-  each author's name by the word ``and'' e.g.
-  \texttt{Author\ =\ \{Noble,\ Sam\ and\ Youngberg,\ Jessica\},}.
+  data analysis was the same tests as NBA FG
 \item
-  Bibliographies made using BibTeX (whether manually or using a manager)
-  accept LaTeX markup, so you can italicize and add symbols as
-  necessary.
-\item
-  To force capitalization in an article title or where all lowercase is
-  generally used, bracket the capital letter in curly braces.
-\end{itemize}
-\section{Anything else?}\label{anything-else}
-
-If you'd like to see examples of other things in this template, please
-contact Mine Cetinkaya-Rundel (email
-\href{mailto:mine@stat.duke.edu}{\nolinkurl{mine@stat.duke.edu}}) with
-your suggestions. We love to see people using \emph{R Markdown} for
-their theses, and are happy to help.
-
-\chapter{Organization}\label{organization}
-
-Your paper should be an evolving report on the project in all aspects
-developed so far, in the form of a draft scientific paper. It must be
-written in RMarkdown or LaTeX with figures included.
-
-Make sure all figures have font sizes and line widths set so that the
-final pdf versions are properly legible. Presentation (including
-correctness of mathematical equations, graphics, tables, citations and
-bibligraphy, as well as prose) should be pristine.
-
-All details of developments of models, code and examples/analyses must
-be clearly described -- sufficient to that a knowledgeable reader will
-be able to follow the logic and replicate the analysis.
-
-By the end of the first (Fall) semester, you need to develop a readable
-interim report. In the second (Spring) semester your task is to evolve
-this paper into a complete write-up of your work, as if intending to
-consider submitting to a scientific journal.
-
-However primitive the content may seem to be at the start, start
-writing.
-
-A fairly standard outline is as follows:
-\begin{itemize}
+  reports prediction correlations with result, other predictions, and
+  prev result, etc.
+\end{enumerate}
+E. Conclusion
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{Title}
+  there is no hot hand.
+\end{enumerate}
+Albert \& Williamson (1999)
+
+A. Introduction
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
 \item
-  \textbf{Abstract}
-\item
-  \textbf{Chapter 1. Introduction} (setting, problem description,
-  citations, etc.)
-\item
-  \textbf{Chapter 2. Literature review}
-\item
-  \textbf{A Next Chapter:} Some papers have one or two chapters, some
-  papers have several. Keep chapters relatively short: Each section
-  should have one focus. For example,
-  \begin{itemize}
+  discussion of previous research.
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
   \tightlist
   \item
-    \textbf{Chapter 3. New Statistical Models} (theory, ideas)
-  \item
-    \textbf{Chapter 4. Some Computational Issues}
-  \item
-    \textbf{Chapter 5. Simulated Data} (evaluation of models)
-  \item
-    \textbf{Chapter 6. Application} (real motivating problem and data)
-  \item
-    \ldots{}
-  \end{itemize}
+    the 1985 Gilovich tests lacked statistical power
+  \end{enumerate}
 \item
-  \textbf{Chapter X. Conclusion} (what was done, what was learned, what
-  was good/bad, where research might or could go next)
+  streakiness is the presence of nonstationarity or autocorrelation in a
+  binary sequence:
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    nonstationarity (nonconstant prob between trials)
+  \item
+    can be modeled with overdispersion model
+  \item
+    autocorrelation (sequential dependency)
+  \end{enumerate}
+\end{enumerate}
+B. Simulating models and data
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
 \item
-  \textbf{Appendix} (maybe some extra math, details of code)
+  Using ``nearly'' sufficient statistics to approximate posterior
+  density of interest, condidional on the statistic falline in a small
+  interval about the observed value.
 \item
-  \textbf{Bibliography} (use bibtex, per the example bib files)
+  simulate using regular gibbs algorithm
+\end{enumerate}
+C. Fitting overdispersion model (on data where one suspects
+nonstationarity)
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Mike Schmidt batting data
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    14 baseball seasons, split each into 13 2-week sets, count num HR
+    per set
+  \item
+    observed that var(y) \textgreater{} mean(y)
+  \item
+    fit overdispersion mixture model on poisson y.
+  \end{enumerate}
+\end{enumerate}
+D. Another example (from a baseballer with a reputation of streakiness)
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Javy Lopez 1998 hitting data
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    num hits and num at-bats for each of 132 games of the season
+  \end{enumerate}
+\item
+  how do we measure streakiness/non-homogeneity?
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    sufficient stats included:
+  \item
+    T1 = difference between max and min moving average (10-game bins)
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    T2 = sum of the abs difference of moving avgs and season avg
+  \item
+    T3 = number of ``runs'' (consecutive 1s and 0s) in sequence
+  \item
+    T4 = length of the longest run in seq
+  \item
+    T5 = number of runs exceeding a specified length
+  \item
+    T6 = \(log[(n_{00}n_{11})/(n_{01}n_{10})]\) \(n_{ij}\) = ijth index
+    of matrix classifying game i and j as hot or cold. (j=i+1)
+
+    T6 \textgreater{} 0 if strong autocorrelation
+  \item
+    using logistic function where p = hit\% and xk = batting avg for
+    last k games; logit(p) = B0 + B1*xk T7(k) = B1 \textgreater{} 0
+  \item
+    T8 = sd(p1, \ldots{}, pN) (given N bins of batting data)
+  \end{enumerate}
+\item
+  Markov switching model
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    two hitting states \(p_{hot}\) and \(p_{cold}\)
+  \item
+    compared to ``coin toss'' model with constant prbability
+  \item
+    simulating results of games showed that there is not evidence for
+    hot hand
+  \end{enumerate}
+\end{enumerate}
+E. Free throw shooting
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  data
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    College bball player shot 100 shots for 20 days. 20 x 100 matrix
+  \end{enumerate}
+\item
+  model
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    dispersion instead of Markov switching
+  \end{enumerate}
+\item
+  analysis:
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    group 100 shots for each day into 20 bins of 5. (i \textless{}= 20,
+    j \textless{}= 20)
+  \item
+    record proportions \(hat{y_{1}}...hat{y_20}\)
+  \end{enumerate}
+\item
+  results
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    dispersion decreases as days go on. (practice makes perfect)
+  \end{enumerate}
+\end{enumerate}
+Koehler \& Conley (2003)
+
+A. prior research
+
+B. procedure
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  analyze NBA 3-pt contest footage (4 years, 23 shooters (some rpt
+  contestants), 56 total rounds)
+\item
+  search for seq dependency within shooters across all shots, and per
+  set of 25 shots
+\end{enumerate}
+C. results
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  no evidence of hotness or seq dependencies
+\item
+  runs analysis from each shooter
+\item
+  conditional probability analysis
+\item
+  analysis of how they shot when announcers said a player was getting
+  hot
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    the 3 before the announcer jinx were high but not the one
+    immediately after.
+  \end{enumerate}
+\end{enumerate}
+D. discussion
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  recent streaks of success are not predictive of future performance;
+  use base rate
+\item
+  irrational hot hand belief may lead to exploiting market
+  inefficiencies
+\item
+  future research might focus more on implications of the false belief
+  in the hot hand rather than on pinpointing where hotness exists
+\end{enumerate}
+Bar-Eli, Avugos, \& Raab (2006)
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\tightlist
+\item
+  Introduction
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  a review of 20 years of hot hand research.
+\item
+  in short: 11 support, 13 not support
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    but the supportive ones are typically weaker/have questionable data
+    or unrealistic model
+  \end{enumerate}
+\item
+  so far, the scientific support for the hot hand is controversial and
+  fairly limited
+\item
+  but the belief in it is important.
+\end{enumerate}
+B. Preliminary Hot hand research
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  assumption that prob of success is affected by physical or
+  psychological state.
+\item
+  the scientific norm of randomness may present it as a fallacy but it's
+  useful because it affects real life decisions
+\item
+  after gilovich 1985 paper, more applications appeared
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    other sports: baseball, volleyball, golf, tennis, bowling, darts,
+    horseshoes
+  \item
+    non sports: economics, cognitive science, law, religion
+  \end{enumerate}
+\end{enumerate}
+C. The Origin of the belief
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  memory bias: streaks are more memorable and thus wrongly regarded as
+  nonrandom
+\item
+  general misconception: people often disregard sample size. people
+  expect more alternations than what is normal.
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    law of small numbers (fallicious belief that law of large numbers
+    applies to small samples)
+  \end{enumerate}
+\item
+  gambler's fallacy (states that a streak of events is likely to end)
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    basically the opposite of the hot hand fallacy
+  \item
+    but both can be explained by ``representativeness'' and sequence
+    recency.
+  \item
+    they're interpreted inversely because slot machines are seen as
+    unintentional while shooting a basketball is seen as intentional.
+  \end{enumerate}
+\end{enumerate}
+D. The validity of the Belief
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  studies that provide evidence against some investigate the link
+  between belief and behavior instead of just a simple ``is it real?''
+\item
+  evidence for
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    Larkey et al 1989:
+  \item
+    they used shorter chunks within a game (seq of 20 baskets) because
+    extracting individual sequences from an actual game is too
+    complicated
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    found out that Vinnie Johnson was indeed streaky
+  \item
+    but they only used 7 makes within a string of 20 in one game.
+  \item
+    and turns out that the stats were incorrectly recorded and the 7 in
+    a row never even happened!
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    Waldrop 1995
+  \item
+    interesting insight about the Simpson's paradox and how shooting
+    better after a make may be seen in aggregated data but not
+    individually.
+  \item
+    Gilden and Wilson (1995)
+  \item
+    asked random ppl to do darts and putts, but with little compensation
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    therefore streakiness could be lack of motivation
+  \item
+    also sample size was huge, which means lower p-vals in general
+  \item
+    Clark 2003
+  \item
+    PGA stuff. Any clustering of scores thought to be explained by
+    hotness was actually explained by course difficulty
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{4}
+  \tightlist
+  \item
+    Klaasen and Magnus 2001
+  \item
+    very very very tiny momentum effect in tennis
+  \item
+    Frame et al 2003
+  \item
+    basketball, baseball, tennis results are dep. on strategy of
+    opposition
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    there was modest evidence in horsehoe tossing tho!!!
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{6}
+  \tightlist
+  \item
+    Dorsey-Palmateer and Smith 2004
+  \item
+    results bowling games exhibited some hotness (maybe just because
+    next opponent was sitting and waiting)
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    results of indiv rolls within games did not exhibit this.
+  \end{enumerate}
+\end{enumerate}
+E. Hot Hand Test Statistics
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Gilovich 1985 (used simplification of binomial model; has questionable
+  power.)
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    prob of hit conditioned on results of previous shot(s)
+  \item
+    first-order correlation coef
+  \item
+    Wald-Wolfowitz runs analysis test
+  \item
+    grouping blocks of 4 shots
+  \end{enumerate}
+\item
+  Wardrop (1999) simulated streaky data to see how binom tests detected
+  it
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    it wasn't good; they didn't detect unless the change was extreme,
+    partially because of small sample sizes too
+  \end{enumerate}
+\item
+  Miyoshi (2000) suggested 4 variables that affected power of model:
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    frequency of hot periods
+  \item
+    number of shots in all hot periods for a season
+  \item
+    number of shots in each hot period
+  \item
+    magnitude of probability increase during a hot period
+  \item
+    with these parameters set realistically, Gilovich's power would have
+    only been 0.12
+  \end{enumerate}
+\item
+  so no matter how you slice it, it's difficult to model basketball
+  events
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    the alternative hypothesis is not that streakines exists, but that
+    it exists for everybody in the same way. this is unreasonable.
+  \item
+    an effective and powerful test for one person may not work for
+    another
+  \item
+    1 person may exhibit non stationarity while another exhibits
+    autocorrelation.
+  \end{enumerate}
+\end{enumerate}
+F. Implications of hot hand belief
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  sports gambling
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    the market believes it
+  \item
+    teams on winning streaks marginally underperform \& vice versa
+  \end{enumerate}
+\item
+  game strategy
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    hot players are more likely to force bad shots
+  \item
+    hotness should be taken as a piece of information including base
+    rate, def strategy, player strengths, other stuff; it should not
+    replace your game plan tho.
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{6}
+\tightlist
+\item
+  Discussion
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Task segregation
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    baseball \& basketball are the most popular experiments, but
+    repetitive solo events like darts \& golf make more sense;
+    horseshoes \& bowling had strongest evidence
+  \item
+    quality of data was often poor
+  \item
+    the supportive studies used professional
+  \item
+    IF hotness exists, then it depends on much more than has been
+    controlled for in prev studies
+  \item
+    participant expertise, task difficulty, atmosphere, motivation, etc.
+  \end{enumerate}
+\item
+  hot hand definitions
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    most common test is the runs test that Gilovich used
+  \item
+    Hales (1999) defined it in the following terms (none of which were
+    found in sports data)
+  \item
+    success breeds success
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    streaks are statistically unlikely
+  \item
+    num. of consecutive successes must exceed those predicted by chance
+  \item
+    Hales argued that ``being hot does not have to do with the
+    fecundity, duration, or even frequency of streaks. It has to do with
+    their existence'' (p.~86).
+  \item
+    When one believes he has a hot hand, he may well be usually right.
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{4}
+  \tightlist
+  \item
+    some say ``a player has a hot hand when he is playing better than
+    average''
+  \end{enumerate}
+\item
+  the cold hand
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    hot hand is based on notion that success motivates ppl and raises
+    confidence
+  \item
+    Berry and Wood (2004) found that icing the kicker in NFL is
+    effective strategy
+  \end{enumerate}
+\item
+  Evaluation procedure
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    eval. of indiv. studies is essential 4 future research (wide range
+    of outcomes)
+  \item
+    but also consider big picture
+  \item
+    good idea to combine and reanalyze data from separate studies that
+    used same sport and got diff conclusions.
+  \end{enumerate}
+\end{enumerate}
+H. Concluding Remarks
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  this paper looked at studies that collected real data and simmed data
+\item
+  question remains unanswered
+\item
+  Gilovich somewhat strongly showed evidence against seq dep. but the
+  nonstate test wasn't powerful enough according to simulation studies.
+\item
+  stepping further than the ``is there a hot hand?'' question
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    investigating the norms used by people to justify belief in it
+  \item
+    look at situational factors that enable us to judge the value of the
+    belief (strategic advantage vs detrimental fallacy)
+  \item
+    investigate how important it is to real decisions (gambling,
+    coaching, etc.)
+  \item
+    if hot hand doesn't exist, then training and preparation and sports
+    psych methods should reflect this (but they don't, of course)
+  \end{enumerate}
+\end{enumerate}
+Ryan Wetzels (2016)
+
+A. Introduction
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  (past studies and stuff you've already read)
+\item
+  Albert (1993) and Markov logic
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    difference: albert used constant ?? = p(switch) = 0.1, but makes ??
+    a free param
+  \item
+    diff: albert may switch states btwn games, wetzels may switch @
+    arbitrary
+  \item
+    similarity: first order markov chain (pi only depends on pi-1)
+  \end{enumerate}
+\end{enumerate}
+B. A two-state Bernoulli hidden markov model
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  consider first order hidden markov model (HMM)
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    binary state (S) at each timeunit (t). St = 1 ??? hot; St = 0 ???
+    cold
+  \item
+    if switching prob \textless{} 0.5 ??? ``sticky'' states (exhibits
+    streakiness) (free param!)
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{2}
+  \tightlist
+  \item
+    the data Yt comes from Bern dist with different hot and cold probs
+  \end{enumerate}
+\end{enumerate}
+C. simulation study to assess performance of Bayesian test
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  evidence of HMM in favor of CPM will be assed by bayes factor
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    BF = ratio of marginal likeyhoods = p(Y(T) = y(T) \textbar{} HMM) /
+    p(Y(T) = y(T) \textbar{} CPM)
+  \end{enumerate}
+\end{enumerate}
+D. application: free throw shooting of Shaq n Kobe
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Kobe's are closer to CPM according to Bayes Factor test
+\item
+  Shaq's are closer to HMM according to Bayes Factors
+\end{enumerate}
+E. application: perceptual identification test from test of visual
+discernment test
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  BF: 42\% showed evidence for HMM; 22\% for CPM (rest weren't strong
+  either way)
+\item
+  WW-runs test: 47\% were streaky (rest EITHER not strong or strong for
+  CPM)
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    much overlap in the accept/reject regions of both tests.
+  \end{enumerate}
+\end{enumerate}
+F. Conclusion and ramifications
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  restrictions on BF test:
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    p(switch) = alpha \textless{} 0.5 to ensure stickiness
+  \end{enumerate}
+\item
+\begin{verbatim}
+comments on BF test
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    HMM was not good at simulating data.concludes that ``streakiness''
+    hurts CPM more than it helps HMM.
+  \item
+    BFs are a measure of relative support, so one model being bad does
+    not mean the other one is good, even though it may look that way by
+    BF
+  \end{enumerate}
+\item
+\begin{verbatim}
+future improvements
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    subject-specific priors can create a more power, instead of indep
+    unif dists.
+  \item
+    continuous variables instead of binary variables?
+  \item
+    allowing switching prob to depend on the state may improve HMM
+  \item
+    hierarchichal structure that accounts for season effects and indiv
+    effects
+  \end{enumerate}
+\end{enumerate}
+Miller \& Sanjurjo (2016)
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\tightlist
+\item
+  Intro
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+Inherent subtle but substantial selection bias when measuring conditional dependence of current outcomes on past outcomes in sequential data.
+\end{verbatim}
+\item
+\begin{verbatim}
+We prove that for any finite sequence of binary data, in which each outcome of "success" or "failure" is determined by an i.i.d. random variable, the proportion of 1s among the outcomes that immediately follow a streak of consecutive 1s is expected to be strictly less than the underlying (conditional) probability of success.
+\end{verbatim}
+\item
+\begin{verbatim}
+P(H) > P(H | H) > P(H | H, H) > P(H | H, H, ... Hk) > ...
+\end{verbatim}
+\item
+\begin{verbatim}
+bias decreases as sequence (experimental trials, num coinflips) gets longer; bias increases as streak (condition, num heads) size increased
+\end{verbatim}
+\item
+\begin{verbatim}
+example table with n=3, k=1
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    for HHH and HHT, there are two flips after the streak prereq
+  \item
+    for THT, HTT, HTH, THH, there is one flip after the streak
+  \item
+    for TTH, TTT, there are zero
+  \item
+    each seq has an equal prob of happening, but in group a. you record
+    2 events, b. is 1, and c. is 0. Therefore, the group a. flips are
+    individually weighted the least.
+  \item
+    This means that individual flips among a small group of heads
+    inherently get a lower weight. --\textgreater{} heads get a lower
+    prob.
+  \end{enumerate}
+\item
+\begin{verbatim}
+how to unbias
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    flip indefinitely until you get m trials that follow a streak,
+    instead of flipping exactly n times (negbinom sampling)
+  \item
+    eliminate overlap by dividing your n trials into bins (that may or
+    may not break up some streaks) (explanation was confusing)
+  \end{enumerate}
+\item
+\begin{verbatim}
+the bias implies that streaks within finite sequences are expected to end more often than continue (relative to the underlying probability)
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    which can lead both the gambler to think that an i.i.d process has a
+    tendency towards reversal,
+  \item
+    and the hot hand researcher to think that a process is i.i.d. when
+    it actually has a tendency towards momentum.
+  \end{enumerate}
+\item
+\begin{verbatim}
+you should write a function to simulate this using binomial trials!
+\end{verbatim}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Bias (theoretical results)
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+proof
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    show that: if X is binary seq of iid randvars s/t p = p(x\_i = 1) =
+    p(x\_i = 1\textbar{} k-length streak), then this procedure yields a
+    biased estimate of the conditional probability
+  \item
+\begin{verbatim}
+the probability of seeing a streak is < p, ==> E[p(x=1|streak)] < p
+\end{verbatim}
+  \end{enumerate}
+\item
+\begin{verbatim}
+relationship to know results (like SWOR)
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    any binary seq of n trials will have n1 successes and n0 := n-n1
+    failures
+  \item
+    prior odds of success = n1/n0
+  \item
+    for trials following streak of k 1s ( denoted in paper as I\_1k(x)
+    ), odds dec.
+  \item
+    prior odds have 2 updating factors \& they both cause drop in odds
+    when t \textless{} n
+  \item
+\begin{verbatim}
+first factor: (n1-k)/n1 < 1
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    reflects constraint of the finite number of available trials to
+    select from
+  \item
+    info gained upon learning k of the n1 successes are no longer
+    available, which leads to a SWOR effect on the prior odds
+  \item
+    bias increases as k (streak length) increases
+  \item
+\begin{verbatim}
+second factor: too complicated to type out. some ratio of expectations.
+\end{verbatim}
+  \item
+    reflects constraint of arrangement of successes in the seq
+  \item
+    info gained upon learning that k 1s are consec. and precede t.
+  \item
+    if k-streak occurs, x(t+1) WILL be in I\_1k, and
+    x(t+2),\ldots{},x(t+k) MIGHT be. else, x(t+1), \ldots{}, x(t+k)
+    CANNNOT be in I\_1k.
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{4}
+  \tightlist
+  \item
+    SWOR formula
+  \item
+    bias is determined not by size of n1, but by number of (overlapping)
+    instances of k consecutive 1s in the first n???1 trials, which
+    depends on both n1 and their arr.
+  \item
+    overlapping words paradox?
+  \end{enumerate}
+\item
+\begin{verbatim}
+Quantifying the Bias
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    enumerating all possible seqs for given n and n1 is computationally
+    expensive
+  \item
+    cool magnitude of bias plots
+  \item
+    visualizing P1k - P0k
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Hot Hand Application
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+debiasing GVT data/tests
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    t-test
+  \item
+\begin{verbatim}
+shift the estimated difference Dk := p1k - p0k
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    ``the bias adjustment is made by subtracting the expected difference
+    (a player's overall percentage) from each player's observed
+    difference.
+  \item
+    ``results in 19 of the 25 players exhibiting hot hand shooting''
+    p\textless{}0.01
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    permutations test
+  \item
+\begin{verbatim}
+permutation test is invulnerable to the bias
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    under the null of constant prob, each perm. of 1s and 0s is eq.
+    likely
+  \item
+    process: . record n1 hits and n0 misses . calculate Dk for each
+    possible arrangement of the sequence . the distribution of Dks
+    should be left skewed . use dist to find how ``significant''ly off
+    obs Dk is. . agreeable with t-test thing
+  \end{enumerate}
+\item
+\begin{verbatim}
+debiasing other studies
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    these studies are:
+  \item
+\begin{verbatim}
+Jagacinski et al. (1979) (read this!!!)
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    Koehler and Conley (2003), (the three-point shootout one)
+  \item
+    Avugos et al. (2013a) (no raw data provided ???)
+  \item
+    and Miller and Sanjurjo (2014). (read this too)
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    2003:
+  \item
+\begin{verbatim}
+only median 49 shots per player. severly underpowered.
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    when debiasing, there is a significant improvement.
+  \item
+    1979 \& 2014:
+  \item
+\begin{verbatim}
+few players, but many shots per players
+\end{verbatim}
+  \item
+    debiasing agrees and players exhibit streakiness
+  \end{enumerate}
+\item
+\begin{verbatim}
+belief in the hot hand
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+\begin{verbatim}
+GVT: players believe in hot hand, hot hand does not exist
+\end{verbatim}
+  \item
+\begin{verbatim}
+this: of course people can still overreact to a few consecutive makes, but it is not completely a fallacy
+\end{verbatim}
+  \item
+\begin{verbatim}
+"an understanding of the extent to which decision makers' beliefs and behavior do not corecposnd to the actual degree of hot hand shooting may have important implications for decision making more generally.
+\end{verbatim}
+  \item
+\begin{verbatim}
+hot hand is not a binary issue. it can exist, and belief can be too strong.
+\end{verbatim}
+    \begin{enumerate}
+    \def\labelenumiii{\roman{enumiii}.}
+    \tightlist
+    \item
+      ask fans, players, and decision makers. ironically, after one
+      make, ppl tend 2 predict miss more, cause theyre biased towards
+      alternating seqs.
+    \end{enumerate}
+  \item
+    prediction questions are more informative of HH belief than
+    qualitative ones
+  \item
+\begin{verbatim}
+GVT calculated avg correlation of .04 from prediction/betting game. However, even with an assumed knowledge of the change in shooting states, the expected correlation would be .07, assuming pc = 0.45 and ph = 0.55.
+\end{verbatim}
+  \item
+\begin{verbatim}
+reanalysis of betting data, using pooled data instead of indiv.
+\end{verbatim}
+    \begin{enumerate}
+    \def\labelenumiii{\roman{enumiii}.}
+    \tightlist
+    \item
+      avg correlation bumps up to 0.07, and p\textless{}0.001
+    \item
+      weakness in GVT prediction exercise: under the null, the
+      predictions should be more accurate than chance following streaks,
+      but under the alt, if the players are correctly perceiving when
+      hot state activates, then there won't be much of a difference in
+      their accuracy between hot and cold states. hmmmm interesting
+      logic.
+    \end{enumerate}
+  \item
+\begin{verbatim}
+2014 paper found that semi-pro players' rankings of teammates respective increases in FG% following 3-streaks are highly correlated with actual increase in performance (-0.60)
+\end{verbatim}
+  \item
+\begin{verbatim}
+players may be able to perceive hot hand in real time, which would require seeing more factors than binary streaks. (technique, body lang, etc.) "this suggest the possibility of conducting experiements in which experienced players (or coaches) are incenivixed to predict the shot outcomes of players that they are familiar with, but only predict when they feel sufficiently confident about their ability to do so accurately"
+\end{verbatim}
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{3}
+\item
+\begin{verbatim}
+Gambler Application
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \tightlist
+  \item
+    gamblers mistakenly apply large sample properties to small samples
+    (they expect things to even out)
+  \item
+    humans typically remember things in (relatively) small sample sizes,
+    so sample size neglect occurs naturally (we overfit to what most
+    recently happened) even for experienced decision makers.
+  \item
+    there is scientific reasoning to gamb fall bias tho:
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+\begin{verbatim}
+when n > 4, 1110 is mathematically more likely to occur than 1111, which may explain why people believe that probability of 0 is greater than 0.5 after three 1s in a row.
+\end{verbatim}
+  \end{enumerate}
+\item
+\begin{verbatim}
+Conclusion
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \tightlist
+  \item
+    gambler sees reversal in an iid process,
+  \item
+    while researchers see iid in a momentous process
+  \end{enumerate}
+\end{enumerate}
+Jagacinski, Newell, \& Isaac (1979)
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\tightlist
+\item
+  Abstract
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+college ballers predicting their own shots outcome either before release, right after release, or halfway to the basket, were no better at predicting than passive observers.
+\end{verbatim}
+\item
+\begin{verbatim}
+some evidence found for seq. dep., but not to the degree one found in bball lore
+\end{verbatim}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Intro
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+1977 paper found bball players cannot predict immediate performance outcomes better than an observer.
+\end{verbatim}
+\item
+\begin{verbatim}
+but they can better predict their own outcomes during the execution of their action.
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    internal, non-visual cues from their own receptive feedback
+  \end{enumerate}
+\item
+\begin{verbatim}
+signal detection analysis (sensitivity = true positive rate)
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    two motivations: player sensitivity and existence of seq. dep.
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  the experiment:
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+subjects: 3 pairs of U of Ill. grad students who played mens college ball as undergrads
+\end{verbatim}
+\item
+\begin{verbatim}
+apparatus:
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    portable wooden panel with sensors that shut off lights when a
+    basketball passed thru.
+  \item
+    placed at midpoint of shot location, in a regular bball gym
+  \end{enumerate}
+\item
+\begin{verbatim}
+procedure:
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    10 sessions, approx 1.5 hr each, one pair per session.
+  \item
+    subjects alternate roles of shooter and observer for 6 blocks of 60
+    trials.
+  \item
+    session 1 is for practice, while 2-10 were experimental
+  \item
+    in prax, there was lights on, lights off on midpt, and lights off on
+    release. to familiarize subjects with conditions, and find distance
+    with 55\% success rate
+  \item
+    both subjects would predict outcome on 6-point scale.
+  \item
+    both subjects had headphones with white noise playing
+  \item
+    shots were taken every 10ish seconds.
+  \item
+    incentive of 5 cents per successful shot, and -10 for each late
+    prediction
+  \item
+    540*3 = 1620 shots per person?
+  \end{enumerate}
+\item
+\begin{verbatim}
+results
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    signal detection analysis
+  \item
+\begin{verbatim}
+the measure of sensitivity (A_g) was area under ROC curve
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    average sensitivities were 0.5ish (approx chance) for pre-release
+    pred.
+  \item
+    but good for at release or post release
+  \item
+    shooters were not more sensitive than observers
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    seq dep analysis
+  \item
+\begin{verbatim}
+4 subjects had a significant p-value for alt hyp: p(H|H) > p(H|M)
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    in general, subjects as shoots \& obs were optimistic in that
+    p(Hpred\textbar{}H) \textgreater{} p(Hpred\textbar{}M)
+  \end{enumerate}
+\item
+\begin{verbatim}
+discussion
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    equivalent sensitivity in shot prediction from shooters and
+    observers suggests that shooters can't use internal cues to predict
+    shot EVEN WHEN THE LIGHTS WERE OFF AFTER RELEASE!!!
+  \item
+    only subjects 5 \& 6 were slightly above chance in predictions as
+    shooters when lights stayed on
+  \item
+    OFF 1st \textless{} OFF 2nd \textless{} OFF 3rd
+  \item
+    weak positive recency (streakiness, for makes or misses) WAS
+    FOUND!!!! occurred mostly in OFF trial.
+  \item
+    optimism thing occurred mostly in the ON trial, even though it would
+    have been more justified in the OFF trial. suggests that shooters'
+    beliefs in hotness may depend on other factors such as bball lore
+    rather than visual feedback.
+  \item
+    possible that the lore is a result of lack of awareness of
+    statistical fluctuations within a game, players usually take a small
+    number of shots, so it would take very large changes in hot hit prob
+    to be measurable in-game. this controlled data does not suggest
+    these large changes exist.
+  \end{enumerate}
+\end{enumerate}
+Albert (1993)
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\tightlist
+\item
+  intro
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+Albright used 2 models on 501 players: 
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    ``null'' binom model with test stats related to streaks
+  \item
+    logis regress using predictors abt ``recent success'' aka history,
+    \& situation
+  \item
+    concluded that few players were signif streaky; not enough to reject
+    null tho
+  \item
+    streakiness effects are small in magnitude if they exist (overstated
+    by media)
+  \item
+    concerns about power (signal detection)
+  \end{enumerate}
+\item
+\begin{verbatim}
+simple technique: look for peaks and valleys in moving avg plot
+\end{verbatim}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Situational Variables
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+control for factors such as Home/Away, pitcher handedness, runners on bases, etc.
+\end{verbatim}
+\item
+\begin{verbatim}
+forward selection to determine significant ones for each player!
+\end{verbatim}
+\item
+\begin{verbatim}
+predictor measuring recent success (hits in last 20 AB) the effect was negative! :O
+\end{verbatim}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  does hit prob change across season?
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+pitcher ERA seemed to be the only generally signif predictor. try diff approach.
+\end{verbatim}
+\item
+\begin{verbatim}
+if we ignore all situational & historical vars, then we get binom trial
+\end{verbatim}
+\item
+\begin{verbatim}
+moving average using d-length bins, also lag-d autocorr of moving avgs (d=4)
+\end{verbatim}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  one model for streakiness
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+Markov sqitching again!
+\end{verbatim}
+\item
+\begin{verbatim}
+latent variables Z1.ZT. Zi = 1(hot during game i)
+\end{verbatim}
+\item
+\begin{verbatim}
+symmetric transition matrix with rows ((0.9, 0.1),(0.1,0.9)) (pswitch = 0.1)
+\end{verbatim}
+\item
+\begin{verbatim}
+after they run on real data, they sim binom data to observe false negative possibility
+\end{verbatim}
+\item
+\begin{verbatim}
+"random data can display similar patterns"
+\end{verbatim}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  conclusion
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+difficult to distinguish batters from coin tosses ???
+\end{verbatim}
+\item
+\begin{verbatim}
+doesn't mean streakiness doesn't exist, just that it's subtle.
+\end{verbatim}
+\item
+\begin{verbatim}
+model could improve by having more than two states
+\end{verbatim}
+\end{enumerate}
+Albert (2013)
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\tightlist
+\item
+  Intro
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+sneaky patterns in baseball
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    many ways of measuring success (hits, strikeouts, HR)\\
+  \item
+    many ways of measuring streakiness, (runs, variation of movavgs, BF)
+    \& they all may vary in how well they can detect deviation from a
+    binomial model
+  \item
+    under null mod, some players will appear streaky by chance
+    (multiplicity). so look at streakiness dist. btwn all players to see
+    if there is really streakiness
+  \end{enumerate}
+\item
+\begin{verbatim}
+overview of the paper (Albert, 2008)
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    binary outcomes grouped into bins. and testing for diff in probs
+    across bins.
+  \item
+    measure lack of randomness (clumpiness) by sum2 of spacings, then
+    perm test
+  \item
+    natural model for spacings assumes iid geom dists with diff probs.
+  \item
+    streaky mod assumes probs are diff and dist according to beta dist.
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Binary seq and ``spacings''
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+intro
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    consider binary data for a player. spacings \{y\}1n = num(0)s btwn
+    conseq 1s 101000001100 ??? y=\{0,1,5,0,2\}
+  \end{enumerate}
+\item
+\begin{verbatim}
+classical perm test
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    to quantify the amount of non-random streakiness in data
+  \item
+    clump stats u can use: runs, bins, lag-1 autocorr, fxn of spacings
+    f(y) like (SSq(y), Entropy(y), sum of 3 largest spacings, etc.
+  \item
+    here they use SSqs. S = SUM(yi2)
+  \item
+    given n1 successes, there are (n choose n1) arrangements
+  \item
+    for each combination simulated:
+  \item
+\begin{verbatim}
+randomly permute 0s and 1s and compute clumpiness stat S
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    repeat m times (they used m=1000) to get approx null distribution of
+    S
+  \item
+    then calculate p-value of Sobs\\
+  \end{enumerate}
+\item
+\begin{verbatim}
+Bayesian "test" (BF)
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    BFstreak = p(y\textbar{}Mstreak)/p(y\textbar{}Mconst) = amount of
+    support for Mstreak over Mconst
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Actually doing a Bayesian test
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+Consistent and streaky models
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    since yI represents discrete waiting time (in units of ``outs'') we
+    use geom
+  \item
+\begin{verbatim}
+f(y1|pi) = pi(1-pi)^(yi) where y is any natural number
+\end{verbatim}
+  \item
+    consistent model
+  \item
+\begin{verbatim}
+if not streaky then all pi are equal
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \item
+    unknown constant hitting prob p has the prior g(p) = 1/(p(1-p))
+  \item
+    streaky model
+  \item
+\begin{verbatim}
+pi vary
+\end{verbatim}
+  \item
+    pi \textasciitilde{} Beta(K\eta, K(1-\eta) for all i (K=precision,
+    \eta=mean)
+  \item
+    as K ??? \inf, Mk ??? Mconst
+  \end{enumerate}
+\item
+\begin{verbatim}
+BF
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    yeah just showing calculus methods and stuff
+  \end{enumerate}
+\item
+\begin{verbatim}
+Specifying K (difficult to assess)
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \item
+    calculate BF's for varying K's
+  \item
+\begin{verbatim}
+K inc ??? BF inc
+\end{verbatim}
+  \item
+    you could also do a true subjective prior
+  \item
+\begin{verbatim}
+make guess at std dev of pi's, then calc K using empirical mean \eta.
+\end{verbatim}
+  \end{enumerate}
+  \begin{enumerate}
+  \def\labelenumii{\roman{enumii}.}
+  \setcounter{enumii}{1}
+  \tightlist
+  \item
+    n=100, \eta = approx 0.3, prior sd = 0.1 ??? prior K = 3
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  Patterns of Streakiness in Hits
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+streakiness in 2011 data
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    more at-bats ??? lower BF ??? more evidence towards null
+  \item
+    p-vals and BF's generally agree with each other.
+  \end{enumerate}
+\item
+\begin{verbatim}
+alternative BF method (by Albert (2008))
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    group data into bins (nb=10) and see if probs change much across
+    bins
+  \item
+    used same beta dist for p of each bin. results were similar ????
+  \end{enumerate}
+\item
+\begin{verbatim}
+comparing to chance
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    calced BFs on 200 simulations of 2011 season with all batters using
+    null model
+  \item
+    expect ??-error rate of 19ish\% under null model.this is LARGER than
+    theobserved proportion of streaky hitters (16\%).???
+  \item
+    ``predictive p-value'' = prob that simmed ??-errors exceed observed
+    positives
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  changing definition of success: strikeouts instead of hits
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+patterns in 2011 season
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    hitting is not indicative of skill, while striking out indicates a
+    lack of skill
+  \item
+    expect ??-error rate of 17ish\% under null model.this is SMALLER
+    than the observed proportion of streaky hitters (19.5\%).????
+  \end{enumerate}
+\item
+\begin{verbatim}
+looking deeper into strikeout data
+\end{verbatim}
+  \begin{enumerate}
+  \def\labelenumii{\alph{enumii}.}
+  \tightlist
+  \item
+    observing indiv players. instead of just fraction of streaky players
+    in a season.
+  \item
+    only two players were streaky for \textgreater{} 2 seasons.only 12
+    for 2 consec seasons
+  \end{enumerate}
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\Alph{enumi}.}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  conclusion
+\end{enumerate}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+\begin{verbatim}
+a new way of presenting streakiness.spacings
+\end{verbatim}
+\item
+\begin{verbatim}
+looked at moving percentages, not correlations
+\end{verbatim}
+\item
+\begin{verbatim}
+BF quantifies evidence for null or alt.freq test only quantifies evidence 
+\end{verbatim}
+\end{enumerate}
+Mike West \& Harrison (1997)
+
+M. West, Harrison, \& Migon (1985)
+
+Prado \& West (2010)
+
+\chapter{Data}\label{data}
+
+The data for this analysis is from SportVU, a player-tracking system
+from STATS, LLC. that provides precise coordinates for all ten players
+and the ball 25 times per second. The Duke University Men's Basketball
+team permitted the use of their SportVU data from the \emph{blank} to
+\emph{blank} basketball seasons. However, since the ability to record
+this data depends on six specialized tracking cameras, Duke does not
+have this data for every game they play---only home games, and a few
+road games. Therefore, there is some missing data \emph{blank}.
+
+Each game has the following associated files:
+\begin{itemize}
+\item
+  Box Score Optical:
+\item
+  Final Sequence Optical (one for each half and each overtime period):
+\item
+  Final Sequence Play-by-Play Optical:
 \end{itemize}
-\chapter*{Conclusion}\label{conclusion}
-\addcontentsline{toc}{chapter}{Conclusion}
-
-If we don't want Conclusion to have a chapter number next to it, we can
-add the \texttt{\{-\}} attribute.
-
-\textbf{More info}
-
-And here's some other random info: the first paragraph after a chapter
-title or section head \emph{shouldn't be} indented, because indents are
-to tell the reader that you're starting a new paragraph. Since that's
-obvious after a chapter or section title, proper typesetting doesn't add
-an indent there.
-
-\appendix
-
-\chapter{The First Appendix}\label{the-first-appendix}
-
-This first appendix includes all of the R chunks of code that were
-hidden throughout the document (using the \texttt{include\ =\ FALSE}
-chunk tag) to help with readibility and/or setup.
-
-\textbf{In the main Rmd file}
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# This chunk ensures that the thesisdowndss package is}
-\CommentTok{# installed and loaded. This thesisdowndss package includes}
-\CommentTok{# the template files for the thesis.}
-\NormalTok{if(!}\KeywordTok{require}\NormalTok{(devtools))}
-  \KeywordTok{install.packages}\NormalTok{(}\StringTok{"devtools"}\NormalTok{, }\DataTypeTok{repos =} \StringTok{"http://cran.rstudio.com"}\NormalTok{)}
-\NormalTok{if(!}\KeywordTok{require}\NormalTok{(thesisdowndss))}
-  \NormalTok{devtools::}\KeywordTok{install_github}\NormalTok{(}\StringTok{"mine-cetinkaya-rundel/thesisdowndss"}\NormalTok{)}
-\KeywordTok{library}\NormalTok{(thesisdowndss)}
-\end{Highlighting}
-\end{Shaded}
-\textbf{In Chapter \ref{ref-labels}:}
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{# This chunk ensures that the thesisdowndss package is}
-\CommentTok{# installed and loaded. This thesisdowndss package includes}
-\CommentTok{# the template files for the thesis and also two functions}
-\CommentTok{# used for labeling and referencing}
-\NormalTok{if(!}\KeywordTok{require}\NormalTok{(devtools))}
-  \KeywordTok{install.packages}\NormalTok{(}\StringTok{"devtools"}\NormalTok{, }\DataTypeTok{repos =} \StringTok{"http://cran.rstudio.com"}\NormalTok{)}
-\NormalTok{if(!}\KeywordTok{require}\NormalTok{(dplyr))}
-    \KeywordTok{install.packages}\NormalTok{(}\StringTok{"dplyr"}\NormalTok{, }\DataTypeTok{repos =} \StringTok{"http://cran.rstudio.com"}\NormalTok{)}
-\NormalTok{if(!}\KeywordTok{require}\NormalTok{(ggplot2))}
-    \KeywordTok{install.packages}\NormalTok{(}\StringTok{"ggplot2"}\NormalTok{, }\DataTypeTok{repos =} \StringTok{"http://cran.rstudio.com"}\NormalTok{)}
-\NormalTok{if(!}\KeywordTok{require}\NormalTok{(ggplot2))}
-    \KeywordTok{install.packages}\NormalTok{(}\StringTok{"bookdown"}\NormalTok{, }\DataTypeTok{repos =} \StringTok{"http://cran.rstudio.com"}\NormalTok{)}
-\NormalTok{if(!}\KeywordTok{require}\NormalTok{(thesisdowndss))\{}
-  \KeywordTok{library}\NormalTok{(devtools)}
-  \NormalTok{devtools::}\KeywordTok{install_github}\NormalTok{(}\StringTok{"mine-cetinkaya-rundel/thesisdowndss"}\NormalTok{)}
-  \NormalTok{\}}
-\KeywordTok{library}\NormalTok{(thesisdowndss)}
-\NormalTok{flights <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"data/flights.csv"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-\chapter{The Second Appendix, for
-Fun}\label{the-second-appendix-for-fun}
-
+\chapter{Procedure}\label{proc}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Using data that consists of a time-stamped sequence of shot attempts
+  and outcomes, I will develop a novel analysis using dynamic models for
+  binary time series that allow for time-varying shot attempt and
+  success parameters over the game. These Bayesian models have core
+  elements that are technically similar to widely used ``volatility''
+  models, and have well-known attributes (Prado and West, 2010) (West
+  and Harrison, 1997). This first project component will apply and tune
+  such models to the player-specific data for a series of games or
+  shooting drills. The models provide flexibility in adapting to changes
+  of time intensity of shot attempts, and of changes in time in scoring
+  probabilities conditional on a shot attempt. The use of a formal
+  Bayesian analysis means that I will produce full quantified inferences
+  on such patterns over time, with probabilistic summaries of the
+  within-game outcomes. For each game, this will be a full statistical
+  characterization and quantification of the player shooting
+  outcomes---based on the limited data alone, of course---which across
+  multiple games provides understanding of inherent variability (or
+  ``randomness'') for the player, and formal assessments of differences
+  in patterns game-to-game. I am also considering a two-state Hidden
+  Markov Switching Model that parallels and extends these models; the
+  two potential states for each shot attempt are a ``high'' probability
+  or a ``low'' probability of making the next shot, given the features
+  of the current and previous possessions.
+\item
+  If I am given data that adds on-court position for each shot attempt
+  in a game, I will extend the above models to more explanatory, and
+  potentially predictive, dynamic generalized linear models, or DGLMs
+  (West, Migon, and Harrison, 1985) (West and Harrison, 1997), for
+  binary time series. In these models the characterization of variation
+  in shooting behaviour and outcomes will be then linked to time within
+  the game coupled with the x-y location of the player on the shot
+  attempt. For example, two coupled logistic regression DGLMs for binary
+  outcomes will model (a) the probability of a shot attempt being made
+  as a function of both time within the game and of the x-y position of
+  the player, and (b) the probability of success on a shot attempt,
+  conditional on that attempt being made at, as a function of both time
+  and location. Important to the project is the evaluation of dynamic
+  models that allow for and estimate any changes over time within the
+  game in how strongly the x-y location might relate to the attempt and
+  success probabilities. Developing full Bayesian statistical inferences
+  on these patterns over time will be of central interest game-by-game,
+  and this will then feed into cross-game comparisons.
+\end{enumerate}
 \backmatter
 
 \chapter*{References}\label{references}
@@ -1020,27 +2214,60 @@ Fun}\label{the-second-appendix-for-fun}
 \setlength{\parskip}{8pt}
 
 \hypertarget{refs}{}
-\hypertarget{ref-angel2000}{}
-Angel, E. (2000). \emph{Interactive computer graphics : A top-down
-approach with opengl}. Boston, MA: Addison Wesley Longman.
+\hypertarget{ref-albert93}{}
+Albert, J. (1993). Statistical analysis of hitting streaks in baseball:
+Comment. \emph{Journal of the American Statistical Association},
+\emph{88}(424), 1184--1188.
 
-\hypertarget{ref-angel2001}{}
-Angel, E. (2001a). \emph{Batch-file computer graphics : A bottom-up
-approach with quicktime}. Boston, MA: Wesley Addison Longman.
+\hypertarget{ref-albert13}{}
+Albert, J. (2013). Looking at spacings to assess streakiness.
+\emph{Journal of Quantitative Analysis in Sports}, \emph{9}(2), 1--13.
 
-\hypertarget{ref-angel2002a}{}
-Angel, E. (2001b). \emph{Test second book by angel}. Boston, MA: Wesley
-Addison Longman.
+\hypertarget{ref-albert99}{}
+Albert, J., \& Williamson, P. (1999). Using model/data simulations to
+detect streakiness. \emph{The American Statistician}, \emph{55}, 41--50.
 
-\hypertarget{ref-Molina1994}{}
-Molina, S. T., \& Borkovec, T. D. (1994). The Penn State worry
-questionnaire: Psychometric properties and associated characteristics.
-In G. C. L. Davey \& F. Tallis (Eds.), \emph{Worrying: Perspectives on
-theory, assessment and treatment} (pp. 265--283). New York: Wiley.
+\hypertarget{ref-bareli06}{}
+Bar-Eli, M., Avugos, S., \& Raab, M. (2006). Twenty years of ``hot
+hand'' research: Review and critique. \emph{Psychology of Sport and
+Exercise}, \emph{7}, 525--553.
 
-\hypertarget{ref-reedweb2007}{}
-Reed~College. (2007, march). LaTeX your document. Retrieved from
-\url{http://web.reed.edu/cis/help/LaTeX/index.html}
+\hypertarget{ref-gilovich85}{}
+Gilovich, T., Vallone, R., \& Tversky, A. (1985). The hot hand in
+basketball: On the misperception of random sequences. \emph{Cognitive
+Psychology}, \emph{17}, 295--314.
+
+\hypertarget{ref-jagacinski79}{}
+Jagacinski, R. J., Newell, K. M., \& Isaac, P. D. (1979). Predicting the
+success of a basketball shot at various stages of execution.
+\emph{Journal of Sport Psychology}, \emph{1}, 301--310.
+
+\hypertarget{ref-koehler03}{}
+Koehler, J. J., \& Conley, C. A. (2003). The ``hot hand'' myth in
+professional basketball. \emph{Journal of Sport and Exercise
+Psychology}, \emph{25}, 253--259.
+
+\hypertarget{ref-miller16}{}
+Miller, J. B., \& Sanjurjo, A. (2016). Surprised by the gambler's and
+hot hand fallacies? A truth in the law of small numbers. \emph{IGIER
+Working Paper No. 552}.
+
+\hypertarget{ref-west10}{}
+Prado, R., \& West, M. (2010). \emph{Time series: Modelling, computation
+\& inference}. Chapman \& Hall/CRC Press.
+
+\hypertarget{ref-wetzels16}{}
+Ryan Wetzels, e. a. (2016). A bayesian test for the hot hand phenomenon.
+\emph{Journal of Mathematical Psychology}, \emph{72}, 200--209.
+
+\hypertarget{ref-west97}{}
+West, M., \& Harrison, P. J. (1997). \emph{Bayesian forecasting \&
+dynamic models} (2nd ed.). Springer Verlag.
+
+\hypertarget{ref-west85}{}
+West, M., Harrison, P. J., \& Migon, H. S. (1985). Dynamic generalised
+linear models and bayesian forecasting (with discussion). \emph{Journal
+of the American Statistical Association}, \emph{80}, 73--97.
 
 
 % Index?
