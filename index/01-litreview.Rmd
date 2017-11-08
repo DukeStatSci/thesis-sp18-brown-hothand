@@ -2,6 +2,8 @@
 
 @gilovich85
 
+In this seminal research paper from *Cognitive Psychology*, Thomas Gilovich, Robert Vallone, and Amos Tversky investigate peoples' belief in the Hot Hand in Basketball. The Hot Hand is the concept that the probability of a success increases for trials that follow a success in a binary sequence; in basketball, these binary events are shot attempts. The methods in this paper include an analysis of shot attempts from the Philadelphia 76ers of the National Basketball Association (NBA) in the 1981 season, analysis of free-throw attempts from the Boston Celtics in the 1981 and 1982 seasons, and a controlled shooting drill using male and female varsity basketball players at Cornell University. Statistical techniques they used to attempt to detect streakiness in the data included Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of succesess, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. In addition to this analysis of shooting, this research also contained a survey of basketball fans, that gauged how much people believed success probabilities changed given a success or a failure. The statistical tests did not detect significant evidence supporting the Hot Hand in basketball.
+<!--
 A. survey of basketball fans
 
   1. qualitative questions, opinions
@@ -41,9 +43,12 @@ D.	controlled experiment with Cornell basketball player.
 E. Conclusion
 
   1. there is no hot hand.
-
+-->
 @albert99
 
+In this paper, Jim Albert attempts to improve upon the low-powered tests of Gilovich, Vallone, and Tverky's 1985 paper on the Hot Hand. Albert formally defines "streakiness" as the presence of nonstationarity (nonconstant probability between trials) or autocorrelation (sequential dependency). Albert uses Gibbs sampling to approximate posterior densities and simulate data, then fits two types of models on binary data from baseball and basketball to try to characterize streakiness. He fits an overdispersion model to detect nonstationarity, and a markov switching model to detect sequential dependencies. While he did not uncover strong evidence for the hot hand, one of his takeaways was that overdispersion decreases as time goes on in basketball free throw shooting data.
+
+<!--
 A. Introduction
 
   1. discussion of previous research.
@@ -102,6 +107,7 @@ E. Free throw shooting
   4. results
     a. dispersion decreases as days go on. (practice makes perfect)
 
+-->
 @koehler03
 
 A. prior research
