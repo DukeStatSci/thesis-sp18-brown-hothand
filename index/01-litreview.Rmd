@@ -1,5 +1,7 @@
 #Literature Review {#litreview}
 
+### how do I get the full citations to show up and not just last name and year?
+
 @gilovich85
 
 In this seminal research paper from *Cognitive Psychology*, Thomas Gilovich, Robert Vallone, and Amos Tversky investigate peoples' belief in the Hot Hand in Basketball. The Hot Hand is the concept that the probability of a success increases for trials that follow a success in a binary sequence; in basketball, these binary events are shot attempts. The methods in this paper include an analysis of shot attempts from the Philadelphia 76ers of the National Basketball Association (NBA) in the 1981 season, analysis of free-throw attempts from the Boston Celtics in the 1981 and 1982 seasons, and a controlled shooting drill using male and female varsity basketball players at Cornell University. Statistical techniques they used to attempt to detect streakiness in the data included Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of succesess, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. In addition to this analysis of shooting, this research also contained a survey of basketball fans, that gauged how much people believed success probabilities changed given a success or a failure. The statistical tests did not detect significant evidence supporting the Hot Hand in basketball.
@@ -110,6 +112,9 @@ E. Free throw shooting
 -->
 @koehler03
 
+Koehler and Conley analyze shooting streaks in basketball using four years of data from the National Basketball Association's Three-Point Contest. They test for sequential dependency using conditional probabilities of shot success (e.g. P(Hit | 3 Hits) compared to P(Hit | 3 Misses)), and they test runs analysis. One unique perspective they took in assessing streakiness in basketball is the comments of the commentators during the broadcast of the contest. They found that when a commentator described a player as "On Fire" or "On a Roll", etc., as a reaction to a shooter going on a streak, it was not predictive of future shooting outcomes.
+
+<!--
 A. prior research
 
 B. procedure
@@ -131,8 +136,14 @@ D. discussion
   2. irrational hot hand belief may lead to exploiting market inefficiencies
   3. future research might focus more on implications of the false belief in the hot hand rather than on pinpointing where hotness exists
 
+-->
+
 @bareli06
 
+This paper is a review of previous hot hand research. It reviews several papers investigating the concept of the "hot hand" in several sports such as basketball, baseball, volleyball, and horeshoe, and other fields such as cognitive science and economics. Bar-Eli, Avugos, and Raab evaluate the datasets, the tests and statistics used, and the conclusions of each study. Overall, the authors summarize 13 papers that oppose the hot hand phenomenon, and 11 that support it; they also acknowledge that the scientific evidence for the hot hand is weaker than the evidence against it, and it is typically more controversial. Instead of just looking to answer whether the hot hand exists, Bar-Eli, Avugos, and Raab also examine how people define a "hot hand", and the psychological factors behind the belief in it, such as the gambling and game strategy.
+
+<!--
+<!--
 A.	Introduction
 
   1. a review of 20 years of hot hand research.
@@ -250,7 +261,7 @@ H. Concluding Remarks
     b. look at situational factors that enable us to judge the value of the belief (strategic advantage vs detrimental fallacy)
     c. investigate how important it is to real decisions (gambling, coaching, etc.)
     d. if hot hand doesn't exist, then training and preparation and sports psych methods should reflect this (but they don't, of course)
-
+-->
 @wetzels16
 
 A. Introduction 

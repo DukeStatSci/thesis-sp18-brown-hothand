@@ -1,6 +1,3 @@
 # Discussion {#disc}
 
-Using data that consists of a time-stamped sequence of shot locations and outcomes, we develop a novel analysis using dynamic generalized linear models, or DGLMs (West, Migon, and Harrison, 1985) (West and Harrison, 1997), for binary time series. These models allow for time-varying shot attempt and success parameters within a game and between games. The models provide flexibility in adapting to changes in the frequency of shot attempts, and to changes in scoring probabilities conditional on a shot attempt. The formal Bayesian analysis allowe us to produce full quantified inferences on such patterns over time, with probabilistic summaries of the within-game and between-game outcomes. For each game, this will be a full statistical characterization and quantification of the player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the player, and formal assessments of differences in patterns game-to-game.
-
-I am also considering a two-state Hidden Markov Switching Model that parallels and extends these models; the two potential states for each shot attempt are a "high" probability or a "low" probability of making the next shot, given the features of the current and previous possessions.
-
+in conclusion, the end.

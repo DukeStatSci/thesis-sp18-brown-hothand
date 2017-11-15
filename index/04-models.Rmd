@@ -2,22 +2,40 @@
 
 
 ```{r}
-library(mvtnorm)
+library(mvtnorm); library(dplyr)
 #generating shot success probabilities
 #theta <- matrix(c(-0.5, 1.5, -5.5)) #GLM parameters (intercept, angle, log distance)
 datafolder <- "C:/Users/Nathaniel Brown/Desktop/DMBBall Data"
 source("C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand/sportvu_fxns.R")
 
-kennardid <- 887661
-allenid <- 842296
+id1 <- 887661
+id2 <- 842296
 
+```
 
-#### FIRST DGLM -- CONSIDERING SHOT LOCATIONS AND RESULTS. NOT TIME BETWEEN SHOTS ####
+#### GLM FOR 2 PLAYERS OVER ALL AVAILABLE GAMES
+```{r}
+playerid <- id2
+Z <- allgameshots %>% filter(globalplayerid == playerid) %>% mutate(logr = log(r) - mean(log(r))) %>% select(result, theta, logr)
+#mean center r.
+mod0 <- glm(result ~ 1, data=Z, family="binomial")
+mod1 <- glm(result ~ logr, data=Z, family="binomial")
+mod2 <- (glm(result ~ theta + logr, data=Z, family="binomial")) #high p-values everywhere
 
-ym <- 94; xm <- 50
-playerid <- kennardid
+pred0 <- predict(mod0, newdata=Z, type="response")
+pred1 <- predict(mod1, newdata=Z, type="response")
+pred2 <- predict(mod2, newdata=Z, type="response")
+
+```
+
+#### FIRST DGLM -- CONSIDERING SHOT LOCATIONS AND RESULTS. NOT TIME BETWEEN SHOTS.
+```{r, eval=FALSE}
+
+playerid <- id1
 Z <- allgameshots %>% filter(globalplayerid == playerid) %>% mutate(logr = log(r) - mean(log(r))) %>% select(result, theta, logr)
 X <- allgameshots %>% filter(globalplayerid == playerid) %>% select(x=x2, y=y2)
+
+ym <- 94; xm <- 50
 shots <- rep(TRUE,nrow(Z)) #no missing shots in this case
 tshot <- which(shots)
 nshots <- length(tshot)

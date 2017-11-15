@@ -1,16 +1,22 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 # Data {#data}
 
-The data for this analysis is from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball 25 times per second. The Duke University Men's Basketball team permitted the use of their SportVU data from the _blank_ to _blank_ basketball seasons. However, since the ability to record this data depends on six specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games. Therefore, there is some missing data _blank_.
+The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball 25 times per second. The Duke University Men's Basketball team permitted the use of their SportVU data from the 2014 to 2017 basketball seasons for this project. However, since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the techology installed. Therefore, there is some missing data _blank_.
 
-Each game has the following associated files:
+For my analysis, I use the following associated files for each game:
 
-- Box Score Optical:
+* Final Sequence Play-by-Play Optical:
 
-- Final Sequence Optical (one for each half and each overtime period):
+    This dataset consists of a detailed log of time-stamped basketball events (containing actions such as dribbles, passes, shots, fouls, etc.). I use these files to uncover when a shot is attempted in a game, who attempted the shot, and the result of the shot attempt.
+    
+* Box Score Optical:
 
-- Final Sequence Play-by-Play Optical:
+    I use this dataset to match the names and ids of players who were in the game.
+
+* Final Sequence Optical:
+
+    This dataset contains the locations of all ten players and the ball during precise time intervals within the game. I merge this with the Play-by-Play on the time stamp to obtain the shooter's location at the moment of a shot attempt. 

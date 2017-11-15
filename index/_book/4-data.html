@@ -65,9 +65,14 @@
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Delete line 7 if you only have one advisor</a></li>
 <li class="chapter" data-level="2" data-path="2-placeholder.html"><a href="2-placeholder.html"><i class="fa fa-check"></i><b>2</b> Placeholder</a></li>
-<li class="chapter" data-level="3" data-path="3-placeholder-1.html"><a href="3-placeholder-1.html"><i class="fa fa-check"></i><b>3</b> Placeholder</a></li>
+<li class="chapter" data-level="3" data-path="3-placeholder-1.html"><a href="3-placeholder-1.html"><i class="fa fa-check"></i><b>3</b> Placeholder</a><ul>
+<li class="chapter" data-level="3.0.1" data-path="3-placeholder-1.html"><a href="3-placeholder-1.html#how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year"><i class="fa fa-check"></i><b>3.0.1</b> how do I get the full citations to show up and not just last name and year?</a></li>
+</ul></li>
 <li class="chapter" data-level="4" data-path="4-data.html"><a href="4-data.html"><i class="fa fa-check"></i><b>4</b> Data</a></li>
 <li class="chapter" data-level="5" data-path="5-proc.html"><a href="5-proc.html"><i class="fa fa-check"></i><b>5</b> Procedure</a></li>
+<li class="chapter" data-level="6" data-path="6-model.html"><a href="6-model.html"><i class="fa fa-check"></i><b>6</b> Models</a></li>
+<li class="chapter" data-level="7" data-path="7-results.html"><a href="7-results.html"><i class="fa fa-check"></i><b>7</b> Results</a></li>
+<li class="chapter" data-level="8" data-path="8-disc.html"><a href="8-disc.html"><i class="fa fa-check"></i><b>8</b> Discussion</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -90,12 +95,15 @@
             <section class="normal" id="section-">
 <div id="data" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Data</h1>
-<p>The data for this analysis is from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball 25 times per second. The Duke University Men’s Basketball team permitted the use of their SportVU data from the <em>blank</em> to <em>blank</em> basketball seasons. However, since the ability to record this data depends on six specialized tracking cameras, Duke does not have this data for every game they play—only home games, and a few road games. Therefore, there is some missing data <em>blank</em>.</p>
-<p>Each game has the following associated files:</p>
+<p>The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball 25 times per second. The Duke University Men’s Basketball team permitted the use of their SportVU data from the 2014 to 2017 basketball seasons for this project. However, since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play—only home games, and a few road games in arenas that had the techology installed. Therefore, there is some missing data <em>blank</em>.</p>
+<p>For my analysis, I use the following associated files for each game:</p>
 <ul>
-<li><p>Box Score Optical:</p></li>
-<li><p>Final Sequence Optical (one for each half and each overtime period):</p></li>
-<li><p>Final Sequence Play-by-Play Optical:</p></li>
+<li><p>Final Sequence Play-by-Play Optical:</p>
+<p>This dataset consists of a detailed log of time-stamped basketball events (containing actions such as dribbles, passes, shots, fouls, etc.). I use these files to uncover when a shot is attempted in a game, who attempted the shot, and the result of the shot attempt.</p></li>
+<li><p>Box Score Optical:</p>
+<p>I use this dataset to match the names and ids of players who were in the game.</p></li>
+<li><p>Final Sequence Optical:</p>
+<p>This dataset contains the precise locations of all ten players and the ball during precise time intervals within the game. I merge this with the Play-by-Play on the time stamp to obtain the shooter’s location at the moment of a shot attempt.</p></li>
 </ul>
 
 </div>
