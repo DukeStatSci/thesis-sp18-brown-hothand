@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>My Final College Paper</title>
+  <meta name="description" content="My Final College Paper">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="My Final College Paper" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="My Final College Paper" />
+  
+  
+  
+
+<meta name="author" content="Nathaniel Brown">
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="1-abstract.html">
+<link rel="next" href="3-data.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./"></a></li>
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Introduction</a></li>
+<li class="chapter" data-level="1" data-path="1-abstract.html"><a href="1-abstract.html"><i class="fa fa-check"></i><b>1</b> Abstract</a></li>
+<li class="chapter" data-level="2" data-path="2-litreview.html"><a href="2-litreview.html"><i class="fa fa-check"></i><b>2</b> Literature Review</a><ul>
+<li class="chapter" data-level="2.0.1" data-path="2-litreview.html"><a href="2-litreview.html#how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year"><i class="fa fa-check"></i><b>2.0.1</b> how do I get the full citations to show up and not just last name and year?</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="3-data.html"><a href="3-data.html"><i class="fa fa-check"></i><b>3</b> Data</a></li>
+<li class="chapter" data-level="4" data-path="4-proc.html"><a href="4-proc.html"><i class="fa fa-check"></i><b>4</b> Procedure</a></li>
+<li class="chapter" data-level="5" data-path="5-model.html"><a href="5-model.html"><i class="fa fa-check"></i><b>5</b> Models</a></li>
+<li class="chapter" data-level="6" data-path="6-results.html"><a href="6-results.html"><i class="fa fa-check"></i><b>6</b> Results</a></li>
+<li class="chapter" data-level="7" data-path="7-disc.html"><a href="7-disc.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">My Final College Paper</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="litreview" class="section level1">
+<h1><span class="header-section-number">Chapter 2</span> Literature Review</h1>
+<div id="how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year" class="section level3">
+<h3><span class="header-section-number">2.0.1</span> how do I get the full citations to show up and not just last name and year?</h3>
+<p><span class="citation">Gilovich, Vallone, &amp; Tversky (1985)</span></p>
+<p>In this seminal research paper from <em>Cognitive Psychology</em>, Thomas Gilovich, Robert Vallone, and Amos Tversky investigate peoples’ belief in the Hot Hand in Basketball. The Hot Hand is the concept that the probability of a success increases for trials that follow a success in a binary sequence; in basketball, these binary events are shot attempts. The methods in this paper include an analysis of shot attempts from the Philadelphia 76ers of the National Basketball Association (NBA) in the 1981 season, analysis of free-throw attempts from the Boston Celtics in the 1981 and 1982 seasons, and a controlled shooting drill using male and female varsity basketball players at Cornell University. Statistical techniques they used to attempt to detect streakiness in the data included Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of succesess, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. In addition to this analysis of shooting, this research also contained a survey of basketball fans, that gauged how much people believed success probabilities changed given a success or a failure. The statistical tests did not detect significant evidence supporting the Hot Hand in basketball. <!--
+A. survey of basketball fans
+
+  1. qualitative questions, opinions
+  2. hypothetical preditions (FT% on #2 given #1 was a hit)
+  3. streak detection
+    a. asked to classify sequences as "chance", "streak", or "alternate"
+    b. alternation probability = 0.5 was considered streaky by 62% of subjects
+    c. people not only perceive random sequences as positively correlated, they also perceive negatively correlated sequences as random
+
+B. FG analysis from NBA games
+
+  1. autocorrelation between conditional probs P(H|M1), P(H), P(H|H1), etc.
+  2. paired t-test between the diff conditional probs (like P(H|M1) and P(H|H1))
+  3. Wald-Wolfowitz run test
+  4. Stationarity:
+    a. Chi-Sq test to look at if disjoint bins of shots followed expected distribution of "high", "med", and "low" performance.
+  5. Hot and Cold Night variability
+    a. look at flucutation between std erros of games and std error of season
+    b. Lexis ratio (SE obs / SE expc) should be significantly > 1
+    
+C. FT analysis from NBA games
+
+  1.    autocorrelation again
+
+D.  controlled experiment with Cornell basketball player.
+
+  1.     process:
+
+    a. For each player we determined a distance from which his or her shooting percentage was roughly 50%. At this distance we then drew two 15-ft arcs on the floor from which each player took all of his or her shots. The centers of the arcs were located 60 degrees out from the left and right sides of the basket. When shooting baskets, the players were required to move along the arc between shots so that consecutive shots were never taken from exactly the same spot. Each player was to take 100 shots, 50 from each arc.
+
+  
+    b. We tested players' ability to predict hits and misses by having them bet on the outcome of each upcoming shot. Before every shot, each player chose whether to bet high in which case he or she would win 5 cents for a hit and lose 4 cents for a miss; or bet low, in which case he or she would win 2 cents for a hit and lose 1 cent for a miss. The players were advised to bet high when they felt confident in their shooting ability, and to bet low when they did not. We also obtained betting data fro another player who observed the shooter.
+
+  2. data analysis was the same tests as NBA FG
+  3. reports prediction correlations with result, other predictions, and prev result, etc.
+
+E. Conclusion
+
+  1. there is no hot hand.
+--> <span class="citation">Albert &amp; Williamson (1999)</span></p>
+<p>In this paper, Jim Albert attempts to improve upon the low-powered tests of Gilovich, Vallone, and Tverky’s 1985 paper on the Hot Hand. Albert formally defines “streakiness” as the presence of nonstationarity (nonconstant probability between trials) or autocorrelation (sequential dependency). Albert uses Gibbs sampling to approximate posterior densities and simulate data, then fits two types of models on binary data from baseball and basketball to try to characterize streakiness. He fits an overdispersion model to detect nonstationarity, and a markov switching model to detect sequential dependencies. While he did not uncover strong evidence for the hot hand, one of his takeaways was that overdispersion decreases as time goes on in basketball free throw shooting data.</p>
+<!--
+A. Introduction
+
+  1. discussion of previous research.
+    a. the 1985 Gilovich tests lacked statistical power
+  2. streakiness is the presence of nonstationarity or autocorrelation in a binary sequence:
+    a. nonstationarity (nonconstant prob between trials)
+      i. can be modeled with overdispersion model
+    b. autocorrelation (sequential dependency)
+
+B. Simulating models and data
+
+  1. Using "nearly" sufficient statistics to approximate posterior density of interest, condidional on the statistic falline in a small interval about the observed value.
+  2. simulate using regular gibbs algorithm
+
+C. Fitting overdispersion model (on data where one suspects nonstationarity)
+
+  1. Mike Schmidt batting data
+    a. 14 baseball seasons, split each into 13 2-week sets, count num HR per set
+    b. observed that var(y) > mean(y)
+    c. fit overdispersion mixture model on poisson y.
+
+D. Another example (from a baseballer with a reputation of streakiness)
+
+  1. Javy Lopez 1998 hitting data
+    a. num hits and num at-bats for each of 132 games of the season
+  2. how do we measure streakiness/non-homogeneity?
+    a. sufficient stats included:
+      i. T1 = difference between max and min moving average (10-game bins)
+      ii. T2 = sum of the abs difference of moving avgs and season avg
+      iii. T3 = number of "runs" (consecutive 1s and 0s) in sequence
+      iv. T4 = length of the longest run in seq
+      v. T5 = number of runs exceeding a specified length
+      vi. T6 = $log[(n_{00}n_{11})/(n_{01}n_{10})]$
+        $n_{ij}$ = ijth index of matrix classifying game i and j as hot or cold. (j=i+1)
+        
+        T6 > 0 if strong autocorrelation
+
+      vii. using logistic function where p = hit% and xk = batting avg for last k games; logit(p) = B0 + B1*xk
+      T7(k) = B1 > 0
+      
+      viii. T8 = sd(p1, ..., pN) (given N bins of batting data)
+  3. Markov switching model
+    a. two hitting states $p_{hot}$ and $p_{cold}$
+    b. compared to "coin toss" model with constant prbability
+    c. simulating results of games showed that there is not evidence for hot hand
+
+E. Free throw shooting
+
+  1. data
+    a. College bball player shot 100 shots for 20 days. 20 x 100 matrix
+  2. model
+    a. dispersion instead of Markov switching
+  3. analysis:
+    a. group 100 shots for each day into 20 bins of 5. (i <= 20, j <= 20)
+    b. record proportions $hat{y_{1}}...hat{y_20}$
+  4. results
+    a. dispersion decreases as days go on. (practice makes perfect)
+
+-->
+<p><span class="citation">Koehler &amp; Conley (2003)</span></p>
+<p>Koehler and Conley analyze shooting streaks in basketball using four years of data from the National Basketball Association’s Three-Point Contest. They test for sequential dependency using conditional probabilities of shot success (e.g. P(Hit | 3 Hits) compared to P(Hit | 3 Misses)), and they test runs analysis. One unique perspective they took in assessing streakiness in basketball is the comments of the commentators during the broadcast of the contest. They found that when a commentator described a player as “On Fire” or “On a Roll”, etc., as a reaction to a shooter going on a streak, it was not predictive of future shooting outcomes.</p>
+<!--
+A. prior research
+
+B. procedure
+
+  1. analyze NBA 3-pt contest footage (4 years, 23 shooters (some rpt contestants), 56 total rounds)
+  2. search for seq dependency within shooters across all shots, and per set of 25 shots
+
+C. results
+
+  1. no evidence of hotness or seq dependencies
+  2. runs analysis from each shooter
+  3. conditional probability analysis
+  4. analysis of how they shot when announcers said a player was getting hot
+    a. the 3 before the announcer jinx were high but not the one immediately after.
+    
+D. discussion
+
+  1. recent streaks of success are not predictive of future performance; use base rate 
+  2. irrational hot hand belief may lead to exploiting market inefficiencies
+  3. future research might focus more on implications of the false belief in the hot hand rather than on pinpointing where hotness exists
+
+-->
+<p><span class="citation">Bar-Eli, Avugos, &amp; Raab (2006)</span></p>
+<p>This paper is a review of previous hot hand research. It reviews several papers investigating the concept of the “hot hand” in several sports such as basketball, baseball, volleyball, and horeshoe, and other fields such as cognitive science and economics. Bar-Eli, Avugos, and Raab evaluate the datasets, the tests and statistics used, and the conclusions of each study. Overall, the authors summarize 13 papers that oppose the hot hand phenomenon, and 11 that support it; they also acknowledge that the scientific evidence for the hot hand is weaker than the evidence against it, and it is typically more controversial. Instead of just looking to answer whether the hot hand exists, Bar-Eli, Avugos, and Raab also examine how people define a “hot hand”, and the psychological factors behind the belief in it, such as the gambling and game strategy.</p>
+<!--
+<!--
+A.  Introduction
+
+  1. a review of 20 years of hot hand research.
+  2. in short: 11 support, 13 not support
+    a. but the supportive ones are typically weaker/have questionable data or unrealistic model
+  3. so far, the scientific support for the hot hand is controversial and fairly limited
+  4. but the belief in it is important.
+
+B. Preliminary Hot hand research
+
+  1. assumption that prob of success is affected by physical or psychological state.
+  2. the scientific norm of randomness may present it as a fallacy but it's useful because it affects real life decisions
+  3. after gilovich 1985 paper, more applications appeared
+    a. other sports: baseball, volleyball, golf, tennis, bowling, darts, horseshoes
+    b. non sports: economics, cognitive science, law, religion
+
+C. The Origin of the belief
+
+  1. memory bias: streaks are more memorable and thus wrongly regarded as nonrandom
+  2. general misconception: people often disregard sample size. people expect more alternations than what is normal.
+    a. law of small numbers (fallicious belief that law of large numbers applies to small samples)
+  3. gambler's fallacy (states that a streak of events is likely to end)
+    a. basically the opposite of the hot hand fallacy
+    b. but both can be explained by "representativeness" and sequence recency.
+    c. they're interpreted inversely because slot machines are seen as unintentional while shooting a basketball is seen as intentional.
+    
+D. The validity of the Belief
+
+  1. studies that provide evidence against some investigate the link between belief and behavior instead of just a simple "is it real?"
+  2. evidence for
+    a. Larkey et al 1989: 
+      i. they used shorter chunks within a game (seq of 20 baskets) because extracting individual sequences from an actual game is too complicated
+      ii. found out that Vinnie Johnson was indeed streaky
+      iii. but they only used 7 makes within a string of 20 in one game.
+      iv.   and turns out that the stats were incorrectly recorded and the 7 in a  row never even happened! 
+    b. Waldrop 1995
+      i. interesting insight about the Simpson's paradox and how shooting better after a make may be seen in aggregated data but not individually.
+    c. Gilden and Wilson (1995)
+      i. asked random ppl to do darts and putts, but with little compensation
+      ii. therefore streakiness could be lack of motivation
+      iii. also sample size was huge, which means lower p-vals in general
+    d. Clark 2003
+      i. PGA stuff. Any clustering of scores thought to be explained by hotness was actually explained by course difficulty
+    e. Klaasen and Magnus 2001
+      i. very very very tiny momentum effect in tennis
+    f. Frame et al 2003
+      i. basketball, baseball, tennis results are dep. on strategy of opposition
+      ii. there was modest evidence in horsehoe tossing tho!!!
+    g. Dorsey-Palmateer and Smith 2004
+      i. results bowling games exhibited some hotness (maybe just because next opponent was sitting and waiting)
+      ii. results of indiv rolls within games did not exhibit this.
+      
+E. Hot Hand Test Statistics
+
+  1. Gilovich 1985 (used simplification of binomial model; has questionable power.)
+    a. prob of hit conditioned on results of previous shot(s)
+    b. first-order correlation coef
+    c. Wald-Wolfowitz runs analysis test
+    d. grouping blocks of 4 shots
+  2. Wardrop (1999) simulated streaky data to see how binom tests detected it
+    a. it wasn't good; they didn't detect unless the change was extreme, partially because of small sample sizes too
+  3. Miyoshi (2000) suggested 4 variables that affected power of model:
+    a. frequency of hot periods
+    b. number of shots in all hot periods for a season
+    c. number of shots in each hot period
+    d. magnitude of probability increase during a hot period
+      i. with these parameters set realistically, Gilovich's power would have only been 0.12
+  4. so no matter how you slice it, it's difficult to model basketball events
+    a. the alternative hypothesis is not that streakines exists, but that it exists for everybody in the same way. this is unreasonable.
+    b. an effective and powerful test for one person may not work for another
+    c. 1 person may exhibit non stationarity while another exhibits autocorrelation.
+    
+F. Implications of hot hand belief
+
+  1. sports gambling
+    a. the market believes it
+    b. teams on winning streaks marginally underperform & vice versa
+  2. game strategy
+    a. hot players are more likely to force bad shots
+    b. hotness should be taken as a piece of information including base rate, def strategy, player strengths, other stuff; it should not replace your game plan tho.
+
+G.  Discussion
+
+  1. Task segregation
+    a. baseball & basketball are the most popular experiments, but repetitive solo events like darts & golf make more sense; horseshoes & bowling had strongest evidence
+    b. quality of data was often poor
+    c. the supportive studies used professional
+    d. IF hotness exists, then it depends on much more than has been controlled for in prev studies
+      i. participant expertise, task difficulty, atmosphere, motivation, etc.
+
+  2. hot hand definitions
+    a. most common test is the runs test that Gilovich used
+    b. Hales (1999) defined it in the following terms (none of which were found in sports data)
+      i. success breeds success
+      ii. streaks are statistically unlikely
+      iii. num. of consecutive successes must exceed those predicted by chance
+    c. Hales argued that "being hot does not have to do with the fecundity, duration, or even frequency of streaks. It has to do with their existence" (p. 86). 
+    d. When one believes he has a hot hand, he may well be usually right.
+    e. some say "a player has a hot hand when he is playing better than average"
+  3. the cold hand 
+    a. hot hand is based on notion that success motivates ppl and raises confidence
+    b. Berry and Wood (2004) found that icing the kicker in NFL is effective strategy
+  4. Evaluation procedure
+    a. eval. of indiv. studies is essential 4 future research (wide range of outcomes)
+    b. but also consider big picture
+    c. good idea to combine and reanalyze data from separate studies that used same sport and got diff conclusions.
+
+H. Concluding Remarks
+
+  1. this paper looked at studies that collected real data and simmed data
+  2. question remains unanswered
+  3. Gilovich somewhat strongly showed evidence against seq dep. but the nonstate test wasn't powerful enough according to simulation studies.
+  4. stepping further than the "is there a hot hand?" question
+    a. investigating the norms used by people to justify belief in it
+    b. look at situational factors that enable us to judge the value of the belief (strategic advantage vs detrimental fallacy)
+    c. investigate how important it is to real decisions (gambling, coaching, etc.)
+    d. if hot hand doesn't exist, then training and preparation and sports psych methods should reflect this (but they don't, of course)
+-->
+<p><span class="citation">Ryan Wetzels (2016)</span></p>
+<p>In this research paper, Wetzels uses Bayesian analysis with a Hidden Markov Model to investigate the Hot Hand Phenomenon. <!--
+A. Introduction 
+
+  1. (past studies and stuff you've already read)
+  2. Albert (1993) and Markov logic
+    a. difference: albert used constant ?? = p(switch) = 0.1, but makes ?? a free param
+    b. diff: albert may switch states btwn games, wetzels may switch @ arbitrary
+    c. similarity: first order markov chain (pi only depends on pi-1)
+
+B. A two-state Bernoulli hidden markov model
+
+  1. consider first order hidden markov model (HMM)
+    a. binary state (S) at each timeunit (t). St = 1 ??? hot; St = 0 ??? cold
+    b. if switching prob < 0.5 ??? "sticky" states (exhibits streakiness)   (free param!)
+      iii.  the data Yt comes from Bern dist with different hot and cold probs
+      
+C. simulation study to assess performance of Bayesian test
+
+  1. evidence of HMM in favor of CPM will be assed by bayes factor
+    a. BF = ratio of marginal likeyhoods = p(Y(T) = y(T) | HMM) / p(Y(T) = y(T) | CPM)
+
+D. application: free throw shooting of Shaq n Kobe
+
+  1. Kobe's are closer to CPM according to Bayes Factor test
+  2. Shaq's are closer to HMM according to Bayes Factors
+
+E. application: perceptual identification test from test of visual discernment test
+
+  1. BF: 42% showed evidence for HMM; 22% for CPM (rest weren't strong either way)
+  2. WW-runs test: 47% were streaky (rest EITHER not strong or strong for CPM)
+    a. much overlap in the accept/reject regions of both tests. 
+
+F. Conclusion and ramifications
+
+  1. restrictions on BF test:
+    a.  p(switch) = alpha < 0.5 to ensure stickiness
+  2.    comments on BF test
+    a.  HMM was not good at simulating data.concludes that "streakiness" hurts CPM more than it helps HMM. 
+    b.  BFs are a measure of relative support, so one model being bad does not mean  the other one is good, even though it may look that way by BF
+  3.    future improvements
+    a.  subject-specific priors can create a more power, instead of indep unif dists.
+    b.  continuous variables instead of binary variables?
+    c.  allowing switching prob to depend on the state may improve HMM
+    d.  hierarchichal structure that accounts for season effects and indiv effects
+            --></p>
+<p><span class="citation">Miller &amp; Sanjurjo (2016)</span></p>
+<ol style="list-style-type: upper-alpha">
+<li>Intro</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>Inherent subtle but substantial selection bias when measuring conditional dependence of current outcomes on past outcomes in sequential data.</code></pre></li>
+<li><pre><code>We prove that for any finite sequence of binary data, in which each outcome of &quot;success&quot; or &quot;failure&quot; is determined by an i.i.d. random variable, the proportion of 1s among the outcomes that immediately follow a streak of consecutive 1s is expected to be strictly less than the underlying (conditional) probability of success.</code></pre></li>
+<li><pre><code>P(H) &gt; P(H | H) &gt; P(H | H, H) &gt; P(H | H, H, ... Hk) &gt; ...</code></pre></li>
+<li><pre><code>bias decreases as sequence (experimental trials, num coinflips) gets longer; bias increases as streak (condition, num heads) size increased</code></pre></li>
+<li><pre><code>example table with n=3, k=1</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>for HHH and HHT, there are two flips after the streak prereq</li>
+<li>for THT, HTT, HTH, THH, there is one flip after the streak</li>
+<li>for TTH, TTT, there are zero</li>
+<li>each seq has an equal prob of happening, but in group a. you record 2 events, b. is 1, and c. is 0. Therefore, the group a. flips are individually weighted the least.</li>
+<li>This means that individual flips among a small group of heads inherently get a lower weight. -&gt; heads get a lower prob.</li>
+</ol></li>
+<li><pre><code>how to unbias</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>flip indefinitely until you get m trials that follow a streak, instead of flipping exactly n times (negbinom sampling)</li>
+<li>eliminate overlap by dividing your n trials into bins (that may or may not break up some streaks) (explanation was confusing)</li>
+</ol></li>
+<li><pre><code>the bias implies that streaks within finite sequences are expected to end more often than continue (relative to the underlying probability)</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>which can lead both the gambler to think that an i.i.d process has a tendency towards reversal,</li>
+<li>and the hot hand researcher to think that a process is i.i.d. when it actually has a tendency towards momentum.</li>
+</ol></li>
+<li><pre><code>you should write a function to simulate this using binomial trials!</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: upper-alpha">
+<li>Bias (theoretical results)</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>proof</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>show that: if X is binary seq of iid randvars s/t p = p(x_i = 1) = p(x_i = 1| k-length streak), then this procedure yields a biased estimate of the conditional probability</li>
+<li><pre><code>the probability of seeing a streak is &lt; p, ==&gt; E[p(x=1|streak)] &lt; p</code></pre></li>
+</ol></li>
+<li><pre><code>relationship to know results (like SWOR)</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>any binary seq of n trials will have n1 successes and n0 := n-n1 failures</li>
+<li>prior odds of success = n1/n0</li>
+<li>for trials following streak of k 1s ( denoted in paper as I_1k(x) ), odds dec.</li>
+<li>prior odds have 2 updating factors &amp; they both cause drop in odds when t &lt; n</li>
+<li><pre><code>first factor: (n1-k)/n1 &lt; 1</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>reflects constraint of the finite number of available trials to select from</li>
+<li>info gained upon learning k of the n1 successes are no longer available, which leads to a SWOR effect on the prior odds</li>
+<li>bias increases as k (streak length) increases</li>
+<li><pre><code>second factor: too complicated to type out. some ratio of expectations.</code></pre></li>
+<li>reflects constraint of arrangement of successes in the seq</li>
+<li>info gained upon learning that k 1s are consec. and precede t.</li>
+<li>if k-streak occurs, x(t+1) WILL be in I_1k, and x(t+2),…,x(t+k) MIGHT be. else, x(t+1), …, x(t+k) CANNNOT be in I_1k.</li>
+</ol>
+<ol start="5" style="list-style-type: lower-alpha">
+<li>SWOR formula</li>
+<li>bias is determined not by size of n1, but by number of (overlapping) instances of k consecutive 1s in the first n???1 trials, which depends on both n1 and their arr.</li>
+<li>overlapping words paradox?</li>
+</ol></li>
+<li><pre><code>Quantifying the Bias</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>enumerating all possible seqs for given n and n1 is computationally expensive</li>
+<li>cool magnitude of bias plots</li>
+<li>visualizing P1k - P0k</li>
+</ol></li>
+</ol>
+<ol start="3" style="list-style-type: upper-alpha">
+<li>Hot Hand Application</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>debiasing GVT data/tests</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>t-test</li>
+<li><pre><code>shift the estimated difference Dk := p1k - p0k</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>“the bias adjustment is made by subtracting the expected difference (a player’s overall percentage) from each player’s observed difference.</li>
+<li>“results in 19 of the 25 players exhibiting hot hand shooting” p&lt;0.01</li>
+</ol>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>permutations test</li>
+<li><pre><code>permutation test is invulnerable to the bias</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>under the null of constant prob, each perm. of 1s and 0s is eq. likely</li>
+<li>process: . record n1 hits and n0 misses . calculate Dk for each possible arrangement of the sequence . the distribution of Dks should be left skewed . use dist to find how “significant”ly off obs Dk is. . agreeable with t-test thing</li>
+</ol></li>
+<li><pre><code>debiasing other studies</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>these studies are:</li>
+<li><pre><code>Jagacinski et al. (1979) (read this!!!)</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>Koehler and Conley (2003), (the three-point shootout one)</li>
+<li>Avugos et al. (2013a) (no raw data provided ???)</li>
+<li>and Miller and Sanjurjo (2014). (read this too)</li>
+</ol>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>2003:</li>
+<li><pre><code>only median 49 shots per player. severly underpowered.</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>when debiasing, there is a significant improvement.</li>
+<li>1979 &amp; 2014:</li>
+<li><pre><code>few players, but many shots per players</code></pre></li>
+<li>debiasing agrees and players exhibit streakiness</li>
+</ol></li>
+<li><pre><code>belief in the hot hand</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li><pre><code>GVT: players believe in hot hand, hot hand does not exist</code></pre></li>
+<li><pre><code>this: of course people can still overreact to a few consecutive makes, but it is not completely a fallacy</code></pre></li>
+<li><pre><code>&quot;an understanding of the extent to which decision makers&#39; beliefs and behavior do not corecposnd to the actual degree of hot hand shooting may have important implications for decision making more generally.</code></pre></li>
+<li><pre><code>hot hand is not a binary issue. it can exist, and belief can be too strong.</code></pre>
+<ol style="list-style-type: lower-roman">
+<li>ask fans, players, and decision makers. ironically, after one make, ppl tend 2 predict miss more, cause theyre biased towards alternating seqs.</li>
+</ol></li>
+<li>prediction questions are more informative of HH belief than qualitative ones</li>
+<li><pre><code>GVT calculated avg correlation of .04 from prediction/betting game. However, even with an assumed knowledge of the change in shooting states, the expected correlation would be .07, assuming pc = 0.45 and ph = 0.55.</code></pre></li>
+<li><pre><code>reanalysis of betting data, using pooled data instead of indiv.</code></pre>
+<ol style="list-style-type: lower-roman">
+<li>avg correlation bumps up to 0.07, and p&lt;0.001</li>
+<li>weakness in GVT prediction exercise: under the null, the predictions should be more accurate than chance following streaks, but under the alt, if the players are correctly perceiving when hot state activates, then there won’t be much of a difference in their accuracy between hot and cold states. hmmmm interesting logic.</li>
+</ol></li>
+<li><pre><code>2014 paper found that semi-pro players&#39; rankings of teammates respective increases in FG% following 3-streaks are highly correlated with actual increase in performance (-0.60)</code></pre></li>
+<li><pre><code>players may be able to perceive hot hand in real time, which would require seeing more factors than binary streaks. (technique, body lang, etc.) &quot;this suggest the possibility of conducting experiements in which experienced players (or coaches) are incenivixed to predict the shot outcomes of players that they are familiar with, but only predict when they feel sufficiently confident about their ability to do so accurately&quot;</code></pre></li>
+</ol></li>
+</ol>
+<ol start="4" style="list-style-type: upper-alpha">
+<li><pre><code>Gambler Application</code></pre>
+<ol style="list-style-type: decimal">
+<li>gamblers mistakenly apply large sample properties to small samples (they expect things to even out)</li>
+<li>humans typically remember things in (relatively) small sample sizes, so sample size neglect occurs naturally (we overfit to what most recently happened) even for experienced decision makers.</li>
+<li>there is scientific reasoning to gamb fall bias tho:</li>
+</ol>
+<ol style="list-style-type: lower-alpha">
+<li><pre><code>when n &gt; 4, 1110 is mathematically more likely to occur than 1111, which may explain why people believe that probability of 0 is greater than 0.5 after three 1s in a row.</code></pre></li>
+</ol></li>
+<li><pre><code>Conclusion</code></pre>
+<ol style="list-style-type: decimal">
+<li>gambler sees reversal in an iid process,</li>
+<li>while researchers see iid in a momentous process</li>
+</ol></li>
+</ol>
+<p>–&gt; <span class="citation">Jagacinski, Newell, &amp; Isaac (1979)</span></p>
+<ol style="list-style-type: upper-alpha">
+<li>Abstract</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>college ballers predicting their own shots outcome either before release, right after release, or halfway to the basket, were no better at predicting than passive observers.</code></pre></li>
+<li><pre><code>some evidence found for seq. dep., but not to the degree one found in bball lore</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: upper-alpha">
+<li>Intro</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>1977 paper found bball players cannot predict immediate performance outcomes better than an observer.</code></pre></li>
+<li><pre><code>but they can better predict their own outcomes during the execution of their action.</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>internal, non-visual cues from their own receptive feedback</li>
+</ol></li>
+<li><pre><code>signal detection analysis (sensitivity = true positive rate)</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>two motivations: player sensitivity and existence of seq. dep.</li>
+</ol></li>
+</ol>
+<ol start="3" style="list-style-type: upper-alpha">
+<li>the experiment:</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>subjects: 3 pairs of U of Ill. grad students who played mens college ball as undergrads</code></pre></li>
+<li><pre><code>apparatus:</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>portable wooden panel with sensors that shut off lights when a basketball passed thru.</li>
+<li>placed at midpoint of shot location, in a regular bball gym</li>
+</ol></li>
+<li><pre><code>procedure:</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>10 sessions, approx 1.5 hr each, one pair per session.</li>
+<li>subjects alternate roles of shooter and observer for 6 blocks of 60 trials.</li>
+<li>session 1 is for practice, while 2-10 were experimental</li>
+<li>in prax, there was lights on, lights off on midpt, and lights off on release. to familiarize subjects with conditions, and find distance with 55% success rate</li>
+<li>both subjects would predict outcome on 6-point scale.</li>
+<li>both subjects had headphones with white noise playing</li>
+<li>shots were taken every 10ish seconds.</li>
+<li>incentive of 5 cents per successful shot, and -10 for each late prediction</li>
+<li>540*3 = 1620 shots per person?</li>
+</ol></li>
+<li><pre><code>results</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>signal detection analysis</li>
+<li><pre><code>the measure of sensitivity (A_g) was area under ROC curve</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>average sensitivities were 0.5ish (approx chance) for pre-release pred.</li>
+<li>but good for at release or post release</li>
+<li>shooters were not more sensitive than observers</li>
+</ol>
+<ol start="2" style="list-style-type: lower-alpha">
+<li>seq dep analysis</li>
+<li><pre><code>4 subjects had a significant p-value for alt hyp: p(H|H) &gt; p(H|M)</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>in general, subjects as shoots &amp; obs were optimistic in that p(Hpred|H) &gt; p(Hpred|M)</li>
+</ol></li>
+<li><pre><code>discussion</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>equivalent sensitivity in shot prediction from shooters and observers suggests that shooters can’t use internal cues to predict shot EVEN WHEN THE LIGHTS WERE OFF AFTER RELEASE!!!</li>
+<li>only subjects 5 &amp; 6 were slightly above chance in predictions as shooters when lights stayed on</li>
+<li>OFF 1st &lt; OFF 2nd &lt; OFF 3rd</li>
+<li>weak positive recency (streakiness, for makes or misses) WAS FOUND!!!! occurred mostly in OFF trial.</li>
+<li>optimism thing occurred mostly in the ON trial, even though it would have been more justified in the OFF trial. suggests that shooters’ beliefs in hotness may depend on other factors such as bball lore rather than visual feedback.</li>
+<li>possible that the lore is a result of lack of awareness of statistical fluctuations within a game, players usually take a small number of shots, so it would take very large changes in hot hit prob to be measurable in-game. this controlled data does not suggest these large changes exist.</li>
+</ol></li>
+</ol>
+<p><span class="citation">Albert (1993)</span></p>
+<ol style="list-style-type: upper-alpha">
+<li>intro</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>Albright used 2 models on 501 players: </code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>“null” binom model with test stats related to streaks</li>
+<li>logis regress using predictors abt “recent success” aka history, &amp; situation</li>
+<li>concluded that few players were signif streaky; not enough to reject null tho</li>
+<li>streakiness effects are small in magnitude if they exist (overstated by media)</li>
+<li>concerns about power (signal detection)</li>
+</ol></li>
+<li><pre><code>simple technique: look for peaks and valleys in moving avg plot</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: upper-alpha">
+<li>Situational Variables</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>control for factors such as Home/Away, pitcher handedness, runners on bases, etc.</code></pre></li>
+<li><pre><code>forward selection to determine significant ones for each player!</code></pre></li>
+<li><pre><code>predictor measuring recent success (hits in last 20 AB) the effect was negative! :O</code></pre></li>
+</ol>
+<ol start="3" style="list-style-type: upper-alpha">
+<li>does hit prob change across season?</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>pitcher ERA seemed to be the only generally signif predictor. try diff approach.</code></pre></li>
+<li><pre><code>if we ignore all situational &amp; historical vars, then we get binom trial</code></pre></li>
+<li><pre><code>moving average using d-length bins, also lag-d autocorr of moving avgs (d=4)</code></pre></li>
+</ol>
+<ol start="4" style="list-style-type: upper-alpha">
+<li>one model for streakiness</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>Markov sqitching again!</code></pre></li>
+<li><pre><code>latent variables Z1.ZT. Zi = 1(hot during game i)</code></pre></li>
+<li><pre><code>symmetric transition matrix with rows ((0.9, 0.1),(0.1,0.9)) (pswitch = 0.1)</code></pre></li>
+<li><pre><code>after they run on real data, they sim binom data to observe false negative possibility</code></pre></li>
+<li><pre><code>&quot;random data can display similar patterns&quot;</code></pre></li>
+</ol>
+<ol start="5" style="list-style-type: upper-alpha">
+<li>conclusion</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>difficult to distinguish batters from coin tosses ???</code></pre></li>
+<li><pre><code>doesn&#39;t mean streakiness doesn&#39;t exist, just that it&#39;s subtle.</code></pre></li>
+<li><pre><code>model could improve by having more than two states</code></pre></li>
+</ol>
+<p><span class="citation">Albert (2013)</span></p>
+<ol style="list-style-type: upper-alpha">
+<li>Intro</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>sneaky patterns in baseball</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>many ways of measuring success (hits, strikeouts, HR)<br />
+</li>
+<li>many ways of measuring streakiness, (runs, variation of movavgs, BF) &amp; they all may vary in how well they can detect deviation from a binomial model</li>
+<li>under null mod, some players will appear streaky by chance (multiplicity). so look at streakiness dist. btwn all players to see if there is really streakiness</li>
+</ol></li>
+<li><pre><code>overview of the paper (Albert, 2008)</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>binary outcomes grouped into bins. and testing for diff in probs across bins.</li>
+<li>measure lack of randomness (clumpiness) by sum2 of spacings, then perm test</li>
+<li>natural model for spacings assumes iid geom dists with diff probs.</li>
+<li>streaky mod assumes probs are diff and dist according to beta dist.</li>
+</ol></li>
+</ol>
+<ol start="2" style="list-style-type: upper-alpha">
+<li>Binary seq and “spacings”</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>intro</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>consider binary data for a player. spacings {y}1n = num(0)s btwn conseq 1s 101000001100 ??? y={0,1,5,0,2}</li>
+</ol></li>
+<li><pre><code>classical perm test</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>to quantify the amount of non-random streakiness in data</li>
+<li>clump stats u can use: runs, bins, lag-1 autocorr, fxn of spacings f(y) like (SSq(y), Entropy(y), sum of 3 largest spacings, etc.</li>
+<li>here they use SSqs. S = SUM(yi2)</li>
+<li>given n1 successes, there are (n choose n1) arrangements</li>
+<li>for each combination simulated:</li>
+<li><pre><code>randomly permute 0s and 1s and compute clumpiness stat S</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>repeat m times (they used m=1000) to get approx null distribution of S</li>
+<li>then calculate p-value of Sobs<br />
+</li>
+</ol></li>
+<li><pre><code>Bayesian &quot;test&quot; (BF)</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>BFstreak = p(y|Mstreak)/p(y|Mconst) = amount of support for Mstreak over Mconst</li>
+</ol></li>
+</ol>
+<ol start="3" style="list-style-type: upper-alpha">
+<li>Actually doing a Bayesian test</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>Consistent and streaky models</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>since yI represents discrete waiting time (in units of “outs”) we use geom</li>
+<li><pre><code>f(y1|pi) = pi(1-pi)^(yi) where y is any natural number</code></pre></li>
+<li>consistent model</li>
+<li><pre><code>if not streaky then all pi are equal</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>unknown constant hitting prob p has the prior g(p) = 1/(p(1-p))</li>
+<li>streaky model</li>
+<li><pre><code>pi vary</code></pre></li>
+<li>pi ~ Beta(K, K(1-) for all i (K=precision, =mean)</li>
+<li>as K ??? , Mk ??? Mconst</li>
+</ol></li>
+<li><pre><code>BF</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>yeah just showing calculus methods and stuff</li>
+</ol></li>
+<li><pre><code>Specifying K (difficult to assess)</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>calculate BF’s for varying K’s</li>
+<li><pre><code>K inc ??? BF inc</code></pre></li>
+<li>you could also do a true subjective prior</li>
+<li><pre><code>make guess at std dev of pi&#39;s, then calc K using empirical mean \eta.</code></pre></li>
+</ol>
+<ol start="2" style="list-style-type: lower-roman">
+<li>n=100, = approx 0.3, prior sd = 0.1 ??? prior K = 3</li>
+</ol></li>
+</ol>
+<ol start="4" style="list-style-type: upper-alpha">
+<li>Patterns of Streakiness in Hits</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>streakiness in 2011 data</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>more at-bats ??? lower BF ??? more evidence towards null</li>
+<li>p-vals and BF’s generally agree with each other.</li>
+</ol></li>
+<li><pre><code>alternative BF method (by Albert (2008))</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>group data into bins (nb=10) and see if probs change much across bins</li>
+<li>used same beta dist for p of each bin. results were similar ????</li>
+</ol></li>
+<li><pre><code>comparing to chance</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>calced BFs on 200 simulations of 2011 season with all batters using null model</li>
+<li>expect ??-error rate of 19ish% under null model.this is LARGER than theobserved proportion of streaky hitters (16%).???</li>
+<li>“predictive p-value” = prob that simmed ??-errors exceed observed positives</li>
+</ol></li>
+</ol>
+<ol start="5" style="list-style-type: upper-alpha">
+<li>changing definition of success: strikeouts instead of hits</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>patterns in 2011 season</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>hitting is not indicative of skill, while striking out indicates a lack of skill</li>
+<li>expect ??-error rate of 17ish% under null model.this is SMALLER than the observed proportion of streaky hitters (19.5%).????</li>
+</ol></li>
+<li><pre><code>looking deeper into strikeout data</code></pre>
+<ol style="list-style-type: lower-alpha">
+<li>observing indiv players. instead of just fraction of streaky players in a season.</li>
+<li>only two players were streaky for &gt; 2 seasons.only 12 for 2 consec seasons</li>
+</ol></li>
+</ol>
+<ol start="6" style="list-style-type: upper-alpha">
+<li>conclusion</li>
+</ol>
+<ol style="list-style-type: decimal">
+<li><pre><code>a new way of presenting streakiness.spacings</code></pre></li>
+<li><pre><code>looked at moving percentages, not correlations</code></pre></li>
+<li><pre><code>BF quantifies evidence for null or alt.freq test only quantifies evidence </code></pre></li>
+</ol>
+<p><span class="citation">Mike West &amp; Harrison (1997)</span></p>
+<p><span class="citation">M. West, Harrison, &amp; Migon (1985)</span></p>
+<p><span class="citation">Prado &amp; West (2010)</span></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="1-abstract.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="3-data.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]],
+"toc": {
+"collapse": "section"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

@@ -329,3 +329,11 @@ secs_to_ms <- function(x){
   paste0(m,":",s)
 }
 
+#not sure what the units of the times are...but there are between 6 and 7 million in a game
+# 25 timeunits  60 seconds  40 minutes   = 60000 (so we need to multiply by another 100???)
+# 1 second      1 minute    1 game
+get_mins <- function(gameid = NA, timeid = NA, playerid=NA){
+  load(paste0(datafolder,"/game", gameid, ".RData"))
+  unique(game$time)
+}
+

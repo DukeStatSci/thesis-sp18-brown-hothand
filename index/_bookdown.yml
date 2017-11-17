@@ -5,3 +5,4 @@ rmd_files: ["index.Rmd", "00-abstract.Rmd", "01-litreview.Rmd", "02-data.Rmd", "
 # "01-litreview.Rmd", "03-data.Rmd", "02-models.Rmd", "03-simulation.Rmd"]
 download: [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]]
 delete_merged_file: TRUE
+output_dir: "../docs"

@@ -48,6 +48,43 @@
 
 
 
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
 
 </head>
 
@@ -65,7 +102,9 @@
 <li class="divider"></li>
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Introduction</a></li>
 <li class="chapter" data-level="1" data-path="1-abstract.html"><a href="1-abstract.html"><i class="fa fa-check"></i><b>1</b> Abstract</a></li>
-<li class="chapter" data-level="2" data-path="2-litreview.html"><a href="2-litreview.html"><i class="fa fa-check"></i><b>2</b> Literature Review</a></li>
+<li class="chapter" data-level="2" data-path="2-litreview.html"><a href="2-litreview.html"><i class="fa fa-check"></i><b>2</b> Literature Review</a><ul>
+<li class="chapter" data-level="2.0.1" data-path="2-litreview.html"><a href="2-litreview.html#how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year"><i class="fa fa-check"></i><b>2.0.1</b> how do I get the full citations to show up and not just last name and year?</a></li>
+</ul></li>
 <li class="chapter" data-level="3" data-path="3-data.html"><a href="3-data.html"><i class="fa fa-check"></i><b>3</b> Data</a></li>
 <li class="chapter" data-level="4" data-path="4-proc.html"><a href="4-proc.html"><i class="fa fa-check"></i><b>4</b> Procedure</a></li>
 <li class="chapter" data-level="5" data-path="5-model.html"><a href="5-model.html"><i class="fa fa-check"></i><b>5</b> Models</a></li>
@@ -93,324 +132,258 @@
             <section class="normal" id="section-">
 <div id="litreview" class="section level1">
 <h1><span class="header-section-number">Chapter 2</span> Literature Review</h1>
+<div id="how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year" class="section level3">
+<h3><span class="header-section-number">2.0.1</span> how do I get the full citations to show up and not just last name and year?</h3>
 <p><span class="citation">Gilovich, Vallone, &amp; Tversky (1985)</span></p>
-<p>A. survey of basketball fans</p>
-<ol style="list-style-type: decimal">
-<li>qualitative questions, opinions</li>
-<li>hypothetical preditions (FT% on #2 given #1 was a hit)</li>
-<li>streak detection
-<ol style="list-style-type: lower-alpha">
-<li>asked to classify sequences as “chance”, “streak”, or “alternate”</li>
-<li>alternation probability = 0.5 was considered streaky by 62% of subjects</li>
-<li>people not only perceive random sequences as positively correlated, they also perceive negatively correlated sequences as random</li>
-</ol></li>
-</ol>
-<p>B. FG analysis from NBA games</p>
-<ol style="list-style-type: decimal">
-<li>autocorrelation between conditional probs P(H|M1), P(H), P(H|H1), etc.</li>
-<li>paired t-test between the diff conditional probs (like P(H|M1) and P(H|H1))</li>
-<li>Wald-Wolfowitz run test</li>
-<li>Stationarity:
-<ol style="list-style-type: lower-alpha">
-<li>Chi-Sq test to look at if disjoint bins of shots followed expected distribution of “high”, “med”, and “low” performance.</li>
-</ol></li>
-<li>Hot and Cold Night variability
-<ol style="list-style-type: lower-alpha">
-<li>look at flucutation between std erros of games and std error of season</li>
-<li>Lexis ratio (SE obs / SE expc) should be significantly &gt; 1</li>
-</ol></li>
-</ol>
-<p>C. FT analysis from NBA games</p>
-<ol style="list-style-type: decimal">
-<li><pre><code>autocorrelation again</code></pre></li>
-</ol>
-<ol start="4" style="list-style-type: upper-alpha">
-<li>controlled experiment with Cornell basketball player.</li>
-</ol>
-<ol style="list-style-type: decimal">
-<li><pre><code> process:</code></pre>
-<ol style="list-style-type: lower-alpha">
-<li><p>For each player we determined a distance from which his or her shooting percentage was roughly 50%. At this distance we then drew two 15-ft arcs on the floor from which each player took all of his or her shots. The centers of the arcs were located 60 degrees out from the left and right sides of the basket. When shooting baskets, the players were required to move along the arc between shots so that consecutive shots were never taken from exactly the same spot. Each player was to take 100 shots, 50 from each arc.</p></li>
-<li><p>We tested players’ ability to predict hits and misses by having them bet on the outcome of each upcoming shot. Before every shot, each player chose whether to bet high in which case he or she would win 5 cents for a hit and lose 4 cents for a miss; or bet low, in which case he or she would win 2 cents for a hit and lose 1 cent for a miss. The players were advised to bet high when they felt confident in their shooting ability, and to bet low when they did not. We also obtained betting data fro another player who observed the shooter.</p></li>
-</ol></li>
-<li>data analysis was the same tests as NBA FG</li>
-<li>reports prediction correlations with result, other predictions, and prev result, etc.</li>
-</ol>
-<p>E. Conclusion</p>
-<ol style="list-style-type: decimal">
-<li>there is no hot hand.</li>
-</ol>
-<p><span class="citation">Albert &amp; Williamson (1999)</span></p>
-<p>A. Introduction</p>
-<ol style="list-style-type: decimal">
-<li>discussion of previous research.
-<ol style="list-style-type: lower-alpha">
-<li>the 1985 Gilovich tests lacked statistical power</li>
-</ol></li>
-<li>streakiness is the presence of nonstationarity or autocorrelation in a binary sequence:
-<ol style="list-style-type: lower-alpha">
-<li>nonstationarity (nonconstant prob between trials)</li>
-<li>can be modeled with overdispersion model</li>
-<li>autocorrelation (sequential dependency)</li>
-</ol></li>
-</ol>
-<p>B. Simulating models and data</p>
-<ol style="list-style-type: decimal">
-<li>Using “nearly” sufficient statistics to approximate posterior density of interest, condidional on the statistic falline in a small interval about the observed value.</li>
-<li>simulate using regular gibbs algorithm</li>
-</ol>
-<p>C. Fitting overdispersion model (on data where one suspects nonstationarity)</p>
-<ol style="list-style-type: decimal">
-<li>Mike Schmidt batting data
-<ol style="list-style-type: lower-alpha">
-<li>14 baseball seasons, split each into 13 2-week sets, count num HR per set</li>
-<li>observed that var(y) &gt; mean(y)</li>
-<li>fit overdispersion mixture model on poisson y.</li>
-</ol></li>
-</ol>
-<p>D. Another example (from a baseballer with a reputation of streakiness)</p>
-<ol style="list-style-type: decimal">
-<li>Javy Lopez 1998 hitting data
-<ol style="list-style-type: lower-alpha">
-<li>num hits and num at-bats for each of 132 games of the season</li>
-</ol></li>
-<li>how do we measure streakiness/non-homogeneity?
-<ol style="list-style-type: lower-alpha">
-<li>sufficient stats included:</li>
-<li>T1 = difference between max and min moving average (10-game bins)</li>
-</ol>
-<ol start="2" style="list-style-type: lower-roman">
-<li>T2 = sum of the abs difference of moving avgs and season avg</li>
-<li>T3 = number of “runs” (consecutive 1s and 0s) in sequence</li>
-<li>T4 = length of the longest run in seq</li>
-<li>T5 = number of runs exceeding a specified length</li>
-<li><p>T6 = <span class="math inline">\(log[(n_{00}n_{11})/(n_{01}n_{10})]\)</span> <span class="math inline">\(n_{ij}\)</span> = ijth index of matrix classifying game i and j as hot or cold. (j=i+1)</p>
-<p>T6 &gt; 0 if strong autocorrelation</p></li>
-<li><p>using logistic function where p = hit% and xk = batting avg for last k games; logit(p) = B0 + B1*xk T7(k) = B1 &gt; 0</p></li>
-<li>T8 = sd(p1, …, pN) (given N bins of batting data)</li>
-</ol></li>
-<li>Markov switching model
-<ol style="list-style-type: lower-alpha">
-<li>two hitting states <span class="math inline">\(p_{hot}\)</span> and <span class="math inline">\(p_{cold}\)</span></li>
-<li>compared to “coin toss” model with constant prbability</li>
-<li>simulating results of games showed that there is not evidence for hot hand</li>
-</ol></li>
-</ol>
-<p>E. Free throw shooting</p>
-<ol style="list-style-type: decimal">
-<li>data
-<ol style="list-style-type: lower-alpha">
-<li>College bball player shot 100 shots for 20 days. 20 x 100 matrix</li>
-</ol></li>
-<li>model
-<ol style="list-style-type: lower-alpha">
-<li>dispersion instead of Markov switching</li>
-</ol></li>
-<li>analysis:
-<ol style="list-style-type: lower-alpha">
-<li>group 100 shots for each day into 20 bins of 5. (i &lt;= 20, j &lt;= 20)</li>
-<li>record proportions <span class="math inline">\(hat{y_{1}}...hat{y_20}\)</span></li>
-</ol></li>
-<li>results
-<ol style="list-style-type: lower-alpha">
-<li>dispersion decreases as days go on. (practice makes perfect)</li>
-</ol></li>
-</ol>
+<p>In this seminal research paper from <em>Cognitive Psychology</em>, Thomas Gilovich, Robert Vallone, and Amos Tversky investigate peoples’ belief in the Hot Hand in Basketball. The Hot Hand is the concept that the probability of a success increases for trials that follow a success in a binary sequence; in basketball, these binary events are shot attempts. The methods in this paper include an analysis of shot attempts from the Philadelphia 76ers of the National Basketball Association (NBA) in the 1981 season, analysis of free-throw attempts from the Boston Celtics in the 1981 and 1982 seasons, and a controlled shooting drill using male and female varsity basketball players at Cornell University. Statistical techniques they used to attempt to detect streakiness in the data included Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of succesess, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. In addition to this analysis of shooting, this research also contained a survey of basketball fans, that gauged how much people believed success probabilities changed given a success or a failure. The statistical tests did not detect significant evidence supporting the Hot Hand in basketball. <!--
+A. survey of basketball fans
+
+  1. qualitative questions, opinions
+  2. hypothetical preditions (FT% on #2 given #1 was a hit)
+  3. streak detection
+    a. asked to classify sequences as "chance", "streak", or "alternate"
+    b. alternation probability = 0.5 was considered streaky by 62% of subjects
+    c. people not only perceive random sequences as positively correlated, they also perceive negatively correlated sequences as random
+
+B. FG analysis from NBA games
+
+  1. autocorrelation between conditional probs P(H|M1), P(H), P(H|H1), etc.
+  2. paired t-test between the diff conditional probs (like P(H|M1) and P(H|H1))
+  3. Wald-Wolfowitz run test
+  4. Stationarity:
+    a. Chi-Sq test to look at if disjoint bins of shots followed expected distribution of "high", "med", and "low" performance.
+  5. Hot and Cold Night variability
+    a. look at flucutation between std erros of games and std error of season
+    b. Lexis ratio (SE obs / SE expc) should be significantly > 1
+    
+C. FT analysis from NBA games
+
+  1.    autocorrelation again
+
+D.  controlled experiment with Cornell basketball player.
+
+  1.     process:
+
+    a. For each player we determined a distance from which his or her shooting percentage was roughly 50%. At this distance we then drew two 15-ft arcs on the floor from which each player took all of his or her shots. The centers of the arcs were located 60 degrees out from the left and right sides of the basket. When shooting baskets, the players were required to move along the arc between shots so that consecutive shots were never taken from exactly the same spot. Each player was to take 100 shots, 50 from each arc.
+
+  
+    b. We tested players' ability to predict hits and misses by having them bet on the outcome of each upcoming shot. Before every shot, each player chose whether to bet high in which case he or she would win 5 cents for a hit and lose 4 cents for a miss; or bet low, in which case he or she would win 2 cents for a hit and lose 1 cent for a miss. The players were advised to bet high when they felt confident in their shooting ability, and to bet low when they did not. We also obtained betting data fro another player who observed the shooter.
+
+  2. data analysis was the same tests as NBA FG
+  3. reports prediction correlations with result, other predictions, and prev result, etc.
+
+E. Conclusion
+
+  1. there is no hot hand.
+--> <span class="citation">Albert &amp; Williamson (1999)</span></p>
+<p>In this paper, Jim Albert attempts to improve upon the low-powered tests of Gilovich, Vallone, and Tverky’s 1985 paper on the Hot Hand. Albert formally defines “streakiness” as the presence of nonstationarity (nonconstant probability between trials) or autocorrelation (sequential dependency). Albert uses Gibbs sampling to approximate posterior densities and simulate data, then fits two types of models on binary data from baseball and basketball to try to characterize streakiness. He fits an overdispersion model to detect nonstationarity, and a markov switching model to detect sequential dependencies. While he did not uncover strong evidence for the hot hand, one of his takeaways was that overdispersion decreases as time goes on in basketball free throw shooting data.</p>
+<!--
+A. Introduction
+
+  1. discussion of previous research.
+    a. the 1985 Gilovich tests lacked statistical power
+  2. streakiness is the presence of nonstationarity or autocorrelation in a binary sequence:
+    a. nonstationarity (nonconstant prob between trials)
+      i. can be modeled with overdispersion model
+    b. autocorrelation (sequential dependency)
+
+B. Simulating models and data
+
+  1. Using "nearly" sufficient statistics to approximate posterior density of interest, condidional on the statistic falline in a small interval about the observed value.
+  2. simulate using regular gibbs algorithm
+
+C. Fitting overdispersion model (on data where one suspects nonstationarity)
+
+  1. Mike Schmidt batting data
+    a. 14 baseball seasons, split each into 13 2-week sets, count num HR per set
+    b. observed that var(y) > mean(y)
+    c. fit overdispersion mixture model on poisson y.
+
+D. Another example (from a baseballer with a reputation of streakiness)
+
+  1. Javy Lopez 1998 hitting data
+    a. num hits and num at-bats for each of 132 games of the season
+  2. how do we measure streakiness/non-homogeneity?
+    a. sufficient stats included:
+      i. T1 = difference between max and min moving average (10-game bins)
+      ii. T2 = sum of the abs difference of moving avgs and season avg
+      iii. T3 = number of "runs" (consecutive 1s and 0s) in sequence
+      iv. T4 = length of the longest run in seq
+      v. T5 = number of runs exceeding a specified length
+      vi. T6 = $log[(n_{00}n_{11})/(n_{01}n_{10})]$
+        $n_{ij}$ = ijth index of matrix classifying game i and j as hot or cold. (j=i+1)
+        
+        T6 > 0 if strong autocorrelation
+
+      vii. using logistic function where p = hit% and xk = batting avg for last k games; logit(p) = B0 + B1*xk
+      T7(k) = B1 > 0
+      
+      viii. T8 = sd(p1, ..., pN) (given N bins of batting data)
+  3. Markov switching model
+    a. two hitting states $p_{hot}$ and $p_{cold}$
+    b. compared to "coin toss" model with constant prbability
+    c. simulating results of games showed that there is not evidence for hot hand
+
+E. Free throw shooting
+
+  1. data
+    a. College bball player shot 100 shots for 20 days. 20 x 100 matrix
+  2. model
+    a. dispersion instead of Markov switching
+  3. analysis:
+    a. group 100 shots for each day into 20 bins of 5. (i <= 20, j <= 20)
+    b. record proportions $hat{y_{1}}...hat{y_20}$
+  4. results
+    a. dispersion decreases as days go on. (practice makes perfect)
+
+-->
 <p><span class="citation">Koehler &amp; Conley (2003)</span></p>
-<p>A. prior research</p>
-<p>B. procedure</p>
-<ol style="list-style-type: decimal">
-<li>analyze NBA 3-pt contest footage (4 years, 23 shooters (some rpt contestants), 56 total rounds)</li>
-<li>search for seq dependency within shooters across all shots, and per set of 25 shots</li>
-</ol>
-<p>C. results</p>
-<ol style="list-style-type: decimal">
-<li>no evidence of hotness or seq dependencies</li>
-<li>runs analysis from each shooter</li>
-<li>conditional probability analysis</li>
-<li>analysis of how they shot when announcers said a player was getting hot
-<ol style="list-style-type: lower-alpha">
-<li>the 3 before the announcer jinx were high but not the one immediately after.</li>
-</ol></li>
-</ol>
-<p>D. discussion</p>
-<ol style="list-style-type: decimal">
-<li>recent streaks of success are not predictive of future performance; use base rate</li>
-<li>irrational hot hand belief may lead to exploiting market inefficiencies</li>
-<li>future research might focus more on implications of the false belief in the hot hand rather than on pinpointing where hotness exists</li>
-</ol>
+<p>Koehler and Conley analyze shooting streaks in basketball using four years of data from the National Basketball Association’s Three-Point Contest. They test for sequential dependency using conditional probabilities of shot success (e.g. P(Hit | 3 Hits) compared to P(Hit | 3 Misses)), and they test runs analysis. One unique perspective they took in assessing streakiness in basketball is the comments of the commentators during the broadcast of the contest. They found that when a commentator described a player as “On Fire” or “On a Roll”, etc., as a reaction to a shooter going on a streak, it was not predictive of future shooting outcomes.</p>
+<!--
+A. prior research
+
+B. procedure
+
+  1. analyze NBA 3-pt contest footage (4 years, 23 shooters (some rpt contestants), 56 total rounds)
+  2. search for seq dependency within shooters across all shots, and per set of 25 shots
+
+C. results
+
+  1. no evidence of hotness or seq dependencies
+  2. runs analysis from each shooter
+  3. conditional probability analysis
+  4. analysis of how they shot when announcers said a player was getting hot
+    a. the 3 before the announcer jinx were high but not the one immediately after.
+    
+D. discussion
+
+  1. recent streaks of success are not predictive of future performance; use base rate 
+  2. irrational hot hand belief may lead to exploiting market inefficiencies
+  3. future research might focus more on implications of the false belief in the hot hand rather than on pinpointing where hotness exists
+
+-->
 <p><span class="citation">Bar-Eli, Avugos, &amp; Raab (2006)</span></p>
-<ol style="list-style-type: upper-alpha">
-<li>Introduction</li>
-</ol>
-<ol style="list-style-type: decimal">
-<li>a review of 20 years of hot hand research.</li>
-<li>in short: 11 support, 13 not support
-<ol style="list-style-type: lower-alpha">
-<li>but the supportive ones are typically weaker/have questionable data or unrealistic model</li>
-</ol></li>
-<li>so far, the scientific support for the hot hand is controversial and fairly limited</li>
-<li>but the belief in it is important.</li>
-</ol>
-<p>B. Preliminary Hot hand research</p>
-<ol style="list-style-type: decimal">
-<li>assumption that prob of success is affected by physical or psychological state.</li>
-<li>the scientific norm of randomness may present it as a fallacy but it’s useful because it affects real life decisions</li>
-<li>after gilovich 1985 paper, more applications appeared
-<ol style="list-style-type: lower-alpha">
-<li>other sports: baseball, volleyball, golf, tennis, bowling, darts, horseshoes</li>
-<li>non sports: economics, cognitive science, law, religion</li>
-</ol></li>
-</ol>
-<p>C. The Origin of the belief</p>
-<ol style="list-style-type: decimal">
-<li>memory bias: streaks are more memorable and thus wrongly regarded as nonrandom</li>
-<li>general misconception: people often disregard sample size. people expect more alternations than what is normal.
-<ol style="list-style-type: lower-alpha">
-<li>law of small numbers (fallicious belief that law of large numbers applies to small samples)</li>
-</ol></li>
-<li>gambler’s fallacy (states that a streak of events is likely to end)
-<ol style="list-style-type: lower-alpha">
-<li>basically the opposite of the hot hand fallacy</li>
-<li>but both can be explained by “representativeness” and sequence recency.</li>
-<li>they’re interpreted inversely because slot machines are seen as unintentional while shooting a basketball is seen as intentional.</li>
-</ol></li>
-</ol>
-<p>D. The validity of the Belief</p>
-<ol style="list-style-type: decimal">
-<li>studies that provide evidence against some investigate the link between belief and behavior instead of just a simple “is it real?”</li>
-<li>evidence for
-<ol style="list-style-type: lower-alpha">
-<li>Larkey et al 1989:</li>
-<li>they used shorter chunks within a game (seq of 20 baskets) because extracting individual sequences from an actual game is too complicated</li>
-</ol>
-<ol start="2" style="list-style-type: lower-roman">
-<li>found out that Vinnie Johnson was indeed streaky</li>
-<li>but they only used 7 makes within a string of 20 in one game.</li>
-<li>and turns out that the stats were incorrectly recorded and the 7 in a row never even happened!</li>
-</ol>
-<ol start="2" style="list-style-type: lower-alpha">
-<li>Waldrop 1995</li>
-<li>interesting insight about the Simpson’s paradox and how shooting better after a make may be seen in aggregated data but not individually.</li>
-<li>Gilden and Wilson (1995)</li>
-<li>asked random ppl to do darts and putts, but with little compensation</li>
-</ol>
-<ol start="2" style="list-style-type: lower-roman">
-<li>therefore streakiness could be lack of motivation</li>
-<li>also sample size was huge, which means lower p-vals in general</li>
-<li>Clark 2003</li>
-<li>PGA stuff. Any clustering of scores thought to be explained by hotness was actually explained by course difficulty</li>
-</ol>
-<ol start="5" style="list-style-type: lower-alpha">
-<li>Klaasen and Magnus 2001</li>
-<li>very very very tiny momentum effect in tennis</li>
-<li>Frame et al 2003</li>
-<li>basketball, baseball, tennis results are dep. on strategy of opposition</li>
-</ol>
-<ol start="2" style="list-style-type: lower-roman">
-<li>there was modest evidence in horsehoe tossing tho!!!</li>
-</ol>
-<ol start="7" style="list-style-type: lower-alpha">
-<li>Dorsey-Palmateer and Smith 2004</li>
-<li>results bowling games exhibited some hotness (maybe just because next opponent was sitting and waiting)</li>
-</ol>
-<ol start="2" style="list-style-type: lower-roman">
-<li>results of indiv rolls within games did not exhibit this.</li>
-</ol></li>
-</ol>
-<p>E. Hot Hand Test Statistics</p>
-<ol style="list-style-type: decimal">
-<li>Gilovich 1985 (used simplification of binomial model; has questionable power.)
-<ol style="list-style-type: lower-alpha">
-<li>prob of hit conditioned on results of previous shot(s)</li>
-<li>first-order correlation coef</li>
-<li>Wald-Wolfowitz runs analysis test</li>
-<li>grouping blocks of 4 shots</li>
-</ol></li>
-<li>Wardrop (1999) simulated streaky data to see how binom tests detected it
-<ol style="list-style-type: lower-alpha">
-<li>it wasn’t good; they didn’t detect unless the change was extreme, partially because of small sample sizes too</li>
-</ol></li>
-<li>Miyoshi (2000) suggested 4 variables that affected power of model:
-<ol style="list-style-type: lower-alpha">
-<li>frequency of hot periods</li>
-<li>number of shots in all hot periods for a season</li>
-<li>number of shots in each hot period</li>
-<li>magnitude of probability increase during a hot period</li>
-<li>with these parameters set realistically, Gilovich’s power would have only been 0.12</li>
-</ol></li>
-<li>so no matter how you slice it, it’s difficult to model basketball events
-<ol style="list-style-type: lower-alpha">
-<li>the alternative hypothesis is not that streakines exists, but that it exists for everybody in the same way. this is unreasonable.</li>
-<li>an effective and powerful test for one person may not work for another</li>
-<li>1 person may exhibit non stationarity while another exhibits autocorrelation.</li>
-</ol></li>
-</ol>
-<p>F. Implications of hot hand belief</p>
-<ol style="list-style-type: decimal">
-<li>sports gambling
-<ol style="list-style-type: lower-alpha">
-<li>the market believes it</li>
-<li>teams on winning streaks marginally underperform &amp; vice versa</li>
-</ol></li>
-<li>game strategy
-<ol style="list-style-type: lower-alpha">
-<li>hot players are more likely to force bad shots</li>
-<li>hotness should be taken as a piece of information including base rate, def strategy, player strengths, other stuff; it should not replace your game plan tho.</li>
-</ol></li>
-</ol>
-<ol start="7" style="list-style-type: upper-alpha">
-<li>Discussion</li>
-</ol>
-<ol style="list-style-type: decimal">
-<li>Task segregation
-<ol style="list-style-type: lower-alpha">
-<li>baseball &amp; basketball are the most popular experiments, but repetitive solo events like darts &amp; golf make more sense; horseshoes &amp; bowling had strongest evidence</li>
-<li>quality of data was often poor</li>
-<li>the supportive studies used professional</li>
-<li>IF hotness exists, then it depends on much more than has been controlled for in prev studies</li>
-<li>participant expertise, task difficulty, atmosphere, motivation, etc.</li>
-</ol></li>
-<li>hot hand definitions
-<ol style="list-style-type: lower-alpha">
-<li>most common test is the runs test that Gilovich used</li>
-<li>Hales (1999) defined it in the following terms (none of which were found in sports data)</li>
-<li>success breeds success</li>
-</ol>
-<ol start="2" style="list-style-type: lower-roman">
-<li>streaks are statistically unlikely</li>
-<li>num. of consecutive successes must exceed those predicted by chance</li>
-<li>Hales argued that “being hot does not have to do with the fecundity, duration, or even frequency of streaks. It has to do with their existence” (p. 86).</li>
-<li>When one believes he has a hot hand, he may well be usually right.</li>
-</ol>
-<ol start="5" style="list-style-type: lower-alpha">
-<li>some say “a player has a hot hand when he is playing better than average”</li>
-</ol></li>
-<li>the cold hand
-<ol style="list-style-type: lower-alpha">
-<li>hot hand is based on notion that success motivates ppl and raises confidence</li>
-<li>Berry and Wood (2004) found that icing the kicker in NFL is effective strategy</li>
-</ol></li>
-<li>Evaluation procedure
-<ol style="list-style-type: lower-alpha">
-<li>eval. of indiv. studies is essential 4 future research (wide range of outcomes)</li>
-<li>but also consider big picture</li>
-<li>good idea to combine and reanalyze data from separate studies that used same sport and got diff conclusions.</li>
-</ol></li>
-</ol>
-<p>H. Concluding Remarks</p>
-<ol style="list-style-type: decimal">
-<li>this paper looked at studies that collected real data and simmed data</li>
-<li>question remains unanswered</li>
-<li>Gilovich somewhat strongly showed evidence against seq dep. but the nonstate test wasn’t powerful enough according to simulation studies.</li>
-<li>stepping further than the “is there a hot hand?” question
-<ol style="list-style-type: lower-alpha">
-<li>investigating the norms used by people to justify belief in it</li>
-<li>look at situational factors that enable us to judge the value of the belief (strategic advantage vs detrimental fallacy)</li>
-<li>investigate how important it is to real decisions (gambling, coaching, etc.)</li>
-<li>if hot hand doesn’t exist, then training and preparation and sports psych methods should reflect this (but they don’t, of course)</li>
-</ol></li>
-</ol>
+<p>This paper is a review of previous hot hand research. It reviews several papers investigating the concept of the “hot hand” in several sports such as basketball, baseball, volleyball, and horeshoe, and other fields such as cognitive science and economics. Bar-Eli, Avugos, and Raab evaluate the datasets, the tests and statistics used, and the conclusions of each study. Overall, the authors summarize 13 papers that oppose the hot hand phenomenon, and 11 that support it; they also acknowledge that the scientific evidence for the hot hand is weaker than the evidence against it, and it is typically more controversial. Instead of just looking to answer whether the hot hand exists, Bar-Eli, Avugos, and Raab also examine how people define a “hot hand”, and the psychological factors behind the belief in it, such as the gambling and game strategy.</p>
+<!--
+<!--
+A.  Introduction
+
+  1. a review of 20 years of hot hand research.
+  2. in short: 11 support, 13 not support
+    a. but the supportive ones are typically weaker/have questionable data or unrealistic model
+  3. so far, the scientific support for the hot hand is controversial and fairly limited
+  4. but the belief in it is important.
+
+B. Preliminary Hot hand research
+
+  1. assumption that prob of success is affected by physical or psychological state.
+  2. the scientific norm of randomness may present it as a fallacy but it's useful because it affects real life decisions
+  3. after gilovich 1985 paper, more applications appeared
+    a. other sports: baseball, volleyball, golf, tennis, bowling, darts, horseshoes
+    b. non sports: economics, cognitive science, law, religion
+
+C. The Origin of the belief
+
+  1. memory bias: streaks are more memorable and thus wrongly regarded as nonrandom
+  2. general misconception: people often disregard sample size. people expect more alternations than what is normal.
+    a. law of small numbers (fallicious belief that law of large numbers applies to small samples)
+  3. gambler's fallacy (states that a streak of events is likely to end)
+    a. basically the opposite of the hot hand fallacy
+    b. but both can be explained by "representativeness" and sequence recency.
+    c. they're interpreted inversely because slot machines are seen as unintentional while shooting a basketball is seen as intentional.
+    
+D. The validity of the Belief
+
+  1. studies that provide evidence against some investigate the link between belief and behavior instead of just a simple "is it real?"
+  2. evidence for
+    a. Larkey et al 1989: 
+      i. they used shorter chunks within a game (seq of 20 baskets) because extracting individual sequences from an actual game is too complicated
+      ii. found out that Vinnie Johnson was indeed streaky
+      iii. but they only used 7 makes within a string of 20 in one game.
+      iv.   and turns out that the stats were incorrectly recorded and the 7 in a  row never even happened! 
+    b. Waldrop 1995
+      i. interesting insight about the Simpson's paradox and how shooting better after a make may be seen in aggregated data but not individually.
+    c. Gilden and Wilson (1995)
+      i. asked random ppl to do darts and putts, but with little compensation
+      ii. therefore streakiness could be lack of motivation
+      iii. also sample size was huge, which means lower p-vals in general
+    d. Clark 2003
+      i. PGA stuff. Any clustering of scores thought to be explained by hotness was actually explained by course difficulty
+    e. Klaasen and Magnus 2001
+      i. very very very tiny momentum effect in tennis
+    f. Frame et al 2003
+      i. basketball, baseball, tennis results are dep. on strategy of opposition
+      ii. there was modest evidence in horsehoe tossing tho!!!
+    g. Dorsey-Palmateer and Smith 2004
+      i. results bowling games exhibited some hotness (maybe just because next opponent was sitting and waiting)
+      ii. results of indiv rolls within games did not exhibit this.
+      
+E. Hot Hand Test Statistics
+
+  1. Gilovich 1985 (used simplification of binomial model; has questionable power.)
+    a. prob of hit conditioned on results of previous shot(s)
+    b. first-order correlation coef
+    c. Wald-Wolfowitz runs analysis test
+    d. grouping blocks of 4 shots
+  2. Wardrop (1999) simulated streaky data to see how binom tests detected it
+    a. it wasn't good; they didn't detect unless the change was extreme, partially because of small sample sizes too
+  3. Miyoshi (2000) suggested 4 variables that affected power of model:
+    a. frequency of hot periods
+    b. number of shots in all hot periods for a season
+    c. number of shots in each hot period
+    d. magnitude of probability increase during a hot period
+      i. with these parameters set realistically, Gilovich's power would have only been 0.12
+  4. so no matter how you slice it, it's difficult to model basketball events
+    a. the alternative hypothesis is not that streakines exists, but that it exists for everybody in the same way. this is unreasonable.
+    b. an effective and powerful test for one person may not work for another
+    c. 1 person may exhibit non stationarity while another exhibits autocorrelation.
+    
+F. Implications of hot hand belief
+
+  1. sports gambling
+    a. the market believes it
+    b. teams on winning streaks marginally underperform & vice versa
+  2. game strategy
+    a. hot players are more likely to force bad shots
+    b. hotness should be taken as a piece of information including base rate, def strategy, player strengths, other stuff; it should not replace your game plan tho.
+
+G.  Discussion
+
+  1. Task segregation
+    a. baseball & basketball are the most popular experiments, but repetitive solo events like darts & golf make more sense; horseshoes & bowling had strongest evidence
+    b. quality of data was often poor
+    c. the supportive studies used professional
+    d. IF hotness exists, then it depends on much more than has been controlled for in prev studies
+      i. participant expertise, task difficulty, atmosphere, motivation, etc.
+
+  2. hot hand definitions
+    a. most common test is the runs test that Gilovich used
+    b. Hales (1999) defined it in the following terms (none of which were found in sports data)
+      i. success breeds success
+      ii. streaks are statistically unlikely
+      iii. num. of consecutive successes must exceed those predicted by chance
+    c. Hales argued that "being hot does not have to do with the fecundity, duration, or even frequency of streaks. It has to do with their existence" (p. 86). 
+    d. When one believes he has a hot hand, he may well be usually right.
+    e. some say "a player has a hot hand when he is playing better than average"
+  3. the cold hand 
+    a. hot hand is based on notion that success motivates ppl and raises confidence
+    b. Berry and Wood (2004) found that icing the kicker in NFL is effective strategy
+  4. Evaluation procedure
+    a. eval. of indiv. studies is essential 4 future research (wide range of outcomes)
+    b. but also consider big picture
+    c. good idea to combine and reanalyze data from separate studies that used same sport and got diff conclusions.
+
+H. Concluding Remarks
+
+  1. this paper looked at studies that collected real data and simmed data
+  2. question remains unanswered
+  3. Gilovich somewhat strongly showed evidence against seq dep. but the nonstate test wasn't powerful enough according to simulation studies.
+  4. stepping further than the "is there a hot hand?" question
+    a. investigating the norms used by people to justify belief in it
+    b. look at situational factors that enable us to judge the value of the belief (strategic advantage vs detrimental fallacy)
+    c. investigate how important it is to real decisions (gambling, coaching, etc.)
+    d. if hot hand doesn't exist, then training and preparation and sports psych methods should reflect this (but they don't, of course)
+-->
 <p><span class="citation">Ryan Wetzels (2016)</span></p>
 <p>A. Introduction</p>
 <ol style="list-style-type: decimal">
@@ -865,6 +838,7 @@
 <p><span class="citation">Prado &amp; West (2010)</span></p>
 
 </div>
+</div>
             </section>
 
           </div>
@@ -911,17 +885,6 @@ gitbook.start({
 });
 </script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(script.src))
-      script.src  = script.src.replace(/^https?:/, '');
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
 </body>
 
 </html>

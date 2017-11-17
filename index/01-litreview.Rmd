@@ -264,6 +264,8 @@ H. Concluding Remarks
 -->
 @wetzels16
 
+In this research paper, Wetzels uses Bayesian analysis with a Hidden Markov Model to investigate the Hot Hand Phenomenon.
+<!--
 A. Introduction 
 
   1. (past studies and stuff you've already read)
@@ -307,6 +309,7 @@ F. Conclusion and ramifications
     b.	continuous variables instead of binary variables?
     c.	allowing switching prob to depend on the state may improve HMM
     d.	hierarchichal structure that accounts for season effects and indiv effects
+			-->
 			
 @miller16
 
@@ -321,7 +324,7 @@ A.	Intro
     b.	for THT, HTT, HTH, THH, there is one flip after the streak
     c.	for TTH, TTT, there are zero
     d.	each seq has an equal prob of happening, but in group a. you record 2 events, b. is 1, and c. is 0. Therefore, the group a. flips are individually weighted the least.
-    e.	This means that individual flips among a small group of heads inherently get a lower weight. --> heads get a lower prob.
+    e.	This means that individual flips among a small group of heads inherently get a lower weight. -> heads get a lower prob.
   6.	how to unbias
     a.	flip indefinitely until you get m trials that follow a streak, instead of flipping exactly n times (negbinom sampling)
     b.	eliminate overlap by dividing your n trials into bins (that may or may not break up some streaks) (explanation was confusing)
@@ -412,6 +415,7 @@ C.	Hot Hand Application
     1.	gambler sees reversal in an iid process, 
     2.	while researchers see iid in a momentous process
 
+-->
 @jagacinski79
 
 A.	Abstract
