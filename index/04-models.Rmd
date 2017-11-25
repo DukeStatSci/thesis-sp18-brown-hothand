@@ -2,17 +2,18 @@
 
 
 ```{r, init}
-library(mvtnorm); library(dplyr); library(ggplot2)
+library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags)
 #generating shot success probabilities
 #theta <- matrix(c(-0.5, 1.5, -5.5)) #GLM parameters (intercept, angle, log distance)
-datafolder <- "C:/Users/Nathaniel Brown/Desktop/DMBBall Data"
+datafolder <- "C:/Users/Nathaniel Brown/Documents/important things/DMBBall Data"
 source("C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand/sportvu_fxns.R")
 
 id1 <- 887661
 id2 <- 842296
 
+```
 
-
+```{r}
 plot(x=allgameshots$x2[allgameshots$result == 1 & allgameshots$globalplayerid==id2 & allgameshots$season==2016],
        y=allgameshots$y2[allgameshots$result == 1 & allgameshots$globalplayerid==id2 & allgameshots$season==2016], col = "red")
 
@@ -67,9 +68,9 @@ for(i in c(id1, id2)){
 ```{r, dglm, eval=FALSE}
 
 #TO DO:
-#send prof west the ft array (location and angle data, and intercept) and the binary y vector data.
-#make a mixed effects GLM with random player effect
-#use JAGS or rstan for logistic regression random effects MCMC
+#send prof west the ft array (location and angle data, and intercept) and the binary y vector data. (check)
+#make a mixed effects GLM with random player effect (check?)
+#use JAGS or rstan for logistic regression random effects MCMC (check?)
 
 playerid <- id1
 Z <- allgameshots %>% filter(globalplayerid == playerid) %>% mutate(logr = log(r) - mean(log(r))) %>% select(theta, logr) %>% cbind(1,.)
@@ -297,28 +298,9 @@ for(j in 1:p){
 
 #### Game-By-Game gibbs
 ```{r, meglm, eval=FALSE}
-library(R2jags)
 
 
-simplemod <- function(){
-  for(i in 1:n){
-    y[i] ~ dbinom(p, 1)
-  }
-  p ~ dbeta(a0,B0)
-}
-
-simpledat <- list(y = c(rep(0,1), rep(1,3)),
-                a0 = 1/200, B0 = 1/200
-                #prior is extremely skewed to edges, data is extremly 75%
-);simpledat$n <- length(simpledat$y)
-simplesim <- jags(simpledat, 
-                  n.iter=1000, n.chains=1, n.burnin=100,
-                  parameters.to.save = "p", 
-                  model.file=simplemod)
-simplesim.mcmc <- (as.mcmc(simplesim)[[1]])
-
-
-model <- function(){
+model2 <- function(){
     # N observations
     for(i in 1:N){
       result[i] ~ dbern(prob[i])
@@ -339,6 +321,27 @@ model <- function(){
     tau ~ dgamma(0.1,0.1)
 }
 
+model <- function(){
+    # N observations
+    for(i in 1:N){
+      result[i] ~ dbern(prob[i])
+      logit(prob[i]) <- beta_int[player[i]]*int[i] + beta_r[player[i]]*logr[i] + beta_theta[player[i]]*theta[i]
+    }
+    # priors on random player effects
+    for(j in 1:M){
+        beta_int[j] ~ dnorm(beta_int0,tau)
+        beta_r[j] ~ dnorm(beta_r0,tau)
+        beta_theta[j] ~ dnorm(beta_theta0,tau)
+    }
+    # Priors
+    beta_int0   ~ dnorm(0, 1.0E-6)
+    beta_r0     ~ dnorm(0, 1.0E-6)
+    beta_theta0 ~ dnorm(0, 1.0E-6)
+
+    # Hyperpriors
+    tau ~ dgamma(1E-4,1E-4)
+}
+
 datlist <- list(
                 logr = log(allgameshots$r), 
                 theta = allgameshots$theta, 
@@ -348,7 +351,7 @@ datlist <- list(
                 int = rep(1, nrow(allgameshots)), 
                 M = n_distinct(allgameshots$globalplayerid)
                 )
-params <- c("beta_int","beta_r", "beta_theta", "e_int","e_r","e_theta","prob")
+params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0")
 
 
 sim <- jags(data = datlist, 
@@ -358,10 +361,43 @@ sim <- jags(data = datlist,
             model.file=model
 )
 sim.mcmc <- as.data.frame(as.mcmc(sim)[[1]])
-# x_t = [1, r_t, theta_t]' #HOW DO YOU GET AN R AND THETA FROM A WHOLE GAME???
-# Beta = [b_0, b_r, b_theta]
-# P(make|attempt) = 1/(1+exp(-Beta*x_t))
+sim.mcmc.means <- colMeans(sim.mcmc)
+sim.mcmc.means[!grepl("\\[", names(sim.mcmc.means))][1:3] -> theta
 
-#allgameshots %>% group_by(gameid) %>% select(r, theta) %>% cbind(1,.)
+factorid <- data.frame(
+  factorid = as.integer(as.factor(allgameshots$globalplayerid)),
+  globalplayerid = allgameshots$globalplayerid
+) %>% unique()
+
+playermapshots <- merge(factorid, playermap, by="globalplayerid", all=TRUE)
+playermapparams <- playermapshots %>% mutate(int = NA, r = NA, theta = NA)
+for(i in 1:nrow(playermapshots)){
+  fid <- playermapparams$factorid[i]
+  if(!is.na(fid)){
+    theta_i <- sim.mcmc.means[grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))]
+  }else{
+    theta_i <- theta
+  }
+  playermapparams[i,c("int", "r", "theta")] <- theta_i
+
+}
+
+post_prob <- function(playerid = NA, playerseason = NA){
+
+      Z <- allgameshots %>% filter(globalplayerid == playerid & season == playerseason) %>% mutate(logr = log(r) - mean(log(r))) %>% select(result, theta, logr)
+
+  level <- which(sort(unique(allgameshots$globalplayerid)) == playerid)
+  indiv_effect <- sim.mcmc.means[[paste0("beta_int[",level,"]")]] + 
+                  sim.mcmc.means[[paste0("beta_r[",level,"]")]] + 
+                  sim.mcmc.means[[paste0("beta_theta[",level,"]")]] 
+  
+  if(is.na(playerid)){
+    indiv_effect <- 0
+  }
+  
+
+  sim.results <- arm::invlogit(sim.mcmc[["beta_int"]] + sim.mcmc[["beta_r"]] %*% t(Z[["logr"]]) + sim.mcmc[["beta_theta"]] %*% t(Z[["theta"]]) + indiv_effect)
+  
+}
 
 ```

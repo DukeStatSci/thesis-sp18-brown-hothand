@@ -4,8 +4,10 @@ The proposed study is an investigation of Bayesian statistical models and analys
 
 \par
 
-(talk about models you fit)
+The models to investigate this data are a Generalized Linear Model, a Dynamic Generalized Linear Model, and a Bayesian Hierarchichal Model.
+
+<!-- hidden Markov Model? -->
 
 \par
 
-(talk about results)
+<!-- (talk about results) -->

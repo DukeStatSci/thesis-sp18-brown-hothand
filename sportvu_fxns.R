@@ -1,6 +1,6 @@
 library(xml2); library(dplyr); library(reshape2)
 #setwd("F:/SPORTVU2014-15")
-datafolder <- "C:/Users/Nathaniel Brown/Desktop/DMBBall Data"
+#datafolder <- "C:/Users/Nathaniel Brown/Desktop/DMBBall Data"
 load(paste0(datafolder, "/allgameshots.RData"))
 load(paste0(datafolder, "/playermap.RData"))
 

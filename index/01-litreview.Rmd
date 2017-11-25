@@ -264,7 +264,7 @@ H. Concluding Remarks
 -->
 @wetzels16
 
-In this research paper, Wetzels uses Bayesian analysis with a Hidden Markov Model to investigate the Hot Hand Phenomenon.
+In this research paper, Wetzels conducts a simulation study to investigate the Hot Hand Phenomenon. His analysis consists of calculating Bayes Factors to compare evidence between a Hidden Markov Model with two states and a binomial model with one state. He applies this method to data from basketball foul shots and from visual discernment tests. In the basketball data, he found that Shaquille O'Neal's free-throws show evidence for a two-state Markov model, while Kobe Bryant's show more evidence for a one-state binomial model. In the data from the visual discernment tests, he found no strong evidence supporting one model over the other. However, he acknowledges that just because a Bayes Factor shows evidence for one model over another, it does not mean that the model is "good".
 <!--
 A. Introduction 
 
@@ -313,6 +313,9 @@ F. Conclusion and ramifications
 			
 @miller16
 
+This paper argues that the binary data in Gilovich, Tversky, and Vallone's 1985 paper about the Hot Hand is biased, and therefore requires additional analysis. Miller and Sanjuro claim that in a binary sequence, the proportion of successes that immediately follow a streak of successes is expected to be strictly less than the overall probability of success; using concepts from sampling without replacement, they prove the existence of and quantify this bias. Once they apply the bias correction to the data from Gilovich, Tversky, and Vallone's paper, as well as some other studies of the Hot Hand, they find a significant increase in favor of the Hot Hand's existence.
+
+<!--
 A.	Intro
 
   1.	Inherent subtle but substantial selection bias when measuring conditional dependence of current outcomes on past outcomes in sequential data.
@@ -416,8 +419,11 @@ C.	Hot Hand Application
     2.	while researchers see iid in a momentous process
 
 -->
+
+
 @jagacinski79
 
+<!--
 A.	Abstract
 
   1.	college ballers predicting their own shots outcome either before release, right after release, or halfway to the basket, were no better at predicting than passive observers.
@@ -463,10 +469,11 @@ C.	the experiment:
     d.	weak positive recency (streakiness, for makes or misses)  WAS FOUND!!!! occurred mostly in OFF trial.
     e.	optimism thing occurred mostly in the ON trial, even though it would have been more justified in the OFF trial. suggests that shooters' beliefs in hotness may depend on other factors such as bball lore rather than visual feedback.
     f.	possible that the lore is a result of lack of awareness of statistical fluctuations within a game, players usually take a small number of shots, so it would take very large changes in hot hit prob to be measurable in-game. this controlled data does not suggest these large changes exist.
-
+-->
 
 @albert93
 
+<!--
 A.	intro
 
   1.	Albright used 2 models on 501 players: 
@@ -503,8 +510,12 @@ E.	conclusion
   2.	doesn't mean streakiness doesn't exist, just that it's subtle.
   3.	model could improve by having more than two states
 
+-->
+
+
 @albert13
 
+<!--
 A.	Intro
 
   1.	sneaky patterns in baseball
@@ -581,9 +592,16 @@ F.	conclusion
   1.	a new way of presenting streakiness.spacings
   2.	looked at moving percentages, not correlations
   3.	BF quantifies evidence for null or alt.freq test only quantifies evidence 
+-->
 
+<!--
 @west97
+-->
 
 @west85
 
+This textbook provides theory, applications, and examples of time series models such Dynamic Generalized Linear Models (DGLMs). More specifically, section 14.4 provides an example of a DGLM for a binomial response variable, which we apply in chapter *blank* of this research paper.
+
+<!--
 @west10
+-->
