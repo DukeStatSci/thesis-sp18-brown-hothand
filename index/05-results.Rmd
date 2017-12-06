@@ -1,3 +1,7 @@
 # Results {#results}
 
-put some plots here. and some interpretations.
+#### GLM
+
+#### DGLM
+
+#### Hierarchical Model

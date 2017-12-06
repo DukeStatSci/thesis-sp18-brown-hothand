@@ -1,6 +1,7 @@
 library(xml2); library(dplyr); library(reshape2)
 #setwd("F:/SPORTVU2014-15")
-#datafolder <- "C:/Users/Nathaniel Brown/Desktop/DMBBall Data"
+datafolder <- "C:/Users/Nathaniel Brown/Documents/important things/DMBBall Data"
+githubfolder <- "C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand"
 load(paste0(datafolder, "/allgameshots.RData"))
 load(paste0(datafolder, "/playermap.RData"))
 
@@ -18,10 +19,10 @@ get_all_gameids <- function(){
 get_eventids <- function(){
   eventids <- 
     c(
-      "1", "FTM",
-      "2", "FTm",
-      "3",  "FGM",
-      "4", "FGm",
+      "1", "FTmake",
+      "2", "FTmiss",
+      "3",  "FGmake",
+      "4", "FGmiss",
       "5", "OREB",
       "6", "DREB",
       "7", "TO",
@@ -160,7 +161,7 @@ clean_optical <- function(optical=NA){
   return(optical)
 }
 
-load_optical <- function(gameid=NA, save=TRUE){
+load_optical <- function(gameid=NA, save=FALSE){
   
   gamefilenames <- grep(gameid, 
                         list.files(datafolder), 
@@ -271,7 +272,7 @@ get_shot_results <- function(pbp=NA){
   
   # shotsT <- pbp_playersT %>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select_("globalplayerid", "time", "result", "globalteamid", "gameclock")
   # shotsF <- pbp_playersF %>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select_("globalplayerid", "time", "result", "globalteamid", "gameclock")
-  shots <- pbp_players%>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select(globalplayerid, time, result, gameclock)
+  shots <- pbp_players %>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select(globalplayerid, time, result, gameclock)
   
   return(shots)
 }
@@ -279,46 +280,64 @@ get_shot_results <- function(pbp=NA){
 get_shot_locs <- function(optical=NA){
   
   non_loc_cols <- grep("ball|team|shotclock|gameeventid|gameclock",colnames(optical))
+  unique_times <- n_distinct(optical$time)
   locs <- optical %>% 
     filter(time %in% optical$time) %>% 
     select(-non_loc_cols) %>% 
-    melt(id = c("time", "half")) %>% 
+    mutate(rowid = 1:nrow(.)) %>% 
+    melt(id = c("rowid", "time", "half")) %>% 
     mutate(variable2 = ifelse(grepl("id", variable), "id",
                               ifelse(grepl("x", variable), "x",
                                      ifelse(grepl("y", variable),"y",NA))),
-           rowid = rep(1:(nrow(.)/3),3)) %>% #rowid makes sure that id_i, x_i, and y_i are all on row i
-    dcast(time + rowid + half ~ variable2) %>%
+           #timeid = rep(1:unique_times, times=unique_times*10),
+           playerid = rep(1:10, each=max(rowid)*3)) %>% #playerid makes sure that id_i, x_i, and y_i are all assigned to player_i
+    dcast(time + half + playerid ~ variable2,  fun.aggregate=mean, na.rm=TRUE) %>%
     rename(globalplayerid = id) %>% 
-    arrange(rowid) %>% select(-rowid)
+    arrange(time) %>% 
+    select(-playerid) %>%
+    filter(complete.cases(.))
+  
   return(locs)
 }
+
 
 get_shots <- function(gameid=NA){
   
   play <- load_pbp(gameid)
-  opt <- load_optical(gameid)
   shots <- get_shot_results(play)
+  
+  opt <- load_optical(gameid)
   locs <- get_shot_locs(opt)
   
   second_half_start <- locs$time[locs$half == 2][1]
   
   shot_locs <- merge(shots, locs, by=c("time", "globalplayerid")) #%>% filter(globalteamid == 1388)
   
-  shot_locs$x2 <- shot_locs$x - 25
-  shot_locs$y2 <- shot_locs$y
-  shot_locs$y2[shot_locs$time < second_half_start] = (94 - shot_locs$y2[shot_locs$time < second_half_start])
-  shot_locs$y2 <- shot_locs$y2 - 4 #so the hoop is 0, not the baseline
-  if(mean(shot_locs$y2) > 94/2){ #if the expected distance of the shots is beyond half court, then we probably just got the sides mixed up
-    shot_locs$y2 <- shot_locs$y
-    shot_locs$y2[shot_locs$time >= second_half_start] = (94 - shot_locs$y2[shot_locs$time >= second_half_start])
-    shot_locs$y2 <- shot_locs$y2 - 4 #so the hoop is 0, not the baseline
+  #TODO: fix x parametrization
+  shot_locs$xt <- 25 - shot_locs$x
+  shot_locs$yt <- shot_locs$y
+  shot_locs$xt[shot_locs$time < second_half_start] <- (0 - shot_locs$xt[shot_locs$time < second_half_start])
+  shot_locs$yt[shot_locs$time < second_half_start] <- (94 - shot_locs$yt[shot_locs$time < second_half_start])
+  shot_locs$yt <- shot_locs$yt - 4 #so the basket is 0, not the baseline
+
+  if(mean(shot_locs$yt) > 94/2){ #if the expected distance of the shots is beyond half court, then we probably just got the sides mixed up
+    shot_locs$yt <- shot_locs$y
+    shot_locs$yt[shot_locs$time >= second_half_start] <- (94 - shot_locs$yt[shot_locs$time >= second_half_start])
+    shot_locs$yt <- shot_locs$yt - 4
+    
+    shot_locs$xt <- 25 - shot_locs$x
+    shot_locs$xt[shot_locs$time >= second_half_start] <- (0 - shot_locs$xt[shot_locs$time >= second_half_start])
   }
-  shot_locs$r <- sqrt(shot_locs$x2^2 + shot_locs$y2^2)
-  shot_locs$theta <- atan(shot_locs$y2/shot_locs$x2)
+  
+  shot_locs$r <- sqrt(shot_locs$xt^2 + shot_locs$yt^2)
+  shot_locs$theta <- atan(shot_locs$yt/shot_locs$xt)
+
   shot_locs$gametime <- shot_locs$gameclock
   shot_locs$gametime[shot_locs$time < second_half_start] <- 2*shot_locs$gameclock[shot_locs$time < second_half_start]
   shot_locs$gametime <- 2400 - shot_locs$gametime
   shot_locs$gameid <- gameid
+  shot_locs$season <- get_season(gameid)
+  
   return(shot_locs)
 }
 
@@ -334,6 +353,38 @@ secs_to_ms <- function(x){
 # 1 second      1 minute    1 game
 get_mins <- function(gameid = NA, timeid = NA, playerid=NA){
   load(paste0(datafolder,"/game", gameid, ".RData"))
-  unique(game$time)
+  playermins <- melt(game, id="time") %>% filter(grepl(x=variable, pattern="global_id")) %>% filter(grepl(x=value, pattern=playerid)) %>% '[['("time")
+  #plot(sort(playermins))
+  
+  diffs <- c(0,diff(sort(playermins)))
+  breaklength <- 1000
+  #right now I define 1000 timeunits as a "break" but that is 100% arbitrary
+
+  unbrokentime <- rep(NA, length(diffs))
+  some <- 0
+  for(i in 1:length(diffs)){
+    
+    if(diffs[i] >= breaklength){
+      some <- 0
+    }else{
+      some <- some + diffs[i]
+    }
+    
+    unbrokentime[i] <- some
+    
+  }
+
+  totaltime <- sum(diffs[diffs < breaklength])
+  # TODO: CHECK THIS WITH REAL GAME MINUTES
+  # TODO: INCORPORATE UNBROKENTIME INTO REGRESSION AS PROXY FOR FATIGUE
 }
 
+# allgameshots <- NULL
+# agids <- get_all_gameids()
+# for(i in 1:length(agids)){
+#   print(i)
+#   g <- agids[i]
+#   allgameshots <- rbind(allgameshots, get_shots(g))
+# }
+# allgameshots$season <- get_season(allgameshots$gameid)
+# save(allgameshots, file=paste0(datafolder, "/allgameshots.RData"))

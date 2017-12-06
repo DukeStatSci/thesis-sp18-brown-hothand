@@ -4,10 +4,11 @@ The proposed study is an investigation of Bayesian statistical models and analys
 
 \par
 
-The models to investigate this data are a Generalized Linear Model, a Dynamic Generalized Linear Model, and a Bayesian Hierarchichal Model.
+The models we use to investigate this data are a Generalized Linear Model, a Dynamic Generalized Linear Model, and a Bayesian Hierarchichal Model.
 
 <!-- hidden Markov Model? -->
 
 \par
 
 <!-- (talk about results) -->
+Our results so far show that the best-fitting model is a Dynamic Generalized Linear Model; this suggests that the predictive features of a shooting model may be time-dependent.

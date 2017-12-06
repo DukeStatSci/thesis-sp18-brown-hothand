@@ -1,3 +1,5 @@
 # Discussion {#disc}
 
-in conclusion, the end.
+Our results so far suggest that it is very difficult to predict basketball shooting outcomes given the shot location. The three models we have fit so far, (GLM, DGLM, and Hierarchical) are only slightly better than random predictors, according to our ROC curves. We could refine our model-fitting by including more predictors such as a proxy for fatigue (using information about total minutes played, or consecutive minutes played without a timeout), or a proxy for shot difficulty (using information about the nearest defender).
+
+Future goals for this research are to build a better-fitting model to predict basketball shots, and to thoroughly investigate the time-dependency of the predictive features.

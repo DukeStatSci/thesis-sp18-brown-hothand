@@ -7,7 +7,7 @@ output:
 
 The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted the use of their SportVU data from the 2014 to 2017 basketball seasons for this project. However, since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games.
 
-For my analysis, I use the following files for each game:
+For our analysis, we use the following files for each game:
 
 * Final Sequence Play-by-Play Optical:
 
@@ -19,4 +19,10 @@ For my analysis, I use the following files for each game:
 
 * Final Sequence Optical:
 
-    This XML file contains the locations of all ten players and the ball during precise time intervals within the game. Each timeunit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter's location at the moment of a shot attempt.
+    These XML files contain the locations of all ten players and the ball during precise time intervals within the game. Each timeunit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter's location at the moment of a shot attempt.
+    
+    <!--
+* Final Box Optical:
+
+  These file contain semi-structured data
+-->    
