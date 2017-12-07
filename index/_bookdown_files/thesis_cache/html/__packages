@@ -1,0 +1,15 @@
+base
+devtools
+dplyr
+ggplot2
+bookdown
+knitr
+thesisdowndss
+mvtnorm
+coda
+rjags
+R2jags
+pROC
+xml2
+reshape2
+bindrcpp

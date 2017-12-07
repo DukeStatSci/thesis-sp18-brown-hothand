@@ -123,6 +123,11 @@ The four plots show the GLM parameters for the four players and seasons that we 
 
 #### Hierarchichal Model
 ```{r, hier, cache=TRUE}
+priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
+mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
+tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 
 # model2 <- function(){
 #     # N observations

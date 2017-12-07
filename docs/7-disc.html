@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="6-results.html">
-<link rel="next" href="references.html">
+<link rel="prev" href="6-model.html">
+<link rel="next" href="A-the-first-appendix.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -107,9 +107,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="3" data-path="3-data.html"><a href="3-data.html"><i class="fa fa-check"></i><b>3</b> Data</a></li>
 <li class="chapter" data-level="4" data-path="4-proc.html"><a href="4-proc.html"><i class="fa fa-check"></i><b>4</b> Procedure</a></li>
-<li class="chapter" data-level="5" data-path="5-model.html"><a href="5-model.html"><i class="fa fa-check"></i><b>5</b> Models</a></li>
-<li class="chapter" data-level="6" data-path="6-results.html"><a href="6-results.html"><i class="fa fa-check"></i><b>6</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="5-EDA.html"><a href="5-EDA.html"><i class="fa fa-check"></i><b>5</b> Exploratory Data Analysis</a></li>
+<li class="chapter" data-level="6" data-path="6-model.html"><a href="6-model.html"><i class="fa fa-check"></i><b>6</b> Models</a></li>
 <li class="chapter" data-level="7" data-path="7-disc.html"><a href="7-disc.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="A-the-first-appendix.html"><a href="A-the-first-appendix.html"><i class="fa fa-check"></i><b>A</b> The First Appendix</a></li>
+<li class="chapter" data-level="B" data-path="B-the-second-appendix-for-fun.html"><a href="B-the-second-appendix-for-fun.html"><i class="fa fa-check"></i><b>B</b> The Second Appendix, for Fun</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -132,15 +135,14 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="disc" class="section level1">
 <h1><span class="header-section-number">Chapter 7</span> Discussion</h1>
-<p>in conclusion, the end.</p>
+<p>Our results so far suggest that some insights can be taken by predicting basketball shooting outcomes, but none of our results so far are more insightful than what one could find by watching a game (i.e. the most frequent shooters are usually above average shooters, or the probability of making a shot decreases as distance from the basket increases). The three models we have fit so far (GLM, DGLM, and Hierarchical) either not realistic enough, or do not fit well enough. We could refine our models by including more predictors such as a proxy for fatigue (using information about total minutes played, or consecutive minutes played without a timeout), or shot difficulty (using information about the nearest defender).</p>
+<p>Future goals for this research are to build a better-fitting model to predict basketball shots, and to thoroughly investigate the time-dependency of the predictive features.</p>
 
-<!--
-The bib chunk below must go last in this document according to how R Markdown renders.  More info is at http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
--->
-<p></p>
-<!-- 
-If you'd like to change the name of the bibliography to something else,
-delete "References" and replace it.
+</div>
+
+
+
+If you feel it necessary to include an appendix, it goes here.
 -->
 </div>
             </section>
@@ -148,8 +150,8 @@ delete "References" and replace it.
           </div>
         </div>
       </div>
-<a href="6-results.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="6-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="A-the-first-appendix.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -189,6 +191,17 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>

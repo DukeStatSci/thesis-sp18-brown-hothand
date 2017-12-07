@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="3-data.html">
-<link rel="next" href="5-model.html">
+<link rel="next" href="5-EDA.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -107,9 +107,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li class="chapter" data-level="3" data-path="3-data.html"><a href="3-data.html"><i class="fa fa-check"></i><b>3</b> Data</a></li>
 <li class="chapter" data-level="4" data-path="4-proc.html"><a href="4-proc.html"><i class="fa fa-check"></i><b>4</b> Procedure</a></li>
-<li class="chapter" data-level="5" data-path="5-model.html"><a href="5-model.html"><i class="fa fa-check"></i><b>5</b> Models</a></li>
-<li class="chapter" data-level="6" data-path="6-results.html"><a href="6-results.html"><i class="fa fa-check"></i><b>6</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="5-EDA.html"><a href="5-EDA.html"><i class="fa fa-check"></i><b>5</b> Exploratory Data Analysis</a></li>
+<li class="chapter" data-level="6" data-path="6-model.html"><a href="6-model.html"><i class="fa fa-check"></i><b>6</b> Models</a></li>
 <li class="chapter" data-level="7" data-path="7-disc.html"><a href="7-disc.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="A-the-first-appendix.html"><a href="A-the-first-appendix.html"><i class="fa fa-check"></i><b>A</b> The First Appendix</a></li>
+<li class="chapter" data-level="B" data-path="B-the-second-appendix-for-fun.html"><a href="B-the-second-appendix-for-fun.html"><i class="fa fa-check"></i><b>B</b> The Second Appendix, for Fun</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -132,8 +135,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="proc" class="section level1">
 <h1><span class="header-section-number">Chapter 4</span> Procedure</h1>
-<p>Using data that consists of a time-stamped sequence of shot locations and outcomes, we develop a novel analysis using dynamic generalized linear models, or DGLMs (West, Migon, and Harrison, 1985) (West and Harrison, 1997), for binary time series. These models allow for time-varying shot attempt and success parameters within a game and between games. The models provide flexibility in adapting to changes in the frequency of shot attempts, and to changes in scoring probabilities conditional on a shot attempt. The formal Bayesian analysis allowe us to produce full quantified inferences on such patterns over time, with probabilistic summaries of the within-game and between-game outcomes. For each game, this will be a full statistical characterization and quantification of the player shooting tendencies and outcomes, which provides understanding of inherent variability (or “randomness”) for the player, and formal assessments of differences in patterns game-to-game.</p>
-<p>I am also considering a two-state Hidden Markov Switching Model that parallels and extends these models; the two potential states for each shot attempt are a “high” probability or a “low” probability of making the next shot, given the features of the current and previous possessions.</p>
+<p>Using the time-stamped sequence of shot locations and binary outcomes, we fit generalized linear models, dynamic generalized linear models, or DGLMs (West, Migon, and Harrison, 1985) (West and Harrison, 1997), and hierarchichal models. DGLMs allow for time-varying effects on shot attempt frequency and shot success rate within a game and between games. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the within-game and between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or “randomness”) for the players, and formal assessments of differences in patterns game-to-game.</p>
+<p>We are also considering a two-state Hidden Markov Switching Model that parallels and extends these models; the two potential states for each shot attempt are a “high” probability or a “low” probability of making the next shot, given the features of the current and previous possessions.</p>
 
 </div>
             </section>
@@ -142,7 +145,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
         </div>
       </div>
 <a href="3-data.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="5-model.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="5-EDA.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -182,6 +185,17 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>

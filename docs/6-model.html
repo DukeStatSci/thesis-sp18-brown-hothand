@@ -31,8 +31,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-<link rel="prev" href="5-proc.html">
-<link rel="next" href="7-results.html">
+<link rel="prev" href="5-EDA.html">
+<link rel="next" href="7-disc.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -100,16 +100,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul class="summary">
 <li><a href="./"></a></li>
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Delete line 7 if you only have one advisor</a></li>
-<li class="chapter" data-level="2" data-path="2-placeholder.html"><a href="2-placeholder.html"><i class="fa fa-check"></i><b>2</b> Placeholder</a></li>
-<li class="chapter" data-level="3" data-path="3-placeholder-1.html"><a href="3-placeholder-1.html"><i class="fa fa-check"></i><b>3</b> Placeholder</a><ul>
-<li class="chapter" data-level="3.0.1" data-path="3-placeholder-1.html"><a href="3-placeholder-1.html#how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year"><i class="fa fa-check"></i><b>3.0.1</b> how do I get the full citations to show up and not just last name and year?</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Introduction</a></li>
+<li class="chapter" data-level="1" data-path="1-abstract.html"><a href="1-abstract.html"><i class="fa fa-check"></i><b>1</b> Abstract</a></li>
+<li class="chapter" data-level="2" data-path="2-litreview.html"><a href="2-litreview.html"><i class="fa fa-check"></i><b>2</b> Literature Review</a><ul>
+<li class="chapter" data-level="2.0.1" data-path="2-litreview.html"><a href="2-litreview.html#how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year"><i class="fa fa-check"></i><b>2.0.1</b> how do I get the full citations to show up and not just last name and year?</a></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="4-data.html"><a href="4-data.html"><i class="fa fa-check"></i><b>4</b> Data</a></li>
-<li class="chapter" data-level="5" data-path="5-proc.html"><a href="5-proc.html"><i class="fa fa-check"></i><b>5</b> Procedure</a></li>
+<li class="chapter" data-level="3" data-path="3-data.html"><a href="3-data.html"><i class="fa fa-check"></i><b>3</b> Data</a></li>
+<li class="chapter" data-level="4" data-path="4-proc.html"><a href="4-proc.html"><i class="fa fa-check"></i><b>4</b> Procedure</a></li>
+<li class="chapter" data-level="5" data-path="5-EDA.html"><a href="5-EDA.html"><i class="fa fa-check"></i><b>5</b> Exploratory Data Analysis</a></li>
 <li class="chapter" data-level="6" data-path="6-model.html"><a href="6-model.html"><i class="fa fa-check"></i><b>6</b> Models</a></li>
-<li class="chapter" data-level="7" data-path="7-results.html"><a href="7-results.html"><i class="fa fa-check"></i><b>7</b> Results</a></li>
-<li class="chapter" data-level="8" data-path="8-disc.html"><a href="8-disc.html"><i class="fa fa-check"></i><b>8</b> Discussion</a></li>
+<li class="chapter" data-level="7" data-path="7-disc.html"><a href="7-disc.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="A-the-first-appendix.html"><a href="A-the-first-appendix.html"><i class="fa fa-check"></i><b>A</b> The First Appendix</a></li>
+<li class="chapter" data-level="B" data-path="B-the-second-appendix-for-fun.html"><a href="B-the-second-appendix-for-fun.html"><i class="fa fa-check"></i><b>B</b> The Second Appendix, for Fun</a></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -132,334 +135,552 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="model" class="section level1">
 <h1><span class="header-section-number">Chapter 6</span> Models</h1>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mvtnorm); <span class="kw">library</span>(dplyr); <span class="kw">library</span>(ggplot2)</code></pre></div>
-<pre><code>Warning: package &#39;dplyr&#39; was built under R version 3.3.3</code></pre>
-<pre><code>
-Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>The following objects are masked from &#39;package:stats&#39;:
+<p>For our models, we consider the shot location and the shooter identity as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or <span class="math inline">\(r\)</span> and <span class="math inline">\(\theta\)</span>.</p>
+<!--
 
-    filter, lag</code></pre>
-<pre><code>The following objects are masked from &#39;package:base&#39;:
+```r
+theta <- "\u03b8"
+root <- "\u221a"
+pi <- "\u03c0"
+paramstr <- c("distance","angle",
+              paste0("r = ",root,"(x^2^ + y^2^)"), paste0(theta," = arctan(x/y)"),
+              "r > 0", paste0("-",pi," < \u03b8 < ",pi))
 
-    intersect, setdiff, setequal, union</code></pre>
-<pre><code>Warning: package &#39;ggplot2&#39; was built under R version 3.3.3</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#generating shot success probabilities</span>
-<span class="co">#theta &lt;- matrix(c(-0.5, 1.5, -5.5)) #GLM parameters (intercept, angle, log distance)</span>
-datafolder &lt;-<span class="st"> &quot;C:/Users/Nathaniel Brown/Desktop/DMBBall Data&quot;</span>
-<span class="kw">source</span>(<span class="st">&quot;C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand/sportvu_fxns.R&quot;</span>)</code></pre></div>
-<pre><code>Warning: package &#39;xml2&#39; was built under R version 3.3.3</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">id1 &lt;-<span class="st"> </span><span class="dv">887661</span>
-id2 &lt;-<span class="st"> </span><span class="dv">842296</span>
+paramtab <- matrix(paramstr,ncol=3)
+colnames(paramtab) <- c("Parameter","Formula","Range")
+kable(paramtab)
+```
 
 
 
-<span class="kw">plot</span>(<span class="dt">x=</span>allgameshots$x2[allgameshots$result ==<span class="st"> </span><span class="dv">1</span> &amp;<span class="st"> </span>allgameshots$globalplayerid==id2 &amp;<span class="st"> </span>allgameshots$season==<span class="dv">2016</span>],
-       <span class="dt">y=</span>allgameshots$y2[allgameshots$result ==<span class="st"> </span><span class="dv">1</span> &amp;<span class="st"> </span>allgameshots$globalplayerid==id2 &amp;<span class="st"> </span>allgameshots$season==<span class="dv">2016</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)
+Parameter   Formula                  Range             
+----------  -----------------------  ------------------
+distance    r = v(x^2^ + y^2^)       r > 0             
+angle       <U+03B8> = arctan(x/y)   -p < <U+03B8> < p 
+-->
+<div id="generalized-linear-model" class="section level4">
+<h4><span class="header-section-number">6.0.0.1</span> Generalized Linear Model</h4>
+<p>The results of the credible intervals are reported for the same four players, in the same order.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># playerid &lt;- id2</span>
+<span class="co"># seasons &lt;- c(2014,2015,2016,2017)</span>
 
-<span class="kw">points</span>(<span class="dt">x=</span>allgameshots$x2[allgameshots$result ==<span class="st"> </span><span class="dv">0</span> &amp;<span class="st"> </span>allgameshots$globalplayerid==id2 &amp;<span class="st"> </span>allgameshots$season==<span class="dv">2016</span>],
-       <span class="dt">y=</span>allgameshots$y2[allgameshots$result ==<span class="st"> </span><span class="dv">0</span> &amp;<span class="st"> </span>allgameshots$globalplayerid==id2 &amp;<span class="st"> </span>allgameshots$season==<span class="dv">2016</span>], <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>)</code></pre></div>
-<p><img src="thesis_files/figure-html/init-1.png" width="672" style="display: block; margin: auto;" /></p>
-<div id="glm" class="section level4">
-<h4><span class="header-section-number">6.0.0.1</span> GLM</h4>
-</div>
-<div id="shot-by-shot-dglm-only-considering-location-order-and-result-of-each-shot.-not-amount-of-time-between-shots." class="section level4">
-<h4><span class="header-section-number">6.0.0.2</span> Shot-by-Shot DGLM (only considering location, order, and result of each shot. not amount of time between shots).</h4>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#TO DO:</span>
-<span class="co">#send prof west the ft array (location and angle data, and intercept) and the binary y vector data.</span>
-<span class="co">#make a mixed effects GLM with random player effect</span>
-<span class="co">#use JAGS or rstan for logistic regression random effects MCMC</span>
-
-playerid &lt;-<span class="st"> </span>id1
-Z &lt;-<span class="st"> </span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(globalplayerid ==<span class="st"> </span>playerid) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">logr =</span> <span class="kw">log</span>(r) -<span class="st"> </span><span class="kw">mean</span>(<span class="kw">log</span>(r))) %&gt;%<span class="st"> </span><span class="kw">select</span>(theta, logr) %&gt;%<span class="st"> </span><span class="kw">cbind</span>(<span class="dv">1</span>,.)
-X &lt;-<span class="st"> </span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(globalplayerid ==<span class="st"> </span>playerid) %&gt;%<span class="st"> </span><span class="kw">select</span>(<span class="dt">x=</span>x2, <span class="dt">y=</span>y2)
-y &lt;-<span class="st"> </span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(globalplayerid ==<span class="st"> </span>playerid) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">logr =</span> <span class="kw">log</span>(r) -<span class="st"> </span><span class="kw">mean</span>(<span class="kw">log</span>(r))) %&gt;%<span class="st"> </span><span class="kw">select</span>(result) %&gt;%<span class="st"> &#39;[[&#39;</span>(<span class="dv">1</span>)
-
-ym &lt;-<span class="st"> </span><span class="dv">94</span>; xm &lt;-<span class="st"> </span><span class="dv">50</span>
-shots &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">TRUE</span>,<span class="kw">nrow</span>(Z)) <span class="co">#no missing shots in this case</span>
-tshot &lt;-<span class="st"> </span><span class="kw">which</span>(shots)
-nshots &lt;-<span class="st"> </span><span class="kw">length</span>(tshot)
-T &lt;-<span class="st"> </span><span class="kw">length</span>(shots)
-
-<span class="co">#generating shot outcomes</span>
-
-iy &lt;-<span class="st"> </span><span class="kw">which</span>(y[!<span class="kw">is.nan</span>(y)] ==<span class="st"> </span><span class="dv">1</span>)
-
-<span class="co">#initial parameters</span>
-mod &lt;-<span class="st"> </span>(<span class="kw">glm</span>(y ~<span class="st"> </span>theta +<span class="st"> </span>logr, <span class="dt">data=</span>Z, <span class="dt">family=</span><span class="st">&quot;binomial&quot;</span>)) <span class="co">#high p-values everywhere</span>
-theta &lt;-<span class="st"> </span><span class="kw">coef</span>(mod)
-
-p &lt;-<span class="st"> </span><span class="kw">length</span>(theta)
-pscore &lt;-<span class="st"> </span><span class="kw">fitted</span>(mod, <span class="dt">type=</span><span class="st">&quot;response&quot;</span>)
-q &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NaN</span>, T)
-q[shots] &lt;-<span class="st"> </span>pscore
-
-<span class="kw">par</span>(<span class="dt">xpd=</span><span class="ot">TRUE</span>)
-<span class="kw">plot</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dt">type=</span><span class="st">&quot;n&quot;</span>,<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>,T),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="dt">ylab =</span> <span class="st">&quot;probability&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;time index&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;GLM&quot;</span>)
-<span class="kw">points</span>(tshot, q[tshot], <span class="dt">pch=</span><span class="dv">4</span>, <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>)
-<span class="kw">points</span>(tshot, y[tshot], <span class="dt">pch=</span><span class="dv">1</span>, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)
-<span class="kw">legend</span>(<span class="dt">x=</span>T*.<span class="dv">8</span>, <span class="dt">y=</span><span class="fl">1.21</span>, <span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;probability&quot;</span>, <span class="st">&quot;outcome&quot;</span>), <span class="dt">pch =</span> <span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">1</span>), <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>))
-
-<span class="kw">par</span>(<span class="dt">xpd=</span><span class="ot">FALSE</span>)
-<span class="kw">plot</span>(X[iy,<span class="kw">c</span>(<span class="st">&quot;x&quot;</span>,<span class="st">&quot;y&quot;</span>)], <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,ym), <span class="dt">xlim=</span><span class="kw">c</span>(-xm,xm), <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">pch =</span> <span class="dv">3</span>, <span class="dt">xlab=</span><span class="st">&quot;x&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;y&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Makes and Misses&quot;</span>)
-<span class="kw">points</span>(X[-iy,<span class="kw">c</span>(<span class="st">&quot;x&quot;</span>,<span class="st">&quot;y&quot;</span>)], <span class="dt">col =</span><span class="st">&quot;blue&quot;</span>, <span class="dt">pch =</span> <span class="dv">1</span>)
-<span class="kw">abline</span>(<span class="dt">h=</span>ym/<span class="dv">2</span>)
-<span class="kw">points</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">cex=</span><span class="dv">2</span>)
+priormod &lt;-<span class="st"> </span><span class="kw">glm</span>(result ~<span class="st"> </span><span class="kw">log</span>(r) +<span class="st"> </span>theta, <span class="dt">data=</span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(<span class="kw">as.integer</span>(<span class="kw">as.factor</span>(gameid)) &lt;<span class="st"> </span><span class="dv">5</span>), <span class="dt">family=</span><span class="st">&quot;binomial&quot;</span>)
+mu0r &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;log(r)&quot;</span>,<span class="st">&quot;Estimate&quot;</span>]
+mu0theta &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;log(r)&quot;</span>,<span class="st">&quot;Std. Error&quot;</span>]
+tau0r &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;Std. Error&quot;</span>]^<span class="dv">2</span>
+tau0theta &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;Std. Error&quot;</span>]^<span class="dv">2</span>
 
 
-
-<span class="co">#Forward Filtering</span>
-
-<span class="co">#set up DGLM and initial prior</span>
-<span class="co">#first, set up covariates per time interval</span>
-F &lt;-<span class="st"> </span><span class="kw">t</span>(Z)
-p &lt;-<span class="st"> </span><span class="kw">dim</span>(F)[<span class="dv">1</span>]
-<span class="co">#theta = state vector (GLM parameters) (px1)</span>
-<span class="co">#F = the data...regression vectors for all t...aka the design matrix (pxT)</span>
-<span class="co">#G = known evolution matrix ???????</span>
-<span class="co">#omega = evolution errors with 0 mean and known variance matrix W</span>
-<span class="co">#g(.) = function to map eta to real line (logit)</span>
-
-mt &lt;-<span class="st"> </span>theta
-Ct &lt;-<span class="st"> </span><span class="kw">diag</span>(p)
-<span class="co">#mt = prior mean vector</span>
-<span class="co">#Ct = prior covariance matrix</span>
-<span class="co">#(theta[t-1]|D[t-1]) ~ N(mt[t-1], Ct[t-1])</span>
-
-
-delta &lt;-<span class="st"> </span><span class="dv">1</span> <span class="co">#0.99 #discount factor; &quot;streaky parameter&quot;</span>
-<span class="co">#forward filtering (FF)</span>
-smt &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rep</span>(<span class="dv">0</span>,p*T), <span class="dt">nrow=</span>p)           <span class="co">#save post means</span>
-sCt &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">rep</span>(<span class="dv">0</span>,p*p*T), <span class="dt">dim =</span> <span class="kw">c</span>(p,p,T))  <span class="co">#save post covars</span>
-spt &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NaN</span>, T)                          <span class="co">#save post prob success</span>
-lmlik &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,T)                           <span class="co">#marg lik per time int</span>
-ishot &lt;-<span class="st"> </span><span class="dv">0</span>
-
-rtst &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="ot">NA</span>, <span class="kw">c</span>(T,<span class="dv">2</span>))
-for(t in <span class="dv">1</span>:T){
-  if(t %in%<span class="st"> </span>tshot){
-    <span class="co">#current shot attempt index, and time</span>
-    ishot &lt;-<span class="st"> </span>ishot +<span class="st"> </span><span class="dv">1</span>
-    ti &lt;-<span class="st"> </span>tshot[ishot]
-    
-    ft &lt;-<span class="st"> </span>(F[,ishot]) %*%<span class="st"> </span>mt
-    At &lt;-<span class="st"> </span>Ct %*%<span class="st"> </span>F[,ishot]/delta
-    qt &lt;-<span class="st"> </span>(F[,ishot]) %*%<span class="st"> </span>At
-    At &lt;-<span class="st"> </span>At/<span class="kw">as.numeric</span>(qt)
-    
-    <span class="co">#at = Gt*mt in txtbk, but = mt here.</span>
-    <span class="co">#Rt = Gt*Ct[t-1]*Gt&#39; + Wt in txtbk, but = Ct/delta here</span>
-    <span class="co">#f = F&#39;at = F&#39;mt</span>
-    <span class="co">#q = F&#39;RF = F&#39;Ct F (1/delta)</span>
-    <span class="co">#((lambda,theta)&#39; | Dt-1) ~ N( (f, a), ((q, F&#39;C/delta),(CF/delta, C)) )</span>
-
-    <span class="co">#what is mu tho?</span>
-    <span class="co">#???????????????????????</span>
-    <span class="co">#&quot;the samp dist of Yt depends on thetat only via the single quantity mut</span>
-    <span class="co">#prior: (mu|Dt) ~ N(f, q)</span>
-    <span class="co">#Vt &gt; 0 is scale parameter aka precision of distribution...</span>
-    <span class="co">#but precision of what??? what is b(Yt, Vt?)</span>
-    <span class="co">#Q = q + Vt</span>
-    <span class="co">#post:  (mu|Dt) ~ N(f*, q*)</span>
-    
-    <span class="co">#f* = </span>
-    <span class="co">#what is mu???</span>
-    <span class="co">#f = F&#39;a which is</span>
-    
-    <span class="co">#prior mean and var of linear predictor, and adaptive vector</span>
-    <span class="co">#compute approx prior Beta(r,s) params; update w/ numerical iterations for exact values</span>
-    eft &lt;-<span class="st"> </span><span class="kw">exp</span>(ft)   <span class="co">#crude initial values</span>
-    rt &lt;-<span class="st"> </span>(<span class="dv">1</span>+eft)/qt
-    st &lt;-<span class="st"> </span>rt/eft
-    rt &lt;-<span class="st"> </span><span class="kw">max</span>(<span class="fl">0.5</span>, rt)
-    st &lt;-<span class="st"> </span><span class="kw">max</span>(<span class="fl">0.5</span>, st)
-    
-    
-    
-
-    <span class="co">#fts = ft* = posterior mean of ????</span>
-    <span class="co">#qts = qt* = posterior variance of something ???</span>
-    <span class="co">#iterative numerical solution</span>
-    <span class="co"># ep &lt;- 0.5; drt &lt;- 1; dst &lt;- 1; xt &lt;- matrix(c(rt, st))</span>
-    <span class="co"># while(max(drt, dst) &lt; ep){</span>
-    <span class="co">#   r0t &lt;- psigamma(rt,0); s0t &lt;- psigamma(st,0)</span>
-    <span class="co">#   r1t &lt;- psigamma(rt,1); s1t &lt;- psigamma(st,1)</span>
-    <span class="co">#   fxt &lt;- c(r0t-s0t-ft, r1t+s1t-qt)</span>
-    <span class="co">#   Axt &lt;- matrix(c(r1t, -s1t, psigamma(rt, 2), psigamma(st, 2)), ncol=2, byrow = TRUE)</span>
-    <span class="co">#   xt &lt;- xt - solve(Axt, fxt)</span>
-    <span class="co">#   drt &lt;- xt[1] - rt; dst &lt;- xt[2] - st</span>
-    <span class="co">#   rt &lt;- xt[1]; st &lt;- xt[2]</span>
-    <span class="co"># }</span>
-    
-    rtst[t,] &lt;-<span class="st"> </span><span class="kw">c</span>(rt, st)
-    
-    if(rt &gt;<span class="st"> </span><span class="dv">1000</span>){
-      break
-    }
-    
-    lmlik[t] &lt;-<span class="st"> </span><span class="kw">lgamma</span>(rt+st) -<span class="st"> </span><span class="kw">lgamma</span>(rt) -<span class="st"> </span><span class="kw">lgamma</span>(st) +<span class="st"> </span>
-<span class="st">                </span><span class="kw">lgamma</span>(rt+y[t]) +<span class="st"> </span><span class="kw">lgamma</span>(st<span class="dv">+1</span>-y[t]) -<span class="st"> </span><span class="kw">lgamma</span>(rt+st<span class="dv">+1</span>) +<span class="st"> </span>
-<span class="st">                </span><span class="kw">lgamma</span>(<span class="dv">2</span>) -<span class="st"> </span><span class="kw">lgamma</span>(<span class="dv">1</span>+y[t]) -<span class="st"> </span><span class="kw">lgamma</span>(<span class="dv">2</span>-y[t])
-    rts &lt;-<span class="st"> </span>rt +<span class="st"> </span>y[t]; sts &lt;-<span class="st"> </span>st +<span class="st"> </span><span class="dv">1</span>-y[t] <span class="co">#posterior beta params</span>
-    <span class="co">#convert to mean and variance for linear predictor</span>
-    fts &lt;-<span class="st"> </span><span class="kw">psigamma</span>(rts,<span class="dv">0</span>)-<span class="kw">psigamma</span>(sts,<span class="dv">0</span>); qts &lt;-<span class="st"> </span><span class="kw">psigamma</span>(rts,<span class="dv">1</span>)+<span class="kw">psigamma</span>(sts,<span class="dv">1</span>)
-    spt[t] &lt;-<span class="st"> </span>rts/(sts+rts)
-    
-    <span class="co">#update state parameters</span>
-    mt &lt;-<span class="st"> </span>mt+At%*%(fts-ft)
-    Ct &lt;-<span class="st"> </span>Ct/delta -<span class="st"> </span>(At%*%<span class="kw">t</span>(At))*<span class="kw">as.numeric</span>(qt-qts)
-    Ct &lt;-<span class="st"> </span>(Ct +<span class="st"> </span><span class="kw">t</span>(Ct))/<span class="dv">2</span>
-    <span class="kw">c</span>(t, rt, st, mt)
-    
-    if(<span class="kw">any</span>(<span class="kw">is.nan</span>(mt))){
-      <span class="kw">print</span>(<span class="st">&quot;stop&quot;</span>)
-      break
-    }
-    
-  }
-  smt[,t] &lt;-<span class="st"> </span>mt; sCt[,,t] &lt;-<span class="st"> </span>Ct <span class="co">#saving</span>
-}
-
-<span class="kw">par</span>(<span class="dt">xpd=</span><span class="ot">TRUE</span>)
-<span class="kw">plot</span>(smt[<span class="dv">1</span>,],<span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;shot index&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;online state mean&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Dynamic Parameters&quot;</span>)
-<span class="kw">lines</span>(smt[<span class="dv">2</span>,],<span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;orange&quot;</span>)
-<span class="kw">lines</span>(smt[<span class="dv">3</span>,],<span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;yellow&quot;</span>)
-<span class="kw">legend</span>(<span class="dt">x=</span>T*.<span class="dv">75</span>, <span class="dt">y=</span><span class="dv">4</span>, <span class="dt">legend =</span> <span class="kw">c</span>(<span class="st">&quot;intercept&quot;</span>, <span class="st">&quot;angle&quot;</span>, <span class="st">&quot;log(distance)&quot;</span>), <span class="dt">pch =</span> <span class="kw">c</span>(<span class="dv">16</span>), <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;orange&quot;</span>, <span class="st">&quot;yellow&quot;</span>))
-
-<span class="kw">plot</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dt">type=</span><span class="st">&quot;n&quot;</span>,<span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>,T),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="dt">ylab =</span> <span class="st">&quot;probability&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;time index&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;DGLM&quot;</span>)
-<span class="kw">points</span>(tshot, spt[tshot], <span class="dt">pch=</span><span class="dv">4</span>, <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>)
-<span class="kw">points</span>(tshot, y[tshot], <span class="dt">pch=</span><span class="dv">1</span>, <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)
-<span class="kw">legend</span>(<span class="dt">x=</span>T*.<span class="dv">8</span>, <span class="dt">y=</span><span class="fl">1.21</span>, <span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;probability&quot;</span>, <span class="st">&quot;outcome&quot;</span>), <span class="dt">pch =</span> <span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">1</span>), <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>))
-
-<span class="co">#arm::binnedplot(x=spt[tshot], y=y[tshot]-spt[tshot])</span>
-
-
-
-
-<span class="co">#Backward sampling</span>
-nmc &lt;-<span class="st"> </span><span class="dv">1000</span>
-<span class="co">#save posterior means and posterior success probs</span>
-MCtheta &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(p, T, nmc)) 
-MCq &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(T, nmc))
-
-<span class="co">#begin BS at timeunit T</span>
-thetat &lt;-<span class="st"> </span><span class="kw">rmvnorm</span>(<span class="dt">n=</span>nmc, smt[,T], sCt[,,T]) <span class="co">#SOMETIMES sCT[,,T] IS NOT POSITIVE DEFINITE. DEPENDS ON RANDOM SEED.</span>
-MCtheta[,T,] &lt;-<span class="st"> </span><span class="kw">t</span>(thetat)
-MCq[T,] &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="dv">1</span>+<span class="kw">exp</span>(-thetat %*%<span class="st"> </span>F[,nshots]))
-
-<span class="co">#then recurse backwards</span>
-ishot &lt;-<span class="st"> </span>nshots +<span class="st"> </span><span class="dv">1</span>
-for(t in (T<span class="dv">-1</span>):<span class="dv">1</span>){
-  if(t %in%<span class="st"> </span>tshot){
-    ht =<span class="st"> </span>(<span class="dv">1</span>-delta)*<span class="kw">t</span>(<span class="kw">array</span>(smt[,t], <span class="kw">c</span>(<span class="kw">dim</span>(smt)[<span class="dv">1</span>], nmc))) +<span class="st"> </span>delta*thetat
-    <span class="co">#run a simulation for each row of ht and each 3rd dim of sCt</span>
-    thetat &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(ht, <span class="dv">1</span>, rmvnorm, <span class="dt">n=</span><span class="dv">1</span>, <span class="dt">sigma =</span> sCt[,,t]*(<span class="dv">1</span>-delta)))
-    MCtheta[,t,] &lt;-<span class="st"> </span><span class="kw">t</span>(thetat)
-    ishot &lt;-<span class="st"> </span>ishot -<span class="st"> </span><span class="dv">1</span>; ti &lt;-<span class="st"> </span>tshot[ishot]
-    MCq[t,] &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="dv">1</span>+<span class="kw">exp</span>(-thetat %*%<span class="st"> </span>F[,ishot]))
-  }
-}
-
-<span class="co">#retrospective posterior summaries</span>
-<span class="co">#posterior of shot probabilities?</span>
-pr &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(MCq[tshot,], <span class="dv">1</span>, quantile, <span class="kw">c</span>(.<span class="dv">025</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, .<span class="dv">975</span>))) <span class="co">#get quantiles of each row</span>
-<span class="kw">plot</span>(<span class="dv">0</span>,<span class="dv">0</span>, <span class="dt">type=</span><span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>,T), <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="dt">main =</span> <span class="st">&quot;Posterior Probability&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;hit rate&quot;</span>, <span class="dt">xlab=</span><span class="st">&quot;time interval&quot;</span>) 
-<span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">1</span>], <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
-<span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">5</span>], <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
-<span class="kw">polygon</span>(<span class="kw">c</span>(tshot, <span class="kw">rev</span>(tshot)), <span class="kw">c</span>(pr[,<span class="dv">1</span>], <span class="kw">rev</span>(pr[,<span class="dv">5</span>])),
-        <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">border =</span> <span class="ot">NA</span>)
-<span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">2</span>], <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>)
-<span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">4</span>], <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>)
-<span class="kw">polygon</span>(<span class="kw">c</span>(tshot, <span class="kw">rev</span>(tshot)), <span class="kw">c</span>(pr[,<span class="dv">2</span>], <span class="kw">rev</span>(pr[,<span class="dv">4</span>])),
-        <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">border =</span> <span class="ot">NA</span>)
-<span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">3</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>)
-<span class="kw">points</span>(<span class="dt">x=</span><span class="dv">1</span>:T, <span class="dt">y=</span>y, <span class="dt">pch=</span><span class="dv">1</span>)
-
-<span class="co">#posteriors of parameters from DGLM</span>
-posterior_labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Posterior Intercept&quot;</span>, <span class="st">&quot;Posterior Angle&quot;</span>, <span class="st">&quot;Posterior Log Distance&quot;</span>)
-for(j in <span class="dv">1</span>:p){
+fit_glm &lt;-<span class="st"> </span>function(playerids, <span class="dt">seasons =</span> <span class="dv">2014</span>:<span class="dv">2017</span>){
   
-  pr =<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(MCtheta[j,tshot,], <span class="dv">1</span>, quantile, <span class="kw">c</span>(.<span class="dv">025</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, .<span class="dv">975</span>)))
-  <span class="kw">plot</span>(<span class="dv">0</span>,<span class="dv">0</span>, <span class="dt">type=</span><span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>,T), <span class="dt">ylim =</span> <span class="kw">range</span>(pr), <span class="dt">main =</span> posterior_labels[j], <span class="dt">xlab =</span> <span class="st">&quot;time interval&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;state vector element&quot;</span>) 
-  <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">1</span>], <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
-  <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">5</span>], <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
-  <span class="kw">polygon</span>(<span class="kw">c</span>(tshot, <span class="kw">rev</span>(tshot)), <span class="kw">c</span>(pr[,<span class="dv">1</span>], <span class="kw">rev</span>(pr[,<span class="dv">5</span>])),
-          <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">border =</span> <span class="ot">NA</span>)
-  <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">2</span>], <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>)
-  <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">4</span>], <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>)
-  <span class="kw">polygon</span>(<span class="kw">c</span>(tshot, <span class="kw">rev</span>(tshot)), <span class="kw">c</span>(pr[,<span class="dv">2</span>], <span class="kw">rev</span>(pr[,<span class="dv">4</span>])),
-          <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">border =</span> <span class="ot">NA</span>)
-  <span class="kw">points</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">3</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">pch =</span> <span class="dv">4</span>)
+  model.glm &lt;-<span class="st"> </span>function(){
   
-}</code></pre></div>
-</div>
-<div id="game-by-game-gibbs" class="section level4">
-<h4><span class="header-section-number">6.0.0.3</span> Game-By-Game gibbs</h4>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(R2jags)
-
-
-simplemod &lt;-<span class="st"> </span>function(){
-  for(i in <span class="dv">1</span>:n){
-    y[i] ~<span class="st"> </span><span class="kw">dbinom</span>(p, <span class="dv">1</span>)
-  }
-  p ~<span class="st"> </span><span class="kw">dbeta</span>(a0,B0)
-}
-
-simpledat &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">y =</span> <span class="kw">c</span>(<span class="kw">rep</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="kw">rep</span>(<span class="dv">1</span>,<span class="dv">3</span>)),
-                <span class="dt">a0 =</span> <span class="dv">1</span>/<span class="dv">200</span>, <span class="dt">B0 =</span> <span class="dv">1</span>/<span class="dv">200</span>
-                <span class="co">#prior is extremely skewed to edges, data is extremly 75%</span>
-);simpledat$n &lt;-<span class="st"> </span><span class="kw">length</span>(simpledat$y)
-simplesim &lt;-<span class="st"> </span><span class="kw">jags</span>(simpledat, 
-                  <span class="dt">n.iter=</span><span class="dv">1000</span>, <span class="dt">n.chains=</span><span class="dv">1</span>, <span class="dt">n.burnin=</span><span class="dv">100</span>,
-                  <span class="dt">parameters.to.save =</span> <span class="st">&quot;p&quot;</span>, 
-                  <span class="dt">model.file=</span>simplemod)
-simplesim.mcmc &lt;-<span class="st"> </span>(<span class="kw">as.mcmc</span>(simplesim)[[<span class="dv">1</span>]])
-
-
-model &lt;-<span class="st"> </span>function(){
     <span class="co"># N observations</span>
     for(i in <span class="dv">1</span>:N){
       result[i] ~<span class="st"> </span><span class="kw">dbern</span>(prob[i])
-      <span class="kw">logit</span>(prob[i]) &lt;-<span class="st"> </span>beta_int*int[i] +<span class="st"> </span>e_int[player[i]] +<span class="st"> </span>beta_r*logr[i] +<span class="st"> </span>e_r[player[i]] +<span class="st"> </span>beta_theta*theta[i] +<span class="st"> </span>e_theta[player[i]] <span class="co"># a random &#39;e&#39; here or is that implied?</span>
+      <span class="kw">logit</span>(prob[i]) &lt;-<span class="st"> </span>beta_int*int[i] +<span class="st"> </span>beta_r*logr[i] +<span class="st"> </span>beta_theta*theta[i]
+    }
+
+    <span class="co"># Priors</span>
+    beta_int   ~<span class="st"> </span><span class="kw">dnorm</span>(<span class="dv">0</span>, <span class="fl">0.1</span>)
+    beta_r     ~<span class="st"> </span><span class="kw">dnorm</span>(mu0r, <span class="fl">0.01</span>) <span class="co">#would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance increases.</span>
+    beta_theta ~<span class="st"> </span><span class="kw">dnorm</span>(mu0theta, <span class="fl">0.1</span>)
+
+  }
+
+  allgameshots_sub &lt;-<span class="st"> </span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(globalplayerid %in%<span class="st"> </span>playerids &amp;
+<span class="st">                                            </span>season %in%<span class="st"> </span>seasons)
+
+  datlist.glm &lt;-<span class="st">  </span><span class="kw">list</span>(
+                    <span class="dt">logr =</span> <span class="kw">log</span>(allgameshots_sub$r), 
+                    <span class="dt">theta =</span> allgameshots_sub$theta, 
+                    <span class="dt">result =</span> allgameshots_sub$result, 
+                    <span class="dt">N =</span> <span class="kw">nrow</span>(allgameshots_sub), 
+                    <span class="dt">int =</span> <span class="kw">rep</span>(<span class="dv">1</span>, <span class="kw">nrow</span>(allgameshots_sub)), 
+                    <span class="dt">mu0r =</span> mu0r,
+                    <span class="dt">mu0theta =</span> mu0theta
+                )
+  params.glm &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;beta_int&quot;</span>,<span class="st">&quot;beta_r&quot;</span>, <span class="st">&quot;beta_theta&quot;</span>)
+
+
+  sim &lt;-<span class="st"> </span><span class="kw">jags</span>(<span class="dt">data =</span> datlist.glm, 
+              <span class="dt">n.iter =</span> <span class="dv">10000</span>, <span class="dt">n.chains =</span> <span class="dv">1</span>, <span class="dt">n.burnin =</span> <span class="dv">500</span>,
+              <span class="co">#inits=list(list(p = rep(0.5, nrow(P0)))),</span>
+              <span class="dt">parameters.to.save =</span> params.glm,
+              <span class="dt">model.file=</span>model.glm
+  )
+  sim.mcmc &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">as.mcmc</span>(sim)[[<span class="dv">1</span>]])
+  <span class="kw">return</span>(sim.mcmc)
+}
+
+
+
+plot_params &lt;-<span class="st"> </span>function(<span class="dt">sim.mcmc =</span> <span class="ot">NA</span>){
+  
+    coefs &lt;-<span class="st"> </span>sim.mcmc[,<span class="kw">c</span>(<span class="st">&quot;beta_int&quot;</span>,<span class="st">&quot;beta_r&quot;</span>,<span class="st">&quot;beta_theta&quot;</span>)] %&gt;%<span class="st"> </span><span class="kw">apply</span>(<span class="dv">2</span>, quantile, <span class="kw">c</span>(<span class="fl">0.025</span>,<span class="fl">0.5</span>,<span class="fl">0.975</span>)) %&gt;%<span class="st"> </span><span class="kw">t</span>() %&gt;%<span class="st"> </span><span class="kw">as.data.frame</span>()
+    
+    <span class="kw">colnames</span>(coefs) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;lo&quot;</span>, <span class="st">&quot;mid&quot;</span>, <span class="st">&quot;hi&quot;</span>)
+  
+    <span class="kw">ggplot</span>(<span class="dt">data =</span> coefs, <span class="kw">aes</span>(<span class="dt">x=</span><span class="kw">c</span>(<span class="st">&quot;intercept&quot;</span>,<span class="st">&quot;distance&quot;</span>,<span class="st">&quot;angle&quot;</span>),<span class="dt">y=</span>mid)) +<span class="st"> </span>
+<span class="st">      </span><span class="kw">geom_point</span>() +<span class="st"> </span>
+<span class="st">      </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>lo, <span class="dt">ymax=</span>hi), <span class="dt">width=</span><span class="fl">0.5</span>) +<span class="st"> </span>
+<span class="st">      </span><span class="kw">geom_abline</span>(<span class="dt">intercept=</span><span class="dv">0</span>, <span class="dt">slope=</span><span class="dv">0</span>, <span class="dt">linetype=</span><span class="dv">2</span>) +<span class="st"> </span>
+<span class="st">      </span><span class="kw">labs</span>(<span class="dt">title=</span><span class="st">&quot;GLM Posterior Parameters (95% error)&quot;</span>,<span class="dt">x=</span><span class="st">&quot;predictor&quot;</span>, <span class="dt">y=</span><span class="st">&quot;estimate&quot;</span>) +<span class="st"> </span>
+<span class="st">      </span><span class="kw">theme_bw</span>()
+}
+
+playerseasons
+glm1 &lt;-<span class="st"> </span><span class="kw">fit_glm</span>(playerseasons[<span class="dv">1</span>,<span class="dv">1</span>], playerseasons[<span class="dv">1</span>,<span class="dv">2</span>])
+glm2 &lt;-<span class="st"> </span><span class="kw">fit_glm</span>(playerseasons[<span class="dv">2</span>,<span class="dv">1</span>], playerseasons[<span class="dv">2</span>,<span class="dv">2</span>])
+glm3 &lt;-<span class="st"> </span><span class="kw">fit_glm</span>(playerseasons[<span class="dv">3</span>,<span class="dv">1</span>], playerseasons[<span class="dv">3</span>,<span class="dv">2</span>])
+glm4 &lt;-<span class="st"> </span><span class="kw">fit_glm</span>(playerseasons[<span class="dv">4</span>,<span class="dv">1</span>], playerseasons[<span class="dv">4</span>,<span class="dv">2</span>])
+
+<span class="kw">plot_params</span>(glm1)
+<span class="kw">plot_params</span>(glm2)
+<span class="kw">plot_params</span>(glm3)
+<span class="kw">plot_params</span>(glm4)</code></pre></div>
+<p>The four plots show the GLM parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section. From these plots we see that the effect of the angle contains zero, and it is probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot decreases as distance from the basket increases.</p>
+</div>
+<div id="hierarchichal-model" class="section level4">
+<h4><span class="header-section-number">6.0.0.2</span> Hierarchichal Model</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">priormod &lt;-<span class="st"> </span><span class="kw">glm</span>(result ~<span class="st"> </span><span class="kw">log</span>(r) +<span class="st"> </span>theta, <span class="dt">data=</span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(<span class="kw">as.integer</span>(<span class="kw">as.factor</span>(gameid)) &lt;<span class="st"> </span><span class="dv">5</span>), <span class="dt">family=</span><span class="st">&quot;binomial&quot;</span>)
+mu0r &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;log(r)&quot;</span>,<span class="st">&quot;Estimate&quot;</span>]
+mu0theta &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;log(r)&quot;</span>,<span class="st">&quot;Std. Error&quot;</span>]
+tau0r &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;Std. Error&quot;</span>]^<span class="dv">2</span>
+tau0theta &lt;-<span class="st"> </span><span class="kw">summary</span>(priormod)[[<span class="st">&quot;coefficients&quot;</span>]][<span class="st">&quot;theta&quot;</span>,<span class="st">&quot;Std. Error&quot;</span>]^<span class="dv">2</span>
+
+<span class="co"># model2 &lt;- function(){</span>
+<span class="co">#     # N observations</span>
+<span class="co">#     for(i in 1:N){</span>
+<span class="co">#       result[i] ~ dbern(prob[i])</span>
+<span class="co">#       logit(prob[i]) &lt;- beta_int*int[i] + e_int[player[i]] + beta_r*logr[i] + e_r[player[i]] + beta_theta*theta[i] + e_theta[player[i]] # a random &#39;e&#39; here or is that implied?</span>
+<span class="co">#     }</span>
+<span class="co">#     # priors on random player effects</span>
+<span class="co">#     for(j in 1:M){</span>
+<span class="co">#         e_int[j] ~ dnorm(beta_int,tau)</span>
+<span class="co">#         e_r[j] ~ dnorm(beta_r,tau)</span>
+<span class="co">#         e_theta[j] ~ dnorm(beta_theta,tau)</span>
+<span class="co">#     }</span>
+<span class="co">#     # Priors</span>
+<span class="co">#     beta_int   ~ dnorm(0.0,0.1)</span>
+<span class="co">#     beta_r     ~ dnorm(mu0r,0.1)</span>
+<span class="co">#     beta_theta ~ dnorm(mu0theta,0.1)</span>
+<span class="co"># </span>
+<span class="co">#     # Hyperpriors</span>
+<span class="co">#     tau ~ dgamma(0.1,0.1)</span>
+<span class="co"># }</span>
+
+fit_hier &lt;-<span class="st"> </span>function(){
+  
+  <span class="co"># cond &lt;- allgameshots$globalplayerid %in% playerids &amp; allgameshots$season %in% seasons</span>
+  <span class="co"># allgameshots_sub &lt;- allgameshots %&gt;% filter(cond)</span>
+
+  
+  model.hier &lt;-<span class="st"> </span>function(){
+    <span class="co"># N observations</span>
+    for(i in <span class="dv">1</span>:N){
+      result[i] ~<span class="st"> </span><span class="kw">dbern</span>(prob[i])
+      <span class="kw">logit</span>(prob[i]) &lt;-<span class="st"> </span>beta_int[player[i]]*int[i] +<span class="st"> </span>beta_r[player[i]]*logr[i] +<span class="st"> </span>beta_theta[player[i]]*theta[i]
     }
     <span class="co"># priors on random player effects</span>
     for(j in <span class="dv">1</span>:M){
-        e_int[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_int,tau)
-        e_r[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_r,tau)
-        e_theta[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_theta,tau)
+        beta_int[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_int0,tau_int)
+        beta_r[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_r0,tau_r)
+        beta_theta[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_theta0,tau_theta)
     }
     <span class="co"># Priors</span>
-    beta_int   ~<span class="st"> </span><span class="kw">dnorm</span>(<span class="fl">0.0</span>,<span class="fl">1.0E-6</span>)
-    beta_r     ~<span class="st"> </span><span class="kw">dnorm</span>(<span class="fl">0.0</span>,<span class="fl">1.0E-6</span>)
-    beta_theta ~<span class="st"> </span><span class="kw">dnorm</span>(<span class="fl">0.0</span>,<span class="fl">1.0E-6</span>)
+    beta_int0   ~<span class="st"> </span><span class="kw">dnorm</span>(<span class="dv">0</span>, <span class="fl">0.1</span>)
+    beta_r0     ~<span class="st"> </span><span class="kw">dnorm</span>(mu0r, <span class="fl">0.01</span>) <span class="co">#would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance increases.</span>
+    beta_theta0 ~<span class="st"> </span><span class="kw">dnorm</span>(mu0theta, <span class="fl">0.1</span>)
 
     <span class="co"># Hyperpriors</span>
-    tau ~<span class="st"> </span><span class="kw">dgamma</span>(<span class="fl">0.1</span>,<span class="fl">0.1</span>)
-}
+    tau_int ~<span class="st"> </span><span class="kw">dgamma</span>(<span class="dv">10</span>, <span class="dv">100</span>)
+    tau_r ~<span class="st"> </span><span class="kw">dgamma</span>(<span class="dv">10</span>, <span class="fl">0.2</span>)
+    tau_theta ~<span class="st"> </span><span class="kw">dgamma</span>(<span class="dv">10</span>, <span class="dv">10</span>)
+  }
 
-datlist &lt;-<span class="st"> </span><span class="kw">list</span>(
+  datlist.hier &lt;-<span class="st"> </span><span class="kw">list</span>(
                 <span class="dt">logr =</span> <span class="kw">log</span>(allgameshots$r), 
                 <span class="dt">theta =</span> allgameshots$theta, 
                 <span class="dt">result =</span> allgameshots$result, 
                 <span class="dt">player =</span> <span class="kw">as.integer</span>(<span class="kw">as.factor</span>(allgameshots$globalplayerid)),
                 <span class="dt">N =</span> <span class="kw">nrow</span>(allgameshots), 
                 <span class="dt">int =</span> <span class="kw">rep</span>(<span class="dv">1</span>, <span class="kw">nrow</span>(allgameshots)), 
-                <span class="dt">M =</span> <span class="kw">n_distinct</span>(allgameshots$globalplayerid)
+                <span class="dt">M =</span> <span class="kw">n_distinct</span>(allgameshots$globalplayerid),
+                <span class="dt">mu0r =</span> mu0r,
+                <span class="dt">mu0theta =</span> mu0theta,
+                <span class="dt">tau0r =</span>tau0r,
+                <span class="dt">tau0theta =</span> tau0theta
+
                 )
-params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;beta_int&quot;</span>,<span class="st">&quot;beta_r&quot;</span>, <span class="st">&quot;beta_theta&quot;</span>, <span class="st">&quot;e_int&quot;</span>,<span class="st">&quot;e_r&quot;</span>,<span class="st">&quot;e_theta&quot;</span>,<span class="st">&quot;prob&quot;</span>)
+  params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;beta_int&quot;</span>,<span class="st">&quot;beta_r&quot;</span>, <span class="st">&quot;beta_theta&quot;</span>,<span class="st">&quot;beta_int0&quot;</span>,<span class="st">&quot;beta_r0&quot;</span>, <span class="st">&quot;beta_theta0&quot;</span>, <span class="st">&quot;tau_int&quot;</span>, <span class="st">&quot;tau_r&quot;</span>, <span class="st">&quot;tau_theta&quot;</span>)
 
 
-sim &lt;-<span class="st"> </span><span class="kw">jags</span>(<span class="dt">data =</span> datlist, 
-            <span class="dt">n.iter =</span> <span class="dv">1000</span>, <span class="dt">n.chains =</span> <span class="dv">1</span>, <span class="dt">n.burnin =</span> <span class="dv">100</span>,
-            <span class="co">#inits=list(list(p = rep(0.5, nrow(P0)))),</span>
-            <span class="dt">parameters.to.save =</span> params,
-            <span class="dt">model.file=</span>model
-)
-sim.mcmc &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">as.mcmc</span>(sim)[[<span class="dv">1</span>]])
-<span class="co"># x_t = [1, r_t, theta_t]&#39; #HOW DO YOU GET AN R AND THETA FROM A WHOLE GAME???</span>
-<span class="co"># Beta = [b_0, b_r, b_theta]</span>
-<span class="co"># P(make|attempt) = 1/(1+exp(-Beta*x_t))</span>
+  sim &lt;-<span class="st"> </span><span class="kw">jags</span>(<span class="dt">data =</span> datlist.hier, 
+              <span class="dt">n.iter =</span> <span class="dv">10000</span>, <span class="dt">n.chains =</span> <span class="dv">1</span>, <span class="dt">n.burnin =</span> <span class="dv">500</span>,
+              <span class="co">#inits=list(list(p = rep(0.5, nrow(P0)))),</span>
+              <span class="dt">parameters.to.save =</span> params,
+              <span class="dt">model.file=</span>model.hier
+  )
+  sim.mcmc.hier &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">as.mcmc</span>(sim)[[<span class="dv">1</span>]])
+  <span class="kw">return</span>(sim.mcmc.hier)
+}
 
-<span class="co">#allgameshots %&gt;% group_by(gameid) %&gt;% select(r, theta) %&gt;% cbind(1,.)</span></code></pre></div>
+get_player_params &lt;-<span class="st"> </span>function(sim.mcmc.hier){
+  
+  factorid &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
+    <span class="dt">factorid =</span> <span class="kw">as.integer</span>(<span class="kw">as.factor</span>(allgameshots$globalplayerid)),
+    <span class="dt">globalplayerid =</span> allgameshots$globalplayerid
+  ) %&gt;%<span class="st"> </span><span class="kw">unique</span>()
+  
+  sim.mcmc.means &lt;-<span class="st"> </span><span class="kw">colMeans</span>(sim.mcmc.hier)
+
+  playermapshots &lt;-<span class="st"> </span><span class="kw">merge</span>(factorid, playermap, <span class="dt">by=</span><span class="st">&quot;globalplayerid&quot;</span>, <span class="dt">all=</span><span class="ot">TRUE</span>)
+  playermapparams &lt;-<span class="st"> </span>playermapshots %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">int =</span> <span class="ot">NA</span>, <span class="dt">r =</span> <span class="ot">NA</span>, <span class="dt">theta =</span> <span class="ot">NA</span>)
+  for(i in <span class="dv">1</span>:<span class="kw">nrow</span>(playermapshots)){
+    fid &lt;-<span class="st"> </span>playermapparams$factorid[i]
+    if(!<span class="kw">is.na</span>(fid)){
+      theta_i &lt;-<span class="st"> </span>sim.mcmc.means[<span class="kw">grep</span>(<span class="kw">paste0</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">[&quot;</span>,fid,<span class="st">&quot;</span><span class="ch">\\</span><span class="st">]&quot;</span>), <span class="kw">names</span>(sim.mcmc.means))]
+    }else{
+      theta_i &lt;-<span class="st"> </span>theta
+    }
+    playermapparams[i,<span class="kw">c</span>(<span class="st">&quot;int&quot;</span>, <span class="st">&quot;r&quot;</span>, <span class="st">&quot;theta&quot;</span>)] &lt;-<span class="st"> </span>theta_i
+  }
+  <span class="kw">return</span>(playermapparams)
+}
+
+post_prob &lt;-<span class="st"> </span>function(<span class="dt">newdata=</span><span class="ot">NA</span>){
+
+  
+  Z &lt;-<span class="st"> </span><span class="kw">merge</span>(newdata, factorid) %&gt;%<span class="st"> </span><span class="kw">arrange</span>(time)
+  levels &lt;-<span class="st"> </span>Z$factorid
+  B &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(<span class="kw">as.matrix</span>(levels), <span class="dv">1</span>, function(l){
+    <span class="kw">matrix</span>(<span class="kw">c</span>(sim.mcmc.means[[<span class="kw">paste0</span>(<span class="st">&quot;beta_int[&quot;</span>,l,<span class="st">&quot;]&quot;</span>)]],
+         sim.mcmc.means[[<span class="kw">paste0</span>(<span class="st">&quot;beta_r[&quot;</span>,l,<span class="st">&quot;]&quot;</span>)]],
+         sim.mcmc.means[[<span class="kw">paste0</span>(<span class="st">&quot;beta_theta[&quot;</span>,l,<span class="st">&quot;]&quot;</span>)]]),<span class="dt">ncol=</span><span class="dv">3</span>,<span class="dt">byrow=</span><span class="ot">TRUE</span>
+    )}
+  ))
+  
+  X &lt;-<span class="st"> </span>Z %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">logr =</span> <span class="kw">log</span>(r) -<span class="st"> </span><span class="kw">mean</span>(<span class="kw">log</span>(r)), <span class="dt">int=</span><span class="dv">1</span>) %&gt;%<span class="st"> </span><span class="kw">select</span>(int, logr, theta) %&gt;%<span class="st"> </span><span class="kw">as.matrix</span>()
+
+  probs &lt;-<span class="st"> </span>B %&gt;%<span class="st"> &#39;%*%&#39;</span>(<span class="kw">t</span>(X)) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span>arm::<span class="kw">invlogit</span>()
+
+  <span class="co"># sim.results &lt;- arm::invlogit(sim.mcmc.means[[&quot;beta_int&quot;]] + sim.mcmc.means[[&quot;beta_r&quot;]] %*% t(Z[[&quot;logr&quot;]]) + sim.mcmc.means[[&quot;beta_theta&quot;]] %*% t(Z[[&quot;theta&quot;]]) + indiv_effect)</span>
+  
+  <span class="kw">return</span>(probs)
+}
+
+hier &lt;-<span class="st"> </span><span class="kw">fit_hier</span>()</code></pre></div>
+<pre><code>module glm loaded</code></pre>
+<pre><code>Warning in jags.model(model.file, data = data, inits = init.values,
+n.chains = n.chains, : Unused variable &quot;tau0r&quot; in data</code></pre>
+<pre><code>Warning in jags.model(model.file, data = data, inits = init.values,
+n.chains = n.chains, : Unused variable &quot;tau0theta&quot; in data</code></pre>
+<pre><code>Compiling model graph
+   Resolving undeclared variables
+   Allocating nodes
+Graph information:
+   Observed stochastic nodes: 5467
+   Unobserved stochastic nodes: 99
+   Total graph size: 49347
+
+Initializing model</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">colnames</span>(playerseasons) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;globalplayerid&quot;</span> ,<span class="st">&quot;season&quot;</span>)
+fourparams &lt;-<span class="st"> </span><span class="kw">merge</span>((playerseasons), <span class="kw">get_player_params</span>(hier),<span class="dt">all=</span><span class="ot">FALSE</span>) %&gt;%<span class="st"> </span><span class="kw">select</span>(int, r, theta)
+mainlab &lt;-<span class="st"> &quot;Posterior Density plus Four Players&quot;</span>
+<span class="kw">plot</span>(<span class="kw">density</span>(hier[[<span class="st">&quot;beta_int0&quot;</span>]]), mainlab,<span class="dt">xlab=</span><span class="st">&quot;intercept&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">v=</span>fourparams[,<span class="dv">1</span>], <span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</code></pre></div>
+<p><img src="thesis_files/figure-html/hier-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">density</span>(hier[[<span class="st">&quot;beta_r0&quot;</span>]]), mainlab, <span class="dt">xlab=</span><span class="st">&quot;r&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">v=</span>fourparams[,<span class="dv">2</span>], <span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</code></pre></div>
+<p><img src="thesis_files/figure-html/hier-2.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(<span class="kw">density</span>(hier[[<span class="st">&quot;beta_theta0&quot;</span>]]),mainlab, <span class="dt">xlab=</span><span class="st">&quot;theta&quot;</span>)
+<span class="kw">abline</span>(<span class="dt">v=</span>fourparams[,<span class="dv">3</span>], <span class="dt">col=</span><span class="st">&quot;red&quot;</span>)</code></pre></div>
+<p><img src="thesis_files/figure-html/hier-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The hierarchical model shows us that our four high-usage players of interest do not appear to be randomly spread across the population of players. The intercept plot shows that all four are in or close to the top half of values, and the radius plot shows the opposite with the four players trending towards lower parameter values. The high intercepts make intuitive sense, because the players who take a lot of shots are most more capable of making them under baseline conditions than their teammates are. However, the observation that these players would have a more drastic drop in field goal percentage than an average Duke player as they move farther from the basket is surprising.</p>
+</div>
+<div id="dynamic-generalized-linear-model" class="section level4">
+<h4><span class="header-section-number">6.0.0.3</span> Dynamic Generalized Linear Model</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">priormod &lt;-<span class="st"> </span><span class="kw">glm</span>(result ~<span class="st"> </span><span class="kw">log</span>(r) +<span class="st"> </span>theta, <span class="dt">data=</span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(<span class="kw">as.integer</span>(<span class="kw">as.factor</span>(gameid)) &lt;<span class="st"> </span><span class="dv">5</span>), <span class="dt">family=</span><span class="st">&quot;binomial&quot;</span>)
+
+fit_dglm &lt;-<span class="st"> </span>function(playerids, seasons, <span class="dt">iterate=</span><span class="ot">TRUE</span>){
+  
+  cond &lt;-<span class="st"> </span>allgameshots$globalplayerid %in%<span class="st"> </span>playerids &amp;<span class="st"> </span>allgameshots$season %in%<span class="st"> </span>seasons
+  allgameshots_sub &lt;-<span class="st"> </span>allgameshots %&gt;%<span class="st"> </span><span class="kw">filter</span>(cond)
+  Z &lt;-<span class="st"> </span>allgameshots_sub %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">logr =</span> <span class="kw">log</span>(r) -<span class="st"> </span><span class="kw">mean</span>(<span class="kw">log</span>(r))) %&gt;%<span class="st"> </span><span class="kw">select</span>(logr, theta) %&gt;%<span class="st"> </span><span class="kw">cbind</span>(<span class="dv">1</span>,.)
+  X &lt;-<span class="st"> </span>allgameshots_sub %&gt;%<span class="st"> </span><span class="kw">select</span>(<span class="dt">x=</span>xt, <span class="dt">y=</span>yt)
+  y &lt;-<span class="st"> </span>allgameshots_sub %&gt;%<span class="st"> </span><span class="kw">select</span>(result) %&gt;%<span class="st"> &#39;[[&#39;</span>(<span class="dv">1</span>)
+
+  ym &lt;-<span class="st"> </span><span class="dv">94</span>; xm &lt;-<span class="st"> </span><span class="dv">50</span>
+  shots &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">TRUE</span>,<span class="kw">nrow</span>(Z)) <span class="co">#no missing shots in this case</span>
+  tshot &lt;-<span class="st"> </span><span class="kw">which</span>(shots)
+  nshots &lt;-<span class="st"> </span><span class="kw">length</span>(tshot)
+  iy &lt;-<span class="st"> </span><span class="kw">which</span>(y[!<span class="kw">is.nan</span>(y)] ==<span class="st"> </span><span class="dv">1</span>)
+  T &lt;-<span class="st"> </span><span class="kw">length</span>(shots)
+
+  <span class="co">#initial parameters</span>
+  theta &lt;-<span class="st"> </span><span class="kw">coef</span>(priormod)
+  p &lt;-<span class="st"> </span><span class="kw">length</span>(theta)
+  <span class="co"># pscore &lt;- fitted(mod, type=&quot;response&quot;) #GLM predictions</span>
+  <span class="co"># q &lt;- rep(NaN, T)</span>
+  <span class="co"># q[shots] &lt;- pscore #q is just the GLM prediction</span>
+
+  <span class="co"># par(xpd=TRUE)</span>
+  <span class="co"># plot(0,0,type=&quot;n&quot;,xlim = c(0,T),ylim=c(0,1), ylab = &quot;probability&quot;, xlab = &quot;time index&quot;, main = &quot;GLM Predictions&quot;)</span>
+  <span class="co"># points(tshot, q[tshot], pch=4, col = &quot;blue&quot;)</span>
+  <span class="co"># points(tshot, y[tshot], pch=1, col = &quot;red&quot;)</span>
+  <span class="co"># legend(x=T*.8, y=1.21, legend=c(&quot;probability&quot;, &quot;outcome&quot;), pch = c(4,1), col=c(&quot;blue&quot;, &quot;red&quot;))</span>
+
+  <span class="co"># par(xpd=FALSE)</span>
+  <span class="co"># plot(X[iy,c(&quot;x&quot;,&quot;y&quot;)], ylim=c(0,ym), xlim=c(-xm/2,xm/2), col = &quot;red&quot;, pch = 3, xlab=&quot;x&quot;, ylab=&quot;y&quot;, main = &quot;Makes and Misses&quot;)</span>
+  <span class="co"># points(X[-iy,c(&quot;x&quot;,&quot;y&quot;)], col =&quot;blue&quot;, pch = 1)</span>
+  <span class="co"># abline(h=ym/2)</span>
+  <span class="co"># points(0,0,col=&quot;red&quot;, cex=2)</span>
+
+  <span class="co">#Forward Filtering</span>
+
+  <span class="co">#set up DGLM and initial prior</span>
+  <span class="co">#first, set up covariates per time interval</span>
+  F &lt;-<span class="st"> </span><span class="kw">t</span>(Z)
+  p &lt;-<span class="st"> </span><span class="kw">dim</span>(F)[<span class="dv">1</span>]
+  <span class="co">#theta = state vector (GLM parameters) (px1)</span>
+  <span class="co">#F = the data...regression vectors for all t...aka the design matrix (pxT)</span>
+  <span class="co">#G = known evolution matrix ???????</span>
+  <span class="co">#omega = evolution errors with 0 mean and known variance matrix W</span>
+  <span class="co">#g(.) = function to map eta to real line (logit)</span>
+
+  mt &lt;-<span class="st"> </span>theta
+  Ct &lt;-<span class="st"> </span><span class="kw">diag</span>(p)
+  <span class="co">#mt = prior mean vector</span>
+  <span class="co">#Ct = prior covariance matrix</span>
+  <span class="co">#(theta[t-1]|D[t-1]) ~ N(mt[t-1], Ct[t-1])</span>
+
+
+  delta &lt;-<span class="st"> </span><span class="fl">0.99</span> <span class="co">#discount factor; &quot;streaky parameter&quot;</span>
+  <span class="co">#forward filtering (FF)</span>
+  smt &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rep</span>(<span class="dv">0</span>,p*T), <span class="dt">nrow=</span>p)           <span class="co">#save post means</span>
+  sCt &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">rep</span>(<span class="dv">0</span>,p*p*T), <span class="dt">dim =</span> <span class="kw">c</span>(p,p,T))  <span class="co">#save post covars</span>
+  spt &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NaN</span>, T)                          <span class="co">#save post prob success</span>
+  lmlik &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>,T)                           <span class="co">#marg lik per time int</span>
+  ishot &lt;-<span class="st"> </span><span class="dv">0</span>
+  
+  rtst &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="ot">NA</span>, <span class="kw">c</span>(T,<span class="dv">2</span>))
+  <span class="co">#rt gets out of control when qt is very small or ft is very big</span>
+    <span class="co">#ft is very big when:</span>
+  
+    <span class="co">#qt is very small when At is very small</span>
+  
+      <span class="co">#At is very small when Ct is very small</span>
+  
+        <span class="co">#Ct is very small when</span>
+  for(t in <span class="dv">1</span>:T){
+    if(t %in%<span class="st"> </span>tshot){
+      <span class="co">#current shot attempt index, and time</span>
+      ishot &lt;-<span class="st"> </span>ishot +<span class="st"> </span><span class="dv">1</span>
+      ti &lt;-<span class="st"> </span>tshot[ishot]
+      
+      ft &lt;-<span class="st"> </span>(F[,ishot]) %*%<span class="st"> </span>mt
+      At &lt;-<span class="st"> </span>Ct %*%<span class="st"> </span>F[,ishot]/delta
+      qt &lt;-<span class="st"> </span>(F[,ishot]) %*%<span class="st"> </span>At
+      At &lt;-<span class="st"> </span>At/<span class="kw">as.numeric</span>(qt)
+      
+      <span class="co">#at = Gt*mt in txtbk, but = mt here.</span>
+      <span class="co">#Rt = Gt*Ct[t-1]*Gt&#39; + Wt in txtbk, but = Ct/delta here</span>
+      <span class="co">#f = F&#39;at = F&#39;mt</span>
+      <span class="co">#q = F&#39;RF = F&#39;Ct F (1/delta)</span>
+      <span class="co">#((lambda,theta)&#39; | Dt-1) ~ N( (f, a), ((q, F&#39;C/delta),(CF/delta, C)) )</span>
+  
+      <span class="co">#what is mu tho?</span>
+      <span class="co">#???????????????????????</span>
+      <span class="co">#&quot;the samp dist of Yt depends on thetat only via the single quantity mut</span>
+      <span class="co">#prior: (mu|Dt) ~ N(f, q)</span>
+      <span class="co">#Vt &gt; 0 is scale parameter aka precision of distribution...</span>
+      <span class="co">#but precision of what??? what is b(Yt, Vt?)</span>
+      <span class="co">#Q = q + Vt</span>
+      <span class="co">#post:  (mu|Dt) ~ N(f*, q*)</span>
+      
+      <span class="co">#f* = </span>
+      <span class="co">#what is mu???</span>
+      <span class="co">#f = F&#39;a which is</span>
+      
+      <span class="co">#prior mean and var of linear predictor, and adaptive vector</span>
+      <span class="co">#compute approx prior Beta(r,s) params; update w/ numerical iterations for exact   values  </span>
+      eft &lt;-<span class="st"> </span><span class="kw">exp</span>(ft)   <span class="co">#crude initial values</span>
+      rt &lt;-<span class="st"> </span>(<span class="dv">1</span>+eft)/qt
+      st &lt;-<span class="st"> </span>rt/eft
+      rt &lt;-<span class="st"> </span><span class="kw">max</span>(<span class="fl">0.5</span>, rt)
+      st &lt;-<span class="st"> </span><span class="kw">max</span>(<span class="fl">0.5</span>, st)
+    
+    
+    
+
+      <span class="co">#fts = ft* = posterior mean of ????</span>
+      <span class="co">#qts = qt* = posterior variance of something ???</span>
+      <span class="co">#iterative numerical solution (optional)</span>
+      if(iterate){
+        ep &lt;-<span class="st"> </span><span class="fl">0.5</span>; drt &lt;-<span class="st"> </span><span class="dv">1</span>; dst &lt;-<span class="st"> </span><span class="dv">1</span>; xt &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(rt, st))
+        while(<span class="kw">max</span>(drt, dst) &lt;<span class="st"> </span>ep){
+          r0t &lt;-<span class="st"> </span><span class="kw">psigamma</span>(rt,<span class="dv">0</span>); s0t &lt;-<span class="st"> </span><span class="kw">psigamma</span>(st,<span class="dv">0</span>)
+          r1t &lt;-<span class="st"> </span><span class="kw">psigamma</span>(rt,<span class="dv">1</span>); s1t &lt;-<span class="st"> </span><span class="kw">psigamma</span>(st,<span class="dv">1</span>)
+          fxt &lt;-<span class="st"> </span><span class="kw">c</span>(r0t-s0t-ft, r1t+s1t-qt)
+          Axt &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(r1t, -s1t, <span class="kw">psigamma</span>(rt, <span class="dv">2</span>), <span class="kw">psigamma</span>(st, <span class="dv">2</span>)), <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">byrow =</span> <span class="ot">TRUE</span>)
+          xt &lt;-<span class="st"> </span>xt -<span class="st"> </span><span class="kw">solve</span>(Axt, fxt)
+          drt &lt;-<span class="st"> </span>xt[<span class="dv">1</span>] -<span class="st"> </span>rt; dst &lt;-<span class="st"> </span>xt[<span class="dv">2</span>] -<span class="st"> </span>st
+          rt &lt;-<span class="st"> </span>xt[<span class="dv">1</span>]; st &lt;-<span class="st"> </span>xt[<span class="dv">2</span>]
+        }
+      }
+      
+      rtst[t,] &lt;-<span class="st"> </span><span class="kw">c</span>(rt, st)
+      <span class="co"># cat(paste0(&quot;t=&quot;,t,&quot;\t&quot;,</span>
+      <span class="co">#            &quot;rt=&quot;,rtst[t,1],&quot;\t&quot;,</span>
+      <span class="co">#            &quot;Z[i,]=&quot;,F[,ishot],&quot;\t&quot;,</span>
+      <span class="co">#            &quot;mt=&quot;,mt,&quot;\n&quot;))</span>
+      <span class="co"># </span>
+      <span class="co">#  if(rt &gt; 1000){</span>
+      <span class="co">#    break</span>
+      <span class="co">#  }</span>
+      
+      lmlik[t] &lt;-<span class="st"> </span><span class="kw">lgamma</span>(rt+st) -<span class="st"> </span><span class="kw">lgamma</span>(rt) -<span class="st"> </span><span class="kw">lgamma</span>(st) +<span class="st"> </span>
+<span class="st">                  </span><span class="kw">lgamma</span>(rt+y[t]) +<span class="st"> </span><span class="kw">lgamma</span>(st<span class="dv">+1</span>-y[t]) -<span class="st"> </span><span class="kw">lgamma</span>(rt+st<span class="dv">+1</span>) +<span class="st"> </span>
+<span class="st">                  </span><span class="kw">lgamma</span>(<span class="dv">2</span>) -<span class="st"> </span><span class="kw">lgamma</span>(<span class="dv">1</span>+y[t]) -<span class="st"> </span><span class="kw">lgamma</span>(<span class="dv">2</span>-y[t])
+      rts &lt;-<span class="st"> </span>rt +<span class="st"> </span>y[t]; sts &lt;-<span class="st"> </span>st +<span class="st"> </span><span class="dv">1</span>-y[t] <span class="co">#posterior beta params</span>
+      <span class="co">#convert to mean and variance for linear predictor</span>
+      fts &lt;-<span class="st"> </span><span class="kw">psigamma</span>(rts,<span class="dv">0</span>)-<span class="kw">psigamma</span>(sts,<span class="dv">0</span>); qts &lt;-<span class="st"> </span><span class="kw">psigamma</span>(rts,<span class="dv">1</span>)+<span class="kw">psigamma</span>(sts,<span class="dv">1</span>)
+      spt[t] &lt;-<span class="st"> </span>rts/(sts+rts)
+    
+      <span class="co">#update state parameters</span>
+      mt &lt;-<span class="st"> </span>mt+At%*%(fts-ft)
+      Ct &lt;-<span class="st"> </span>Ct/delta -<span class="st"> </span>(At%*%<span class="kw">t</span>(At))*<span class="kw">as.numeric</span>(qt-qts)
+      Ct &lt;-<span class="st"> </span>(Ct +<span class="st"> </span><span class="kw">t</span>(Ct))/<span class="dv">2</span>
+      <span class="co">#c(t, rt, st, mt)</span>
+    
+      if(<span class="kw">any</span>(<span class="kw">is.nan</span>(mt))){
+        <span class="kw">print</span>(<span class="st">&quot;stop&quot;</span>)
+        break
+      }
+      
+    }
+    smt[,t] &lt;-<span class="st"> </span>mt; sCt[,,t] &lt;-<span class="st"> </span>Ct <span class="co">#saving</span>
+  }
+
+  <span class="co"># par(xpd=TRUE)</span>
+  <span class="co"># plot(smt[1,],type=&quot;l&quot;, col = &quot;blue&quot;, xlab = &quot;shot index&quot;, ylab = &quot;online state mean&quot;, main = &quot;Dynamic Parameters&quot;)</span>
+  <span class="co"># lines(smt[2,],type=&quot;l&quot;, col = &quot;orange&quot;)</span>
+  <span class="co"># lines(smt[3,],type=&quot;l&quot;, col = &quot;yellow&quot;)</span>
+  <span class="co"># legend(x=T*.75, y=4, legend = c(&quot;intercept&quot;, &quot;angle&quot;, &quot;log(distance)&quot;), pch = c(16), col = c(&quot;blue&quot;, &quot;orange&quot;, &quot;yellow&quot;))</span>
+
+  <span class="co"># plot(0,0,type=&quot;n&quot;,xlim = c(0,T),ylim=c(0,1), ylab = &quot;probability&quot;, xlab = &quot;time index&quot;, main = &quot;DGLM Predictions&quot;)</span>
+  <span class="co"># points(tshot, spt[tshot], pch=4, col = &quot;blue&quot;)</span>
+  <span class="co"># points(tshot, y[tshot], pch=1, col = &quot;red&quot;)</span>
+  <span class="co"># legend(x=T*.8, y=1.21, legend=c(&quot;probability&quot;, &quot;outcome&quot;), pch = c(4,1), col=c(&quot;blue&quot;, &quot;red&quot;))</span>
+
+
+  <span class="co">#Backward sampling</span>
+  nmc &lt;-<span class="st"> </span><span class="dv">1000</span>
+  <span class="co">#save posterior means and posterior success probs</span>
+  MCtheta &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(p, T, nmc)) 
+  MCq &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">0</span>, <span class="kw">c</span>(T, nmc))
+
+  <span class="co">#begin BS at timeunit T</span>
+  thetat &lt;-<span class="st"> </span><span class="kw">rmvnorm</span>(<span class="dt">n=</span>nmc, smt[,T], sCt[,,T])
+  MCtheta[,T,] &lt;-<span class="st"> </span><span class="kw">t</span>(thetat)
+  MCq[T,] &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="dv">1</span>+<span class="kw">exp</span>(-thetat %*%<span class="st"> </span>F[,nshots]))
+
+  <span class="co">#then recurse backwards</span>
+  ishot &lt;-<span class="st"> </span>nshots +<span class="st"> </span><span class="dv">1</span>
+  for(t in (T<span class="dv">-1</span>):<span class="dv">1</span>){
+    if(t %in%<span class="st"> </span>tshot){
+      ht =<span class="st"> </span>(<span class="dv">1</span>-delta)*<span class="kw">t</span>(<span class="kw">array</span>(smt[,t], <span class="kw">c</span>(<span class="kw">dim</span>(smt)[<span class="dv">1</span>], nmc))) +<span class="st"> </span>delta*thetat
+      <span class="co">#run a simulation for each row of ht and each 3rd dim of sCt</span>
+      thetat &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(ht, <span class="dv">1</span>, rmvnorm, <span class="dt">n=</span><span class="dv">1</span>, <span class="dt">sigma =</span> sCt[,,t]*(<span class="dv">1</span>-delta)))
+      MCtheta[,t,] &lt;-<span class="st"> </span><span class="kw">t</span>(thetat)
+      ishot &lt;-<span class="st"> </span>ishot -<span class="st"> </span><span class="dv">1</span>; ti &lt;-<span class="st"> </span>tshot[ishot]
+      MCq[t,] &lt;-<span class="st"> </span><span class="dv">1</span>/(<span class="dv">1</span>+<span class="kw">exp</span>(-thetat %*%<span class="st"> </span>F[,ishot]))
+    }
+  }
+  
+  <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">smt=</span>smt,<span class="dt">sCt=</span>sCt,<span class="dt">spt=</span>spt,<span class="dt">MCtheta=</span>MCtheta,<span class="dt">MCq=</span>MCq,<span class="dt">rtst=</span>rtst)) 
+}
+
+<span class="co"># pr &lt;- t(apply(MCq[tshot,], 1, quantile, c(.025, .25, .5, .75, .975))) #get quantiles of each row</span>
+<span class="co"># plot(0,0, type=&quot;n&quot;, xlim = c(0,T), ylim=c(0,1), main = &quot;Posterior Probability&quot;, ylab=&quot;hit rate&quot;, xlab=&quot;time interval&quot;) </span>
+<span class="co"># lines(x=tshot, y=pr[,1], col = &quot;gray&quot;)</span>
+<span class="co"># lines(x=tshot, y=pr[,5], col = &quot;gray&quot;)</span>
+<span class="co"># polygon(c(tshot, rev(tshot)), c(pr[,1], rev(pr[,5])),</span>
+<span class="co">#         col = &quot;gray&quot;, border = NA)</span>
+<span class="co"># lines(x=tshot, y=pr[,2], col = &quot;black&quot;)</span>
+<span class="co"># lines(x=tshot, y=pr[,4], col = &quot;black&quot;)</span>
+<span class="co"># polygon(c(tshot, rev(tshot)), c(pr[,2], rev(pr[,4])),</span>
+<span class="co">#         col = &quot;black&quot;, border = NA)</span>
+<span class="co"># lines(x=tshot, y=pr[,3], col = &quot;red&quot;)</span>
+<span class="co"># points(x=1:T, y=y, pch=1)</span>
+
+<span class="co"># par(xpd=TRUE)</span>
+<span class="co"># plot(smt[1,],type=&quot;l&quot;, col = &quot;blue&quot;, xlab = &quot;shot index&quot;, ylab = &quot;online state mean&quot;, main = &quot;Dynamic Parameters&quot;)</span>
+<span class="co"># lines(smt[2,],type=&quot;l&quot;, col = &quot;orange&quot;)</span>
+<span class="co"># lines(smt[3,],type=&quot;l&quot;, col = &quot;yellow&quot;)</span>
+<span class="co"># legend(x=T*.75, y=4, legend = c(&quot;intercept&quot;, &quot;angle&quot;, &quot;log(distance)&quot;), pch = c(16), col = c(&quot;blue&quot;, &quot;orange&quot;, &quot;yellow&quot;))</span>
+
+plot_dynamics &lt;-<span class="st"> </span>function(smt){
+  T &lt;-<span class="st"> </span><span class="kw">dim</span>(smt)[<span class="dv">2</span>]
+  <span class="kw">par</span>(<span class="dt">xpd=</span><span class="ot">TRUE</span>)
+  <span class="kw">plot</span>(smt[<span class="dv">1</span>,],<span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;shot index&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;online state mean&quot;</span>, <span class="dt">main =</span> <span class="st">&quot;Dynamic Parameters&quot;</span>)
+  <span class="kw">lines</span>(smt[<span class="dv">2</span>,],<span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;orange&quot;</span>)
+  <span class="kw">lines</span>(smt[<span class="dv">3</span>,],<span class="dt">type=</span><span class="st">&quot;l&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;yellow&quot;</span>)
+  <span class="kw">legend</span>(<span class="dt">x=</span>T*.<span class="dv">75</span>, <span class="dt">y=</span><span class="dv">4</span>, <span class="dt">legend =</span> <span class="kw">c</span>(<span class="st">&quot;intercept&quot;</span>, <span class="st">&quot;angle&quot;</span>, <span class="st">&quot;log(distance)&quot;</span>), <span class="dt">pch =</span> <span class="kw">c</span>(<span class="dv">16</span>), <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;orange&quot;</span>, <span class="st">&quot;yellow&quot;</span>))
+  <span class="kw">par</span>(<span class="dt">xpd=</span><span class="ot">FALSE</span>)
+}
+
+<span class="co">#posteriors of parameters from DGLM</span>
+plot_posteriors &lt;-<span class="st"> </span>function(MCtheta){
+  
+  <span class="co">#dimensions are [p,nshots,nmc]</span>
+  p &lt;-<span class="st"> </span><span class="kw">dim</span>(MCtheta)[<span class="dv">1</span>]
+  T &lt;-<span class="st"> </span><span class="kw">dim</span>(MCtheta)[<span class="dv">2</span>]
+  nmc &lt;-<span class="st"> </span><span class="kw">dim</span>(MCtheta)[<span class="dv">3</span>]
+  
+  posterior_labels &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Posterior Intercept&quot;</span>, <span class="st">&quot;Posterior Angle&quot;</span>, <span class="st">&quot;Posterior Log Distance&quot;</span>)
+  tshot &lt;-<span class="st"> </span><span class="kw">which</span>(!(<span class="kw">is.na</span>(MCtheta[<span class="dv">1</span>,,<span class="dv">1</span>]) |<span class="st"> </span><span class="kw">is.null</span>(MCtheta[<span class="dv">1</span>,,<span class="dv">1</span>])))
+
+  for(j in <span class="dv">1</span>:p){
+  
+    pr &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(MCtheta[j,tshot,], <span class="dv">1</span>, quantile, <span class="kw">c</span>(.<span class="dv">025</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, .<span class="dv">975</span>))) 
+    <span class="kw">plot</span>(<span class="dv">0</span>,<span class="dv">0</span>, <span class="dt">type=</span><span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>,T), <span class="dt">ylim =</span> <span class="kw">range</span>(pr), <span class="dt">main =</span> posterior_labels[j], <span class="dt">xlab =</span> <span class="st">&quot;time interval&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;state vector element&quot;</span>) 
+    <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">1</span>], <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
+    <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">5</span>], <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
+    <span class="kw">polygon</span>(<span class="kw">c</span>(tshot, <span class="kw">rev</span>(tshot)), <span class="kw">c</span>(pr[,<span class="dv">1</span>], <span class="kw">rev</span>(pr[,<span class="dv">5</span>])),
+            <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">border =</span> <span class="ot">NA</span>)
+    <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">2</span>], <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>)
+    <span class="kw">lines</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">4</span>], <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>)
+    <span class="kw">polygon</span>(<span class="kw">c</span>(tshot, <span class="kw">rev</span>(tshot)), <span class="kw">c</span>(pr[,<span class="dv">2</span>], <span class="kw">rev</span>(pr[,<span class="dv">4</span>])),
+            <span class="dt">col =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">border =</span> <span class="ot">NA</span>)
+    <span class="kw">points</span>(<span class="dt">x=</span>tshot, <span class="dt">y=</span>pr[,<span class="dv">3</span>], <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>, <span class="dt">pch =</span> <span class="dv">4</span>)
+  
+  }
+}
+
+dglm1 &lt;-<span class="st"> </span><span class="kw">fit_dglm</span>(playerseasons[<span class="dv">1</span>,<span class="dv">1</span>], playerseasons[<span class="dv">1</span>,<span class="dv">2</span>])
+dglm2 &lt;-<span class="st"> </span><span class="kw">fit_dglm</span>(playerseasons[<span class="dv">2</span>,<span class="dv">1</span>], playerseasons[<span class="dv">2</span>,<span class="dv">2</span>])
+dglm3 &lt;-<span class="st"> </span><span class="kw">fit_dglm</span>(playerseasons[<span class="dv">3</span>,<span class="dv">1</span>], playerseasons[<span class="dv">3</span>,<span class="dv">2</span>])
+dglm4 &lt;-<span class="st"> </span><span class="kw">fit_dglm</span>(playerseasons[<span class="dv">4</span>,<span class="dv">1</span>], playerseasons[<span class="dv">4</span>,<span class="dv">2</span>])
+
+<span class="kw">plot_dynamics</span>(dglm1[[<span class="dv">1</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_posteriors</span>(dglm1[[<span class="dv">4</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-2.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-3.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-4.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dynamics</span>(dglm2[[<span class="dv">1</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-5.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_posteriors</span>(dglm2[[<span class="dv">4</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-6.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-7.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-8.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dynamics</span>(dglm3[[<span class="dv">1</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-9.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_posteriors</span>(dglm3[[<span class="dv">4</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-10.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-11.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-12.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dynamics</span>(dglm4[[<span class="dv">1</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-13.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_posteriors</span>(dglm4[[<span class="dv">4</span>]])</code></pre></div>
+<p><img src="thesis_files/figure-html/dglm-14.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-15.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/dglm-16.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The amount of volatility that we see in the posterior distribution of the parameters with a discount factor of <span class="math inline">\(\delta\)</span> = 0.99 suggests that there is time dependency in the data. However, the state means of the dynamic parameters appear to be unstable. Therefore, we must apply a better-fitting time series model before concluding that the parameters have time dependencies.</p>
 
 </div>
 </div>
@@ -468,8 +689,8 @@ sim.mcmc &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<sp
           </div>
         </div>
       </div>
-<a href="5-proc.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="7-results.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="5-EDA.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="7-disc.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -509,6 +730,17 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>
