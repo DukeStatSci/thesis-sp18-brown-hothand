@@ -1,7 +1,544 @@
-# Results {#results}
+# Models {#model}
 
-#### GLM
 
-#### DGLM
+```{r, init, include=FALSE}
+library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(pROC); library(knitr)
+#generating shot success probabilities
+#theta <- matrix(c(-0.5, 1.5, -5.5)) #GLM parameters (intercept, angle, log distance)
+datafolder <- "C:/Users/Nathaniel Brown/Documents/important things/DMBBall Data/"
+githubfolder <- "C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand/"
+source(paste0(githubfolder,"sportvu_fxns.R"))
 
-#### Hierarchical Model
+# id1 <- 887661
+# id2 <- 842296
+
+```
+
+For our models, we consider the shot location and the shooter identity as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or $r$ and $\theta$. 
+
+<!--
+```{r}
+theta <- "\u03b8"
+root <- "\u221a"
+pi <- "\u03c0"
+paramstr <- c("distance","angle",
+              paste0("r = ",root,"(x^2^ + y^2^)"), paste0(theta," = arctan(x/y)"),
+              "r > 0", paste0("-",pi," < \u03b8 < ",pi))
+
+paramtab <- matrix(paramstr,ncol=3)
+colnames(paramtab) <- c("Parameter","Formula","Range")
+kable(paramtab)
+```
+-->
+
+
+#### Generalized Linear Model
+
+The results of the credible intervals are reported for the same four players, in the same order.
+
+```{r, glm, cache=TRUE, eval=FALSE}
+# playerid <- id2
+# seasons <- c(2014,2015,2016,2017)
+
+priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
+mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
+tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+
+
+fit_glm <- function(playerids, seasons = 2014:2017){
+  
+  model.glm <- function(){
+  
+    # N observations
+    for(i in 1:N){
+      result[i] ~ dbern(prob[i])
+      logit(prob[i]) <- beta_int*int[i] + beta_r*logr[i] + beta_theta*theta[i]
+    }
+
+    # Priors
+    beta_int   ~ dnorm(0, 0.1)
+    beta_r     ~ dnorm(mu0r, 0.01) #would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance increases.
+    beta_theta ~ dnorm(mu0theta, 0.1)
+
+  }
+
+  allgameshots_sub <- allgameshots %>% filter(globalplayerid %in% playerids &
+                                            season %in% seasons)
+
+  datlist.glm <-  list(
+                    logr = log(allgameshots_sub$r), 
+                    theta = allgameshots_sub$theta, 
+                    result = allgameshots_sub$result, 
+                    N = nrow(allgameshots_sub), 
+                    int = rep(1, nrow(allgameshots_sub)), 
+                    mu0r = mu0r,
+                    mu0theta = mu0theta
+                )
+  params.glm <- c("beta_int","beta_r", "beta_theta")
+
+
+  sim <- jags(data = datlist.glm, 
+              n.iter = 10000, n.chains = 1, n.burnin = 500,
+              #inits=list(list(p = rep(0.5, nrow(P0)))),
+              parameters.to.save = params.glm,
+              model.file=model.glm
+  )
+  sim.mcmc <- as.data.frame(as.mcmc(sim)[[1]])
+  return(sim.mcmc)
+}
+
+
+
+plot_params <- function(sim.mcmc = NA){
+  
+    coefs <- sim.mcmc[,c("beta_int","beta_r","beta_theta")] %>% apply(2, quantile, c(0.025,0.5,0.975)) %>% t() %>% as.data.frame()
+    
+    colnames(coefs) <- c("lo", "mid", "hi")
+  
+    ggplot(data = coefs, aes(x=c("intercept","distance","angle"),y=mid)) + 
+      geom_point() + 
+      geom_errorbar(aes(ymin=lo, ymax=hi), width=0.5) + 
+      geom_abline(intercept=0, slope=0, linetype=2) + 
+      labs(title="GLM Posterior Parameters (95% error)",x="predictor", y="estimate") + 
+      theme_bw()
+}
+
+playerseasons
+glm1 <- fit_glm(playerseasons[1,1], playerseasons[1,2])
+glm2 <- fit_glm(playerseasons[2,1], playerseasons[2,2])
+glm3 <- fit_glm(playerseasons[3,1], playerseasons[3,2])
+glm4 <- fit_glm(playerseasons[4,1], playerseasons[4,2])
+
+plot_params(glm1)
+plot_params(glm2)
+plot_params(glm3)
+plot_params(glm4)
+
+```
+
+The four plots show the GLM parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section. From these plots we see that the effect of the angle contains zero, and it is probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot decreases as distance from the basket increases. 
+
+
+#### Hierarchichal Model
+```{r, hier, cache=TRUE}
+
+# model2 <- function(){
+#     # N observations
+#     for(i in 1:N){
+#       result[i] ~ dbern(prob[i])
+#       logit(prob[i]) <- beta_int*int[i] + e_int[player[i]] + beta_r*logr[i] + e_r[player[i]] + beta_theta*theta[i] + e_theta[player[i]] # a random 'e' here or is that implied?
+#     }
+#     # priors on random player effects
+#     for(j in 1:M){
+#         e_int[j] ~ dnorm(beta_int,tau)
+#         e_r[j] ~ dnorm(beta_r,tau)
+#         e_theta[j] ~ dnorm(beta_theta,tau)
+#     }
+#     # Priors
+#     beta_int   ~ dnorm(0.0,0.1)
+#     beta_r     ~ dnorm(mu0r,0.1)
+#     beta_theta ~ dnorm(mu0theta,0.1)
+# 
+#     # Hyperpriors
+#     tau ~ dgamma(0.1,0.1)
+# }
+
+fit_hier <- function(){
+  
+  # cond <- allgameshots$globalplayerid %in% playerids & allgameshots$season %in% seasons
+  # allgameshots_sub <- allgameshots %>% filter(cond)
+
+  
+  model.hier <- function(){
+    # N observations
+    for(i in 1:N){
+      result[i] ~ dbern(prob[i])
+      logit(prob[i]) <- beta_int[player[i]]*int[i] + beta_r[player[i]]*logr[i] + beta_theta[player[i]]*theta[i]
+    }
+    # priors on random player effects
+    for(j in 1:M){
+        beta_int[j] ~ dnorm(beta_int0,tau_int)
+        beta_r[j] ~ dnorm(beta_r0,tau_r)
+        beta_theta[j] ~ dnorm(beta_theta0,tau_theta)
+    }
+    # Priors
+    beta_int0   ~ dnorm(0, 0.1)
+    beta_r0     ~ dnorm(mu0r, 0.01) #would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance increases.
+    beta_theta0 ~ dnorm(mu0theta, 0.1)
+
+    # Hyperpriors
+    tau_int ~ dgamma(10, 100)
+    tau_r ~ dgamma(10, 0.2)
+    tau_theta ~ dgamma(10, 10)
+  }
+
+  datlist.hier <- list(
+                logr = log(allgameshots$r), 
+                theta = allgameshots$theta, 
+                result = allgameshots$result, 
+                player = as.integer(as.factor(allgameshots$globalplayerid)),
+                N = nrow(allgameshots), 
+                int = rep(1, nrow(allgameshots)), 
+                M = n_distinct(allgameshots$globalplayerid),
+                mu0r = mu0r,
+                mu0theta = mu0theta,
+                tau0r =tau0r,
+                tau0theta = tau0theta
+
+                )
+  params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0", "tau_int", "tau_r", "tau_theta")
+
+
+  sim <- jags(data = datlist.hier, 
+              n.iter = 10000, n.chains = 1, n.burnin = 500,
+              #inits=list(list(p = rep(0.5, nrow(P0)))),
+              parameters.to.save = params,
+              model.file=model.hier
+  )
+  sim.mcmc.hier <- as.data.frame(as.mcmc(sim)[[1]])
+  return(sim.mcmc.hier)
+}
+
+get_player_params <- function(sim.mcmc.hier){
+  
+  factorid <- data.frame(
+    factorid = as.integer(as.factor(allgameshots$globalplayerid)),
+    globalplayerid = allgameshots$globalplayerid
+  ) %>% unique()
+  
+  sim.mcmc.means <- colMeans(sim.mcmc.hier)
+
+  playermapshots <- merge(factorid, playermap, by="globalplayerid", all=TRUE)
+  playermapparams <- playermapshots %>% mutate(int = NA, r = NA, theta = NA)
+  for(i in 1:nrow(playermapshots)){
+    fid <- playermapparams$factorid[i]
+    if(!is.na(fid)){
+      theta_i <- sim.mcmc.means[grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))]
+    }else{
+      theta_i <- theta
+    }
+    playermapparams[i,c("int", "r", "theta")] <- theta_i
+  }
+  return(playermapparams)
+}
+
+post_prob <- function(newdata=NA){
+
+  
+  Z <- merge(newdata, factorid) %>% arrange(time)
+  levels <- Z$factorid
+  B <- t(apply(as.matrix(levels), 1, function(l){
+    matrix(c(sim.mcmc.means[[paste0("beta_int[",l,"]")]],
+         sim.mcmc.means[[paste0("beta_r[",l,"]")]],
+         sim.mcmc.means[[paste0("beta_theta[",l,"]")]]),ncol=3,byrow=TRUE
+    )}
+  ))
+  
+  X <- Z %>% mutate(logr = log(r) - mean(log(r)), int=1) %>% select(int, logr, theta) %>% as.matrix()
+
+  probs <- B %>% '%*%'(t(X)) %>% diag() %>% arm::invlogit()
+
+  # sim.results <- arm::invlogit(sim.mcmc.means[["beta_int"]] + sim.mcmc.means[["beta_r"]] %*% t(Z[["logr"]]) + sim.mcmc.means[["beta_theta"]] %*% t(Z[["theta"]]) + indiv_effect)
+  
+  return(probs)
+}
+
+hier <- fit_hier()
+
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+fourparams <- merge((playerseasons), get_player_params(hier),all=FALSE) %>% select(int, r, theta)
+mainlab <- "Posterior Density plus Four Players"
+plot(density(hier[["beta_int0"]]), mainlab,xlab="intercept")
+abline(v=fourparams[,1], col="red")
+
+plot(density(hier[["beta_r0"]]), mainlab, xlab="r")
+abline(v=fourparams[,2], col="red")
+
+plot(density(hier[["beta_theta0"]]),mainlab, xlab="theta")
+abline(v=fourparams[,3], col="red")
+```
+
+The hierarchical model shows us that our four high-usage players of interest do not appear to be randomly spread across the population of players. The intercept plot shows that all four are in or close to the top half of values, and the radius plot shows the opposite with the four players trending towards lower parameter values. The high intercepts make intuitive sense, because the players who take a lot of shots are most more capable of making them under baseline conditions than their teammates are. However, the observation that these players would have a more drastic drop in field goal percentage than an average Duke player as they move farther from the basket is surprising.
+
+#### Dynamic Generalized Linear Model
+```{r, dglm, cache=TRUE}
+priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+
+fit_dglm <- function(playerids, seasons, iterate=TRUE){
+  
+  cond <- allgameshots$globalplayerid %in% playerids & allgameshots$season %in% seasons
+  allgameshots_sub <- allgameshots %>% filter(cond)
+  Z <- allgameshots_sub %>% mutate(logr = log(r) - mean(log(r))) %>% select(logr, theta) %>% cbind(1,.)
+  X <- allgameshots_sub %>% select(x=xt, y=yt)
+  y <- allgameshots_sub %>% select(result) %>% '[['(1)
+
+  ym <- 94; xm <- 50
+  shots <- rep(TRUE,nrow(Z)) #no missing shots in this case
+  tshot <- which(shots)
+  nshots <- length(tshot)
+  iy <- which(y[!is.nan(y)] == 1)
+  T <- length(shots)
+
+  #initial parameters
+  theta <- coef(priormod)
+  p <- length(theta)
+  # pscore <- fitted(mod, type="response") #GLM predictions
+  # q <- rep(NaN, T)
+  # q[shots] <- pscore #q is just the GLM prediction
+
+  # par(xpd=TRUE)
+  # plot(0,0,type="n",xlim = c(0,T),ylim=c(0,1), ylab = "probability", xlab = "time index", main = "GLM Predictions")
+  # points(tshot, q[tshot], pch=4, col = "blue")
+  # points(tshot, y[tshot], pch=1, col = "red")
+  # legend(x=T*.8, y=1.21, legend=c("probability", "outcome"), pch = c(4,1), col=c("blue", "red"))
+
+  # par(xpd=FALSE)
+  # plot(X[iy,c("x","y")], ylim=c(0,ym), xlim=c(-xm/2,xm/2), col = "red", pch = 3, xlab="x", ylab="y", main = "Makes and Misses")
+  # points(X[-iy,c("x","y")], col ="blue", pch = 1)
+  # abline(h=ym/2)
+  # points(0,0,col="red", cex=2)
+
+  #Forward Filtering
+
+  #set up DGLM and initial prior
+  #first, set up covariates per time interval
+  F <- t(Z)
+  p <- dim(F)[1]
+  #theta = state vector (GLM parameters) (px1)
+  #F = the data...regression vectors for all t...aka the design matrix (pxT)
+  #G = known evolution matrix ???????
+  #omega = evolution errors with 0 mean and known variance matrix W
+  #g(.) = function to map eta to real line (logit)
+
+  mt <- theta
+  Ct <- diag(p)
+  #mt = prior mean vector
+  #Ct = prior covariance matrix
+  #(theta[t-1]|D[t-1]) ~ N(mt[t-1], Ct[t-1])
+
+
+  delta <- 0.99 #discount factor; "streaky parameter"
+  #forward filtering (FF)
+  smt <- matrix(rep(0,p*T), nrow=p)           #save post means
+  sCt <- array(rep(0,p*p*T), dim = c(p,p,T))  #save post covars
+  spt <- rep(NaN, T)                          #save post prob success
+  lmlik <- rep(0,T)                           #marg lik per time int
+  ishot <- 0
+  
+  rtst <- array(NA, c(T,2))
+  #rt gets out of control when qt is very small or ft is very big
+    #ft is very big when:
+  
+    #qt is very small when At is very small
+  
+      #At is very small when Ct is very small
+  
+        #Ct is very small when
+  for(t in 1:T){
+    if(t %in% tshot){
+      #current shot attempt index, and time
+      ishot <- ishot + 1
+      ti <- tshot[ishot]
+      
+      ft <- (F[,ishot]) %*% mt
+      At <- Ct %*% F[,ishot]/delta
+      qt <- (F[,ishot]) %*% At
+      At <- At/as.numeric(qt)
+      
+      #at = Gt*mt in txtbk, but = mt here.
+      #Rt = Gt*Ct[t-1]*Gt' + Wt in txtbk, but = Ct/delta here
+      #f = F'at = F'mt
+      #q = F'RF = F'Ct F (1/delta)
+      #((lambda,theta)' | Dt-1) ~ N( (f, a), ((q, F'C/delta),(CF/delta, C)) )
+  
+      #what is mu tho?
+      #???????????????????????
+      #"the samp dist of Yt depends on thetat only via the single quantity mut
+      #prior: (mu|Dt) ~ N(f, q)
+      #Vt > 0 is scale parameter aka precision of distribution...
+      #but precision of what??? what is b(Yt, Vt?)
+      #Q = q + Vt
+      #post:  (mu|Dt) ~ N(f*, q*)
+      
+      #f* = 
+      #what is mu???
+      #f = F'a which is
+      
+      #prior mean and var of linear predictor, and adaptive vector
+      #compute approx prior Beta(r,s) params; update w/ numerical iterations for exact   values  
+      eft <- exp(ft)   #crude initial values
+      rt <- (1+eft)/qt
+      st <- rt/eft
+      rt <- max(0.5, rt)
+      st <- max(0.5, st)
+    
+    
+    
+
+      #fts = ft* = posterior mean of ????
+      #qts = qt* = posterior variance of something ???
+      #iterative numerical solution (optional)
+      if(iterate){
+        ep <- 0.5; drt <- 1; dst <- 1; xt <- matrix(c(rt, st))
+        while(max(drt, dst) < ep){
+          r0t <- psigamma(rt,0); s0t <- psigamma(st,0)
+          r1t <- psigamma(rt,1); s1t <- psigamma(st,1)
+          fxt <- c(r0t-s0t-ft, r1t+s1t-qt)
+          Axt <- matrix(c(r1t, -s1t, psigamma(rt, 2), psigamma(st, 2)), ncol=2, byrow = TRUE)
+          xt <- xt - solve(Axt, fxt)
+          drt <- xt[1] - rt; dst <- xt[2] - st
+          rt <- xt[1]; st <- xt[2]
+        }
+      }
+      
+      rtst[t,] <- c(rt, st)
+      # cat(paste0("t=",t,"\t",
+      #            "rt=",rtst[t,1],"\t",
+      #            "Z[i,]=",F[,ishot],"\t",
+      #            "mt=",mt,"\n"))
+      # 
+      #  if(rt > 1000){
+      #    break
+      #  }
+      
+      lmlik[t] <- lgamma(rt+st) - lgamma(rt) - lgamma(st) + 
+                  lgamma(rt+y[t]) + lgamma(st+1-y[t]) - lgamma(rt+st+1) + 
+                  lgamma(2) - lgamma(1+y[t]) - lgamma(2-y[t])
+      rts <- rt + y[t]; sts <- st + 1-y[t] #posterior beta params
+      #convert to mean and variance for linear predictor
+      fts <- psigamma(rts,0)-psigamma(sts,0); qts <- psigamma(rts,1)+psigamma(sts,1)
+      spt[t] <- rts/(sts+rts)
+    
+      #update state parameters
+      mt <- mt+At%*%(fts-ft)
+      Ct <- Ct/delta - (At%*%t(At))*as.numeric(qt-qts)
+      Ct <- (Ct + t(Ct))/2
+      #c(t, rt, st, mt)
+    
+      if(any(is.nan(mt))){
+        print("stop")
+        break
+      }
+      
+    }
+    smt[,t] <- mt; sCt[,,t] <- Ct #saving
+  }
+
+  # par(xpd=TRUE)
+  # plot(smt[1,],type="l", col = "blue", xlab = "shot index", ylab = "online state mean", main = "Dynamic Parameters")
+  # lines(smt[2,],type="l", col = "orange")
+  # lines(smt[3,],type="l", col = "yellow")
+  # legend(x=T*.75, y=4, legend = c("intercept", "angle", "log(distance)"), pch = c(16), col = c("blue", "orange", "yellow"))
+
+  # plot(0,0,type="n",xlim = c(0,T),ylim=c(0,1), ylab = "probability", xlab = "time index", main = "DGLM Predictions")
+  # points(tshot, spt[tshot], pch=4, col = "blue")
+  # points(tshot, y[tshot], pch=1, col = "red")
+  # legend(x=T*.8, y=1.21, legend=c("probability", "outcome"), pch = c(4,1), col=c("blue", "red"))
+
+
+  #Backward sampling
+  nmc <- 1000
+  #save posterior means and posterior success probs
+  MCtheta <- array(0, c(p, T, nmc)) 
+  MCq <- array(0, c(T, nmc))
+
+  #begin BS at timeunit T
+  thetat <- rmvnorm(n=nmc, smt[,T], sCt[,,T])
+  MCtheta[,T,] <- t(thetat)
+  MCq[T,] <- 1/(1+exp(-thetat %*% F[,nshots]))
+
+  #then recurse backwards
+  ishot <- nshots + 1
+  for(t in (T-1):1){
+    if(t %in% tshot){
+      ht = (1-delta)*t(array(smt[,t], c(dim(smt)[1], nmc))) + delta*thetat
+      #run a simulation for each row of ht and each 3rd dim of sCt
+      thetat <- t(apply(ht, 1, rmvnorm, n=1, sigma = sCt[,,t]*(1-delta)))
+      MCtheta[,t,] <- t(thetat)
+      ishot <- ishot - 1; ti <- tshot[ishot]
+      MCq[t,] <- 1/(1+exp(-thetat %*% F[,ishot]))
+    }
+  }
+  
+  return(list(smt=smt,sCt=sCt,spt=spt,MCtheta=MCtheta,MCq=MCq,rtst=rtst)) 
+}
+
+# pr <- t(apply(MCq[tshot,], 1, quantile, c(.025, .25, .5, .75, .975))) #get quantiles of each row
+# plot(0,0, type="n", xlim = c(0,T), ylim=c(0,1), main = "Posterior Probability", ylab="hit rate", xlab="time interval") 
+# lines(x=tshot, y=pr[,1], col = "gray")
+# lines(x=tshot, y=pr[,5], col = "gray")
+# polygon(c(tshot, rev(tshot)), c(pr[,1], rev(pr[,5])),
+#         col = "gray", border = NA)
+# lines(x=tshot, y=pr[,2], col = "black")
+# lines(x=tshot, y=pr[,4], col = "black")
+# polygon(c(tshot, rev(tshot)), c(pr[,2], rev(pr[,4])),
+#         col = "black", border = NA)
+# lines(x=tshot, y=pr[,3], col = "red")
+# points(x=1:T, y=y, pch=1)
+
+# par(xpd=TRUE)
+# plot(smt[1,],type="l", col = "blue", xlab = "shot index", ylab = "online state mean", main = "Dynamic Parameters")
+# lines(smt[2,],type="l", col = "orange")
+# lines(smt[3,],type="l", col = "yellow")
+# legend(x=T*.75, y=4, legend = c("intercept", "angle", "log(distance)"), pch = c(16), col = c("blue", "orange", "yellow"))
+
+plot_dynamics <- function(smt){
+  T <- dim(smt)[2]
+  par(xpd=TRUE)
+  plot(smt[1,],type="l", col = "blue", xlab = "shot index", ylab = "online state mean", main = "Dynamic Parameters")
+  lines(smt[2,],type="l", col = "orange")
+  lines(smt[3,],type="l", col = "yellow")
+  legend(x=T*.75, y=4, legend = c("intercept", "angle", "log(distance)"), pch = c(16), col = c("blue", "orange", "yellow"))
+  par(xpd=FALSE)
+}
+
+#posteriors of parameters from DGLM
+plot_posteriors <- function(MCtheta){
+  
+  #dimensions are [p,nshots,nmc]
+  p <- dim(MCtheta)[1]
+  T <- dim(MCtheta)[2]
+  nmc <- dim(MCtheta)[3]
+  
+  posterior_labels <- c("Posterior Intercept", "Posterior Angle", "Posterior Log Distance")
+  tshot <- which(!(is.na(MCtheta[1,,1]) | is.null(MCtheta[1,,1])))
+
+  for(j in 1:p){
+  
+    pr <- t(apply(MCtheta[j,tshot,], 1, quantile, c(.025, .25, .5, .75, .975))) 
+    plot(0,0, type="n", xlim = c(0,T), ylim = range(pr), main = posterior_labels[j], xlab = "time interval", ylab = "state vector element") 
+    lines(x=tshot, y=pr[,1], col = "gray")
+    lines(x=tshot, y=pr[,5], col = "gray")
+    polygon(c(tshot, rev(tshot)), c(pr[,1], rev(pr[,5])),
+            col = "gray", border = NA)
+    lines(x=tshot, y=pr[,2], col = "black")
+    lines(x=tshot, y=pr[,4], col = "black")
+    polygon(c(tshot, rev(tshot)), c(pr[,2], rev(pr[,4])),
+            col = "black", border = NA)
+    points(x=tshot, y=pr[,3], col = "red", pch = 4)
+  
+  }
+}
+
+dglm1 <- fit_dglm(playerseasons[1,1], playerseasons[1,2])
+dglm2 <- fit_dglm(playerseasons[2,1], playerseasons[2,2])
+dglm3 <- fit_dglm(playerseasons[3,1], playerseasons[3,2])
+dglm4 <- fit_dglm(playerseasons[4,1], playerseasons[4,2])
+
+plot_dynamics(dglm1[[1]])
+plot_posteriors(dglm1[[4]])
+
+plot_dynamics(dglm2[[1]])
+plot_posteriors(dglm2[[4]])
+
+plot_dynamics(dglm3[[1]])
+plot_posteriors(dglm3[[4]])
+
+plot_dynamics(dglm4[[1]])
+plot_posteriors(dglm4[[4]])
+
+```
+
+The amount of volatility that we see in the posterior distribution of the parameters with a discount factor of $\delta$ = 0.99 suggests that there is time dependency in the data. However, the state means of the dynamic parameters appear to be unstable. Therefore, we must apply a better-fitting time series model before concluding that the parameters have time dependencies.

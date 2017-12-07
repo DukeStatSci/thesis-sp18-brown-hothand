@@ -1,10 +1,23 @@
 library(xml2); library(dplyr); library(reshape2)
-#setwd("F:/SPORTVU2014-15")
+
 datafolder <- "C:/Users/Nathaniel Brown/Documents/important things/DMBBall Data"
 githubfolder <- "C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand"
+
 load(paste0(datafolder, "/allgameshots.RData"))
 load(paste0(datafolder, "/playermap.RData"))
 
+
+id4 <- 601140 #Cook
+id3 <- 603106 #Hood
+id2 <- 842301 #Jah
+id1 <- 887665 #Ing
+playerseasons <- matrix(
+  c(id1,   2016,
+    id2,   2015,
+    id3,   2014,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
 
 #let's assume that every gameid is 12 digits?
 get_all_gameids <- function(){
