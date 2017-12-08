@@ -20,7 +20,7 @@ library(mvtnorm)
 xm <- 50; ym <- 94            
 #num time units within a game
 T <- 48/0.25                 
-pdf("DGLM_plots.pdf")
+#pdf("DGLM_plots.pdf")
 #generating shot attempts with constant prob over the course of a game
 prshot <- 0.4
 #shots is binary shot attempt vector
