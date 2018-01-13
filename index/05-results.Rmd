@@ -9,17 +9,14 @@
     # visualization idea: non-circular contour plot.
     # fix court lines to your ggplot contours!!!
   # get rid of DGLM mensions in the rest of the paper.
+  # you have a lot of mixtures/autocorrelations/chains to check...
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
 
 library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(pROC); library(knitr); library(reshape2); library(png); library(grid)
-#generating shot success probabilities
-#theta <- matrix(c(-0.5, 1.5, -5.5)) #GLM parameters (intercept, angle, log distance)
-datafolder <- "C:/Users/Nathaniel Brown/Documents/important things/DMBBall Data/"
-githubfolder <- "C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand/"
-source(paste0(githubfolder,"sportvu_fxns.R"))
 
 # id1 <- 887661
 # id2 <- 842296
-
+load(file="rdatafiles/allgameshots.RData")
 ```
 
 For our models, we consider the shot location and the shooter identity as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or $r$ and $\theta$. 
@@ -46,6 +43,7 @@ The results of the credible intervals are reported for the same four players, in
 
 ```{r, glm, cache=TRUE, eval=FALSE}
 
+getwd()
 priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
 mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
@@ -250,8 +248,8 @@ post_prob <- function(newdata=NA){
 }
 
 # player.mcmc <- fit_players(dat = allgameshots)
-# save(player.mcmc, file=paste0(datafolder, "/playermcmc.RData"))
-load(paste0(datafolder, "/playermcmc.RData"))
+# save(player.mcmc, file="rdatafiles/playermcmc.RData"))
+load("rdatafiles/playermcmc.RData")
 
 fourparams <- merge((playerseasons), get_player_params(allgameshots, player.mcmc),all=FALSE) %>% select(globalplayerid, int, r, theta)
 
@@ -353,7 +351,7 @@ plot_contours <- function(sim.mcmc = player.mcmc, j = NA, MLE=FALSE){
   all_xn <- seq(min(all_x), max(all_x), length=nrow(probsxy_melt))
   
 
-  img.path <- paste0(githubfolder, "/index/figure/Basketball-Court-Dimensions2.png")
+  img.path <- "/index/figure/Basketball-Court-Dimensions2.png"
   img <- readPNG(img.path)
 
   a <- 0.8
@@ -826,49 +824,14 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
   return(params.season)
 }
 
-# DATA
-dat14 <- allgameshots %>% filter(season == 2014)
-dat15 <- allgameshots %>% filter(season == 2015)
-dat16 <- allgameshots %>% filter(season == 2016)
-dat17 <- allgameshots %>% filter(season == 2017)
+game.mcmc.list.all <- fit_games(allgameshots, 1000, 100)
+params.season.all <- get_season_params(allgameshots, game.mcmc.list.all)
+save(game.mcmc.list.all, file="rdatafiles/gamemcmclist.RData")
+save(params.season.all, file="rdatafiles/paramsseason.RData")
 
+load(file="rdatafiles/gamemcmclist.RData")
+load(file="rdatafiles/paramsseason.RData")
 
-# GAME MCMC LISTS
-# game.mcmc.list14 <- fit_games(dat14, 1000, 100)
-# save(game.mcmc.list14, file=paste0(datafolder,"/gamemcmclist14.RData"))
-load(paste0(datafolder,"/gamemcmclist14.RData"))
-# 
-# game.mcmc.list15 <- fit_games(dat15, 1000, 100)
-# save(game.mcmc.list15, file=paste0(datafolder,"/gamemcmclist15.RData"))
-load(paste0(datafolder,"/gamemcmclist15.RData"))
-# 
-# game.mcmc.list16 <- fit_games(dat16, 1000, 100)
-# save(game.mcmc.list16, file=paste0(datafolder,"/gamemcmclist16.RData"))
-load(paste0(datafolder,"/gamemcmclist16.RData"))
-# 
-# game.mcmc.list17 <- fit_games(dat17, 1000, 100)
-# save(game.mcmc.list17, file=paste0(datafolder,"/gamemcmclist17.RData"))
-load(paste0(datafolder,"/gamemcmclist17.RData"))
-
-# SEASON PARAMETERS
-params.season14 <- get_season_params(dat14,game.mcmc.list14)
-save(params.season14, file=paste0(datafolder,"/paramsseason14.RData"))
-# load(paste0(datafolder,"/paramsseason14.RData"))
-
-params.season15 <- get_season_params(dat15,game.mcmc.list15)
-save(params.season15, file=paste0(datafolder,"/paramsseason15.RData"))
-# load(paste0(datafolder,"/paramsseason15.RData"))
-
-params.season16 <- get_season_params(dat16,game.mcmc.list16)
-save(params.season16, file=paste0(datafolder,"/paramsseason16.RData"))
-# load(paste0(datafolder,"/paramsseason16.RData"))
-
-params.season17 <- get_season_params(dat17,game.mcmc.list17)
-save(params.season17, file=paste0(datafolder,"/paramsseason17.RData"))
-# load(paste0(datafolder,"/paramsseason17.RData"))
-
-
-params.season <- params.season14
 
 plot_time_effect <- function(params.season = NA, id = NA, parameter = NA){
   
