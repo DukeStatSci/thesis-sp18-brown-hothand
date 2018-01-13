@@ -10,13 +10,35 @@
     # fix court lines to your ggplot contours!!!
   # get rid of DGLM mensions in the rest of the paper.
   # you have a lot of mixtures/autocorrelations/chains to check...
+
 knitr::opts_chunk$set(warning = FALSE, message=FALSE)
 
-library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(pROC); library(knitr); library(reshape2); library(png); library(grid)
+library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid)
 
-# id1 <- 887661
-# id2 <- 842296
-load(file="rdatafiles/allgameshots.RData")
+
+load(file="../rdatafiles/allgameshots.RData")
+
+load_chains <- TRUE
+
+id4 <- 601140 
+id3 <- 603106 
+id2 <- 842301 
+id1 <- 887665 
+playerseasons <- matrix(
+  c(id1,   2016,
+    id2,   2015,
+    id3,   2014,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+factorid <- data.frame(
+  factorid = as.integer(as.factor(dat$globalplayerid)),
+  globalplayerid = dat$globalplayerid
+) %>% unique()
+rownames(factorid) <- NULL
+
 ```
 
 For our models, we consider the shot location and the shooter identity as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or $r$ and $\theta$. 
@@ -43,7 +65,6 @@ The results of the credible intervals are reported for the same four players, in
 
 ```{r, glm, cache=TRUE, eval=FALSE}
 
-getwd()
 priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
 mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
@@ -114,11 +135,26 @@ dat3 <- allgameshots %>% filter(globalplayerid %in% playerseasons[3,1] &
 dat4 <- allgameshots %>% filter(globalplayerid %in% playerseasons[4,1] & 
                                 season %in% playerseasons[4,2])
 
-# playerseasons
-glm1 <- fit_glm(dat1)
-glm2 <- fit_glm(dat2)
-glm3 <- fit_glm(dat3)
-glm4 <- fit_glm(dat4)
+if(!load_chains){
+
+  glm1 <- fit_glm(dat1)
+  glm2 <- fit_glm(dat2)
+  glm3 <- fit_glm(dat3)
+  glm4 <- fit_glm(dat4)
+   
+  save(glm1, file="../rdatafiles/glm1.RData")
+  save(glm2, file="../rdatafiles/glm2.RData")
+  save(glm3, file="../rdatafiles/glm3.RData")
+  save(glm4, file="../rdatafiles/glm4.RData")
+
+}else{
+  
+  load(file="../rdatafiles/glm1.RData")
+  load(file="../rdatafiles/glm2.RData")
+  load(file="../rdatafiles/glm3.RData")
+  load(file="../rdatafiles/glm4.RData")
+  
+}
 
 plot_params(glm1)
 plot_params(glm2)
@@ -196,23 +232,18 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
 
 get_player_params <- function(dat=NA, sim.mcmc.hier=NA){
   
-  factorid <- data.frame(
-    factorid = as.integer(as.factor(dat$globalplayerid)),
-    globalplayerid = dat$globalplayerid
-  ) %>% unique()
-  
   sim.mcmc.means <- colMeans(sim.mcmc.hier)
   sim.mcmc.quants <- apply(sim.mcmc.hier, 2, quantile, c(0.025, 0.25, 0.50, 0.75, 0.975))
 
-  playermapshots <- merge(factorid, playermap, by="globalplayerid", all=TRUE)
-  playermapparams <- playermapshots %>% 
+  #playermapshots <- factorid #merge(factorid, playermap, by="globalplayerid", all=TRUE)
+  playermapparams <- factorid %>% 
     mutate(int = NA, r = NA, theta = NA,
            int025 = NA, int25  = NA, int50  = NA, int75  = NA, int975 = NA, 
            r025 = NA, r25  = NA, r50  = NA, r75  = NA, r975 = NA, 
            theta025 = NA, theta25  = NA, theta50  = NA, theta75  = NA, theta975 = NA)
                                                
   
-  for(i in 1:nrow(playermapshots)){
+  for(i in 1:nrow(factorid)){
     fid <- playermapparams$factorid[i]
     if(!is.na(fid)){
       theta_i <- sim.mcmc.means[grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))]
@@ -221,35 +252,17 @@ get_player_params <- function(dat=NA, sim.mcmc.hier=NA){
       theta_i <- sim.mcmc.means[grep(paste0("(int0)|(r0)|(theta0)"), names(sim.mcmc.means))]
       theta_i <- c(theta_i, sim.mcmc.quants[,grep(paste0("(int0)|(r0)|(theta0)"), names(sim.mcmc.means))])
     }
-    playermapparams[i,8:ncol(playermapparams)] <- theta_i
+    playermapparams[i,3:ncol(playermapparams)] <- theta_i
   }
   return(playermapparams)
 }
 
-#UNUSED FUNCTION!
-post_prob <- function(newdata=NA){
-  
-  Z <- merge(newdata, factorid) %>% arrange(time)
-  levels <- Z$factorid
-  B <- t(apply(as.matrix(levels), 1, function(l){
-    matrix(c(sim.mcmc.means[[paste0("beta_int[",l,"]")]],
-         sim.mcmc.means[[paste0("beta_r[",l,"]")]],
-         sim.mcmc.means[[paste0("beta_theta[",l,"]")]]),ncol=3,byrow=TRUE
-    )}
-  ))
-  
-  X <- Z %>% mutate(logr = log(r) - mean(log(r)), int=1) %>% select(int, logr, theta) %>% as.matrix()
-
-  probs <- B %>% '%*%'(t(X)) %>% diag() %>% arm::invlogit()
-
-  # sim.results <- arm::invlogit(sim.mcmc.means[["beta_int"]] + sim.mcmc.means[["beta_r"]] %*% t(Z[["logr"]]) + sim.mcmc.means[["beta_theta"]] %*% t(Z[["theta"]]) + indiv_effect)
-  
-  return(probs)
+if(!load_chains){
+  player.mcmc <- fit_players(dat = allgameshots)
+  save(player.mcmc, file="../rdatafiles/playermcmc.RData")
+}else{
+  load("../rdatafiles/playermcmc.RData")
 }
-
-# player.mcmc <- fit_players(dat = allgameshots)
-# save(player.mcmc, file="rdatafiles/playermcmc.RData"))
-load("rdatafiles/playermcmc.RData")
 
 fourparams <- merge((playerseasons), get_player_params(allgameshots, player.mcmc),all=FALSE) %>% select(globalplayerid, int, r, theta)
 
@@ -306,7 +319,7 @@ get_raneffs <- function(sim.mcmc = player.mcmc, j=NA){
   return(raneffs)
 }
 
-plot_contours <- function(sim.mcmc = player.mcmc, j = NA, MLE=FALSE){
+mcmc_avg <- function(sim.mcmc = player.mcmc, j = NA, MLE=FALSE){
   all_x <- seq(-25,25, 1)
   all_y <- seq(0,94/2, 1) - 4
   S <- nrow(sim.mcmc) 
@@ -340,18 +353,23 @@ plot_contours <- function(sim.mcmc = player.mcmc, j = NA, MLE=FALSE){
   }
 
   probsxy <- apply(PROBSXY, c(1,2), mean)
+  return(probsxy)
+}
   # filled.contour(x = all_x, y = all_y, z = probsxy,
   #              main = "Shot Success Probabilities", 
   #              xaxt = "n", yaxt= "n", 
   #              color.palette = colorRampPalette(c("yellow", "red")))
+plot_contours <- function(probsxy = NA){
   
+  all_x <- seq(-25,25, 1)
+  all_y <- seq(0,94/2, 1) - 4
+
   probsxy_melt <- melt(probsxy, c("x","y"))
   probsxy_melt$x <- rep(all_x, length = nrow(probsxy_melt))
   probsxy_melt$y <- rep(all_y, each = length(all_x))
   all_xn <- seq(min(all_x), max(all_x), length=nrow(probsxy_melt))
   
-
-  img.path <- "/index/figure/Basketball-Court-Dimensions2.png"
+  img.path <- "/home/grad/neb20/hothand/index/figure/Basketball-Court-Dimensions2.png"
   img <- readPNG(img.path)
 
   a <- 0.8
@@ -387,7 +405,30 @@ plot_contours <- function(sim.mcmc = player.mcmc, j = NA, MLE=FALSE){
 #   lines(x3, y3)
 }
 
-plot_contours(player.mcmc, j=5, MLE=FALSE)
+if(!load_chains){
+  avg1 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[1,1]], MLE=FALSE)
+  avg2 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[2,1]], MLE=FALSE)
+  avg3 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[3,1]], MLE=FALSE)
+  avg4 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[4,1]], MLE=FALSE)
+  
+  save(avg1, file="../rdatafiles/avg1.RData")
+  save(avg2, file="../rdatafiles/avg2.RData")
+  save(avg3, file="../rdatafiles/avg3.RData")
+  save(avg4, file="../rdatafiles/avg4.RData")
+
+}else{
+  
+  load("../rdatafiles/avg1.RData")
+  load("../rdatafiles/avg2.RData")
+  load("../rdatafiles/avg3.RData")
+  load("../rdatafiles/avg4.RData")
+
+}
+
+plot_contours(avg1)
+plot_contours(avg2)
+plot_contours(avg3)
+plot_contours(avg4)
 
 ```
 
@@ -693,7 +734,7 @@ tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
   t <- 40      # current anchor game; must rerun separately for each anchor game t,
                # and save MCMC output summaries for each
 
-fit_game <- function(dat = NA, anchor = NA, S = 10000, B = 500){
+fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 500){
 
   model.game <- function(){
 
@@ -746,7 +787,7 @@ fit_game <- function(dat = NA, anchor = NA, S = 10000, B = 500){
     mu0theta = mu0theta,
     tau0r = tau0r,
     tau0theta = tau0theta,
-    del = 0.975,
+    del = discount_wt,
     games = as.integer(as.factor(dat$gameid)),
     g0 = anchor,
     y = rep(1, nrow(dat)) #"phantom data"
@@ -765,7 +806,7 @@ fit_game <- function(dat = NA, anchor = NA, S = 10000, B = 500){
 
 }
 
-fit_games <- function(dat = NA, S = 10000, B = 500){
+fit_games <- function(dat = NA, discount_wt = 0.975, S = 10000, B = 500){
     
   G <- n_distinct(dat$gameid)
   M <- n_distinct(dat$globalplayerid)
@@ -773,7 +814,7 @@ fit_games <- function(dat = NA, S = 10000, B = 500){
   game.mcmc.list <- as.list(rep(NA, G))
 
   for(g in 1:G){
-    game.mcmc <- fit_game(dat, g, S, B)
+    game.mcmc <- fit_game(dat, g, discount_wt, S, B)
     game.mcmc.list[[g]] <- game.mcmc
   }
   
