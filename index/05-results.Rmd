@@ -34,8 +34,8 @@ playerseasons <- matrix(
 colnames(playerseasons) <- c("globalplayerid" ,"season")
 
 factorid <- data.frame(
-  factorid = as.integer(as.factor(dat$globalplayerid)),
-  globalplayerid = dat$globalplayerid
+  factorid = as.integer(as.factor(allgameshots$globalplayerid)),
+  globalplayerid = allgameshots$globalplayerid
 ) %>% unique()
 rownames(factorid) <- NULL
 
@@ -369,12 +369,14 @@ plot_contours <- function(probsxy = NA){
   probsxy_melt$y <- rep(all_y, each = length(all_x))
   all_xn <- seq(min(all_x), max(all_x), length=nrow(probsxy_melt))
   
-  img.path <- "/home/grad/neb20/hothand/index/figure/Basketball-Court-Dimensions2.png"
+  #img.path <- "/home/grad/neb20/hothand/index/figure/Basketball-Court-Dimensions2.png"
+  img.path <- "/home/grad/neb20/hothand/index/figure/Basketball_NCAA_Halfcourt2.png"
   img <- readPNG(img.path)
 
   a <- 0.8
   {
-  contplot <- ggplot(probsxy_melt, aes(x = x, y = y, z = value)) +
+  #contplot <- 
+    ggplot(probsxy_melt, aes(x = x, y = y, z = value)) +
     annotation_custom(rasterGrob(img,
                                  x=0.5,y=0.5,
                                  width = 0.9, height = 0.9),
