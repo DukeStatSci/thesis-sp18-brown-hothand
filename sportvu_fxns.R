@@ -18,6 +18,7 @@ playerseasons <- matrix(
     id4,   2015
   ),ncol=2,byrow = TRUE
 )
+colnames(playerseasons) <- c("globalplayerid" ,"season")
 
 #let's assume that every gameid is 12 digits?
 get_all_gameids <- function(){
@@ -245,7 +246,7 @@ load_box <- function(gameid=NA){
   return(boxdf)
 }
 
-get_player_map <- function(){
+get_playermap <- function(){
   
   if(any(grepl("player_map", list.files(datafolder)))){
     
@@ -277,11 +278,11 @@ get_shot_results <- function(pbp=NA){
   # pbp$gameclock_ms <- secs_to_ms(as.numeric(pbp$gameclock))
   # pbp$ord <- 1:nrow(pbp)
   
-  player_map <- get_player_map()
+  playermap <- get_playermap()
   
   # pbp_playersF <- merge(pbp, player_map, by="globalplayerid", all=FALSE) %>% arrange(ord) %>% select(-ord)
   # pbp_playersT <- merge(pbp, player_map, by="globalplayerid", all=TRUE) %>% arrange(ord) %>% select(-ord)
-  pbp_players <- pbp %>% filter(globalplayerid %in% player_map$globalplayerid)
+  pbp_players <- pbp %>% filter(globalplayerid %in% playermap$globalplayerid)
   
   # shotsT <- pbp_playersT %>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select_("globalplayerid", "time", "result", "globalteamid", "gameclock")
   # shotsF <- pbp_playersF %>% filter(eventid %in% c(3,4)) %>% mutate(result = ifelse(eventid == 3, 1, 0)) %>% select_("globalplayerid", "time", "result", "globalteamid", "gameclock")
@@ -343,8 +344,17 @@ get_shots <- function(gameid=NA){
   }
   
   shot_locs$r <- sqrt(shot_locs$xt^2 + shot_locs$yt^2)
+  # straightforward.
+  
   shot_locs$theta <- atan(shot_locs$yt/shot_locs$xt)
-
+  PI <- rep(pi, nrow(shot_locs))
+  ONES <- shot_locs$xt < 0 
+  shot_locs$theta <- shot_locs$theta + PI*ONES - pi/2
+  # if x < 0, then add pi. else, add nothing.
+  # add pi/2 to everything.
+  # this transformation eliminates the jump from -pi/2 to pi/2 at x=0. 
+  # angles range from -pi/2 (right corner) to pi/2 (left corner)
+  
   shot_locs$gametime <- shot_locs$gameclock
   shot_locs$gametime[shot_locs$time < second_half_start] <- 2*shot_locs$gameclock[shot_locs$time < second_half_start]
   shot_locs$gametime <- 2400 - shot_locs$gametime

@@ -790,55 +790,20 @@ decreases as distance from the basket increases.
 \NormalTok{\}}
 
 \NormalTok{hier <-}\StringTok{ }\KeywordTok{fit_hier}\NormalTok{()}
-\end{Highlighting}
-\end{Shaded}
-\begin{verbatim}
-module glm loaded
-\end{verbatim}
-\begin{verbatim}
-Warning in jags.model(model.file, data = data, inits = init.values,
-n.chains = n.chains, : Unused variable "tau0r" in data
-\end{verbatim}
-\begin{verbatim}
-Warning in jags.model(model.file, data = data, inits = init.values,
-n.chains = n.chains, : Unused variable "tau0theta" in data
-\end{verbatim}
-\begin{verbatim}
-Compiling model graph
-   Resolving undeclared variables
-   Allocating nodes
-Graph information:
-   Observed stochastic nodes: 5467
-   Unobserved stochastic nodes: 99
-   Total graph size: 49347
 
-Initializing model
-\end{verbatim}
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{colnames}\NormalTok{(playerseasons) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"globalplayerid"} \NormalTok{,}\StringTok{"season"}\NormalTok{)}
 \NormalTok{fourparams <-}\StringTok{ }\KeywordTok{merge}\NormalTok{((playerseasons), }\KeywordTok{get_player_params}\NormalTok{(hier),}\DataTypeTok{all=}\OtherTok{FALSE}\NormalTok{) %>%}\StringTok{ }\KeywordTok{select}\NormalTok{(int, r, theta)}
 \NormalTok{mainlab <-}\StringTok{ "Posterior Density plus Four Players"}
 \KeywordTok{plot}\NormalTok{(}\KeywordTok{density}\NormalTok{(hier[[}\StringTok{"beta_int0"}\NormalTok{]]), mainlab,}\DataTypeTok{xlab=}\StringTok{"intercept"}\NormalTok{)}
 \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\NormalTok{fourparams[,}\DecValTok{1}\NormalTok{], }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/hier-1.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
+
 \KeywordTok{plot}\NormalTok{(}\KeywordTok{density}\NormalTok{(hier[[}\StringTok{"beta_r0"}\NormalTok{]]), mainlab, }\DataTypeTok{xlab=}\StringTok{"r"}\NormalTok{)}
 \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\NormalTok{fourparams[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/hier-2.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
+
 \KeywordTok{plot}\NormalTok{(}\KeywordTok{density}\NormalTok{(hier[[}\StringTok{"beta_theta0"}\NormalTok{]]),mainlab, }\DataTypeTok{xlab=}\StringTok{"theta"}\NormalTok{)}
 \KeywordTok{abline}\NormalTok{(}\DataTypeTok{v=}\NormalTok{fourparams[,}\DecValTok{3}\NormalTok{], }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-\includegraphics{thesis_files/figure-latex/hier-3.pdf}
-
 The hierarchical model shows us that our four high-usage players of
 interest do not appear to be randomly spread across the population of
 players. The intercept plot shows that all four are in or close to the
@@ -857,7 +822,7 @@ Model}\label{dynamic-generalized-linear-model}
 \NormalTok{priormod <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(result ~}\StringTok{ }\KeywordTok{log}\NormalTok{(r) +}\StringTok{ }\NormalTok{theta, }\DataTypeTok{data=}\NormalTok{allgameshots %>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(}\KeywordTok{as.integer}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(gameid)) <}\StringTok{ }\DecValTok{5}\NormalTok{), }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{)}
 
 \NormalTok{fit_dglm <-}\StringTok{ }\NormalTok{function(playerids, seasons, }\DataTypeTok{iterate=}\OtherTok{TRUE}\NormalTok{)\{}
-  
+  \NormalTok{\{}
   \NormalTok{cond <-}\StringTok{ }\NormalTok{allgameshots$globalplayerid %in%}\StringTok{ }\NormalTok{playerids &}\StringTok{ }\NormalTok{allgameshots$season %in%}\StringTok{ }\NormalTok{seasons}
   \NormalTok{allgameshots_sub <-}\StringTok{ }\NormalTok{allgameshots %>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(cond)}
   \NormalTok{Z <-}\StringTok{ }\NormalTok{allgameshots_sub %>%}\StringTok{ }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{logr =} \KeywordTok{log}\NormalTok{(r) -}\StringTok{ }\KeywordTok{mean}\NormalTok{(}\KeywordTok{log}\NormalTok{(r))) %>%}\StringTok{ }\KeywordTok{select}\NormalTok{(logr, theta) %>%}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\DecValTok{1}\NormalTok{,.)}
@@ -874,21 +839,7 @@ Model}\label{dynamic-generalized-linear-model}
   \CommentTok{#initial parameters}
   \NormalTok{theta <-}\StringTok{ }\KeywordTok{coef}\NormalTok{(priormod)}
   \NormalTok{p <-}\StringTok{ }\KeywordTok{length}\NormalTok{(theta)}
-  \CommentTok{# pscore <- fitted(mod, type="response") #GLM predictions}
-  \CommentTok{# q <- rep(NaN, T)}
-  \CommentTok{# q[shots] <- pscore #q is just the GLM prediction}
 
-  \CommentTok{# par(xpd=TRUE)}
-  \CommentTok{# plot(0,0,type="n",xlim = c(0,T),ylim=c(0,1), ylab = "probability", xlab = "time index", main = "GLM Predictions")}
-  \CommentTok{# points(tshot, q[tshot], pch=4, col = "blue")}
-  \CommentTok{# points(tshot, y[tshot], pch=1, col = "red")}
-  \CommentTok{# legend(x=T*.8, y=1.21, legend=c("probability", "outcome"), pch = c(4,1), col=c("blue", "red"))}
-
-  \CommentTok{# par(xpd=FALSE)}
-  \CommentTok{# plot(X[iy,c("x","y")], ylim=c(0,ym), xlim=c(-xm/2,xm/2), col = "red", pch = 3, xlab="x", ylab="y", main = "Makes and Misses")}
-  \CommentTok{# points(X[-iy,c("x","y")], col ="blue", pch = 1)}
-  \CommentTok{# abline(h=ym/2)}
-  \CommentTok{# points(0,0,col="red", cex=2)}
 
   \CommentTok{#Forward Filtering}
 
@@ -926,6 +877,7 @@ Model}\label{dynamic-generalized-linear-model}
       \CommentTok{#At is very small when Ct is very small}
   
         \CommentTok{#Ct is very small when}
+  \NormalTok{\}}
   \NormalTok{for(t in }\DecValTok{1}\NormalTok{:T)\{}
     \NormalTok{if(t %in%}\StringTok{ }\NormalTok{tshot)\{}
       \CommentTok{#current shot attempt index, and time}
@@ -964,8 +916,6 @@ Model}\label{dynamic-generalized-linear-model}
       \NormalTok{rt <-}\StringTok{ }\KeywordTok{max}\NormalTok{(}\FloatTok{0.5}\NormalTok{, rt)}
       \NormalTok{st <-}\StringTok{ }\KeywordTok{max}\NormalTok{(}\FloatTok{0.5}\NormalTok{, st)}
     
-    
-    
 
       \CommentTok{#fts = ft* = posterior mean of ????}
       \CommentTok{#qts = qt* = posterior variance of something ???}
@@ -986,12 +936,11 @@ Model}\label{dynamic-generalized-linear-model}
       \NormalTok{rtst[t,] <-}\StringTok{ }\KeywordTok{c}\NormalTok{(rt, st)}
       \CommentTok{# cat(paste0("t=",t,"\textbackslash{}t",}
       \CommentTok{#            "rt=",rtst[t,1],"\textbackslash{}t",}
-      \CommentTok{#            "Z[i,]=",F[,ishot],"\textbackslash{}t",}
-      \CommentTok{#            "mt=",mt,"\textbackslash{}n"))}
+      \CommentTok{#            "At=",paste(collapse=" ",round(At,3)), "\textbackslash{}n"))}
       \CommentTok{# }
-      \CommentTok{#  if(rt > 1000)\{}
-      \CommentTok{#    break}
-      \CommentTok{#  \}}
+      \CommentTok{# if(rt > 10000)\{}
+      \CommentTok{#   break}
+      \CommentTok{# \}}
       
       \NormalTok{lmlik[t] <-}\StringTok{ }\KeywordTok{lgamma}\NormalTok{(rt+st) -}\StringTok{ }\KeywordTok{lgamma}\NormalTok{(rt) -}\StringTok{ }\KeywordTok{lgamma}\NormalTok{(st) +}\StringTok{ }
 \StringTok{                  }\KeywordTok{lgamma}\NormalTok{(rt+y[t]) +}\StringTok{ }\KeywordTok{lgamma}\NormalTok{(st}\DecValTok{+1}\NormalTok{-y[t]) -}\StringTok{ }\KeywordTok{lgamma}\NormalTok{(rt+st}\DecValTok{+1}\NormalTok{) +}\StringTok{ }
@@ -1002,7 +951,9 @@ Model}\label{dynamic-generalized-linear-model}
       \NormalTok{spt[t] <-}\StringTok{ }\NormalTok{rts/(sts+rts)}
     
       \CommentTok{#update state parameters}
-      \NormalTok{mt <-}\StringTok{ }\NormalTok{mt+At%*%(fts-ft)}
+      
+      
+      \NormalTok{mt <-}\StringTok{ }\NormalTok{mt +}\StringTok{ }\NormalTok{(At%*%(fts-ft))}
       \NormalTok{Ct <-}\StringTok{ }\NormalTok{Ct/delta -}\StringTok{ }\NormalTok{(At%*%}\KeywordTok{t}\NormalTok{(At))*}\KeywordTok{as.numeric}\NormalTok{(qt-qts)}
       \NormalTok{Ct <-}\StringTok{ }\NormalTok{(Ct +}\StringTok{ }\KeywordTok{t}\NormalTok{(Ct))/}\DecValTok{2}
       \CommentTok{#c(t, rt, st, mt)}
@@ -1077,10 +1028,10 @@ Model}\label{dynamic-generalized-linear-model}
 \NormalTok{plot_dynamics <-}\StringTok{ }\NormalTok{function(smt)\{}
   \NormalTok{T <-}\StringTok{ }\KeywordTok{dim}\NormalTok{(smt)[}\DecValTok{2}\NormalTok{]}
   \KeywordTok{par}\NormalTok{(}\DataTypeTok{xpd=}\OtherTok{TRUE}\NormalTok{)}
-  \KeywordTok{plot}\NormalTok{(smt[}\DecValTok{1}\NormalTok{,],}\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{col =} \StringTok{"blue"}\NormalTok{, }\DataTypeTok{xlab =} \StringTok{"shot index"}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{"online state mean"}\NormalTok{, }\DataTypeTok{main =} \StringTok{"Dynamic Parameters"}\NormalTok{)}
+  \KeywordTok{plot}\NormalTok{(smt[}\DecValTok{1}\NormalTok{,],}\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{col =} \StringTok{"blue"}\NormalTok{, }\DataTypeTok{xlab =} \StringTok{"shot index"}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{"online state mean"}\NormalTok{, }\DataTypeTok{main =} \StringTok{"Dynamic Parameters"}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(-}\DecValTok{20}\NormalTok{,}\DecValTok{20}\NormalTok{))}
   \KeywordTok{lines}\NormalTok{(smt[}\DecValTok{2}\NormalTok{,],}\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{col =} \StringTok{"orange"}\NormalTok{)}
   \KeywordTok{lines}\NormalTok{(smt[}\DecValTok{3}\NormalTok{,],}\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{col =} \StringTok{"yellow"}\NormalTok{)}
-  \KeywordTok{legend}\NormalTok{(}\DataTypeTok{x=}\NormalTok{T*.}\DecValTok{75}\NormalTok{, }\DataTypeTok{y=}\DecValTok{4}\NormalTok{, }\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"intercept"}\NormalTok{, }\StringTok{"angle"}\NormalTok{, }\StringTok{"log(distance)"}\NormalTok{), }\DataTypeTok{pch =} \KeywordTok{c}\NormalTok{(}\DecValTok{16}\NormalTok{), }\DataTypeTok{col =} \KeywordTok{c}\NormalTok{(}\StringTok{"blue"}\NormalTok{, }\StringTok{"orange"}\NormalTok{, }\StringTok{"yellow"}\NormalTok{))}
+  \KeywordTok{legend}\NormalTok{(}\DataTypeTok{x=}\NormalTok{T*.}\DecValTok{75}\NormalTok{, }\DataTypeTok{y=}\FloatTok{30.5}\NormalTok{, }\DataTypeTok{legend =} \KeywordTok{c}\NormalTok{(}\StringTok{"intercept"}\NormalTok{, }\StringTok{"angle"}\NormalTok{, }\StringTok{"log(distance)"}\NormalTok{), }\DataTypeTok{pch =} \KeywordTok{c}\NormalTok{(}\DecValTok{16}\NormalTok{), }\DataTypeTok{col =} \KeywordTok{c}\NormalTok{(}\StringTok{"blue"}\NormalTok{, }\StringTok{"orange"}\NormalTok{, }\StringTok{"yellow"}\NormalTok{))}
   \KeywordTok{par}\NormalTok{(}\DataTypeTok{xpd=}\OtherTok{FALSE}\NormalTok{)}
 \NormalTok{\}}
 
@@ -1118,60 +1069,18 @@ Model}\label{dynamic-generalized-linear-model}
 \NormalTok{dglm4 <-}\StringTok{ }\KeywordTok{fit_dglm}\NormalTok{(playerseasons[}\DecValTok{4}\NormalTok{,}\DecValTok{1}\NormalTok{], playerseasons[}\DecValTok{4}\NormalTok{,}\DecValTok{2}\NormalTok{])}
 
 \KeywordTok{plot_dynamics}\NormalTok{(dglm1[[}\DecValTok{1}\NormalTok{]])}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-1.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{plot_posteriors}\NormalTok{(dglm1[[}\DecValTok{4}\NormalTok{]])}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-2.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-3.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-4.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
+
 \KeywordTok{plot_dynamics}\NormalTok{(dglm2[[}\DecValTok{1}\NormalTok{]])}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-5.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{plot_posteriors}\NormalTok{(dglm2[[}\DecValTok{4}\NormalTok{]])}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-6.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-7.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-8.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
+
 \KeywordTok{plot_dynamics}\NormalTok{(dglm3[[}\DecValTok{1}\NormalTok{]])}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-9.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{plot_posteriors}\NormalTok{(dglm3[[}\DecValTok{4}\NormalTok{]])}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-10.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-11.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-12.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
+
 \KeywordTok{plot_dynamics}\NormalTok{(dglm4[[}\DecValTok{1}\NormalTok{]])}
-\end{Highlighting}
-\end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-13.pdf}
-\begin{Shaded}
-\begin{Highlighting}[]
 \KeywordTok{plot_posteriors}\NormalTok{(dglm4[[}\DecValTok{4}\NormalTok{]])}
 \end{Highlighting}
 \end{Shaded}
-\includegraphics{thesis_files/figure-latex/dglm-14.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-15.pdf}
-\includegraphics{thesis_files/figure-latex/dglm-16.pdf}
-
 The amount of volatility that we see in the posterior distribution of
 the parameters with a discount factor of \(\delta\) = 0.99 suggests that
 there is time dependency in the data. However, the state means of the
