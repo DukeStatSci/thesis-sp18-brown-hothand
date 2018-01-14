@@ -4,6 +4,7 @@
 ```{r, init, include=FALSE}
 
 # TODO:
+  # PREDICT PREDICT PREDICT
   # specify the reasoning behind your priors and tuning parameters
   # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
     # visualization idea: non-circular contour plot.
@@ -874,7 +875,7 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
 
 if(!load_chains){
   
-  game.mcmc.list.all <- fit_games(allgameshots, 0.975, 1000, 100)
+  game.mcmc.list.all <- fit_games(allgameshots, 0.975, 10000, 500)
   params.season.all <- get_season_params(allgameshots, game.mcmc.list.all)
 
   save(game.mcmc.list.all, file="../rdatafiles/gamemcmclist.RData")
