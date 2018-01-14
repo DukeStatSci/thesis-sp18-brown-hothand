@@ -33,11 +33,11 @@ playerseasons <- matrix(
 )
 colnames(playerseasons) <- c("globalplayerid" ,"season")
 
-factorid <- data.frame(
+playermap <- data.frame(
   factorid = as.integer(as.factor(allgameshots$globalplayerid)),
   globalplayerid = allgameshots$globalplayerid
 ) %>% unique()
-rownames(factorid) <- NULL
+rownames(playermap) <- NULL
 
 ```
 
@@ -236,14 +236,14 @@ get_player_params <- function(dat=NA, sim.mcmc.hier=NA){
   sim.mcmc.quants <- apply(sim.mcmc.hier, 2, quantile, c(0.025, 0.25, 0.50, 0.75, 0.975))
 
   #playermapshots <- factorid #merge(factorid, playermap, by="globalplayerid", all=TRUE)
-  playermapparams <- factorid %>% 
+  playermapparams <- playermap %>% 
     mutate(int = NA, r = NA, theta = NA,
            int025 = NA, int25  = NA, int50  = NA, int75  = NA, int975 = NA, 
            r025 = NA, r25  = NA, r50  = NA, r75  = NA, r975 = NA, 
            theta025 = NA, theta25  = NA, theta50  = NA, theta75  = NA, theta975 = NA)
                                                
   
-  for(i in 1:nrow(factorid)){
+  for(i in 1:nrow(playermap)){
     fid <- playermapparams$factorid[i]
     if(!is.na(fid)){
       theta_i <- sim.mcmc.means[grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))]
@@ -359,7 +359,7 @@ mcmc_avg <- function(sim.mcmc = player.mcmc, j = NA, MLE=FALSE){
   #              main = "Shot Success Probabilities", 
   #              xaxt = "n", yaxt= "n", 
   #              color.palette = colorRampPalette(c("yellow", "red")))
-plot_contours <- function(probsxy = NA){
+plot_contours <- function(probsxy = NA, main=""){
   
   all_x <- seq(-25,25, 1)
   all_y <- seq(0,94/2, 1) - 4
@@ -370,28 +370,28 @@ plot_contours <- function(probsxy = NA){
   all_xn <- seq(min(all_x), max(all_x), length=nrow(probsxy_melt))
   
   #img.path <- "/home/grad/neb20/hothand/index/figure/Basketball-Court-Dimensions2.png"
-  img.path <- "/home/grad/neb20/hothand/index/figure/Basketball_NCAA_Halfcourt2.png"
+  img.path <- "/home/grad/neb20/hothand/index/figure/ncaa_bball_court2.png"
   img <- readPNG(img.path)
 
-  a <- 0.8
-  {
-  #contplot <- 
-    ggplot(probsxy_melt, aes(x = x, y = y, z = value)) +
-    annotation_custom(rasterGrob(img,
-                                 x=0.5,y=0.5,
-                                 width = 0.9, height = 0.9),
-                      -Inf, Inf, -Inf, Inf) + 
-    geom_tile(aes(fill = value), alpha=a) + # the color gradient
-    #stat_contour(bins = 15) + # the lines
-    scale_fill_gradient2(low = rgb(1,1,1), # white
-                         mid = rgb(1,1,0), # yellow 
-                         high= rgb(1,0,0), # red 
-                         midpoint=0.5) +
-    labs(title = "title", y="", x="") +
-    guides(fill = guide_colorbar(title = "Probability")) + # the legend
-    geom_line(aes(x=all_xn, y=sqrt(19.75^2 - all_xn^2))) + 
-    geom_line(aes(x=all_xn, y=94/2))
-  }
+a <- 0.7
+contplot <- ggplot(probsxy_melt, aes(x = x, y = y, z = value)) +
+  annotation_custom(rasterGrob(img,
+                               x=0.5,y=0.50,
+                               width = .92, height = .92),
+                    -Inf, Inf, -Inf, Inf) + 
+  geom_tile(aes(fill = value), alpha=a) + # the color gradient
+  #stat_contour(bins = 15) + # the lines
+  scale_fill_gradient2(low = rgb(1,1,1), # white
+                       mid = rgb(1,1,0), # yellow 
+                       high= rgb(1,0,0), # red 
+                       midpoint=0.4) +
+  labs(title = main, y="", x="") +
+  guides(fill = guide_colorbar(title = "Probability")) + # the legend
+  # geom_line(aes(x=all_xn, y=sqrt(19.75^2 - all_xn^2))) + 
+  # geom_line(aes(x=all_xn, y=94/2)) + 
+  theme_bw() + 
+  theme(panel.grid = element_blank(), panel.border=element_blank())
+
 
   contplot
   
@@ -408,10 +408,10 @@ plot_contours <- function(probsxy = NA){
 }
 
 if(!load_chains){
-  avg1 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[1,1]], MLE=FALSE)
-  avg2 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[2,1]], MLE=FALSE)
-  avg3 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[3,1]], MLE=FALSE)
-  avg4 <- mcmc_avg(player.mcmc, j=factorid$factorid[factorid$globalplayerid == playerseasons[4,1]], MLE=FALSE)
+  avg1 <- mcmc_avg(player.mcmc, j=playermap$factorid[playermap$globalplayerid == playerseasons[1,1]], MLE=FALSE)
+  avg2 <- mcmc_avg(player.mcmc, j=playermap$factorid[playermap$globalplayerid == playerseasons[2,1]], MLE=FALSE)
+  avg3 <- mcmc_avg(player.mcmc, j=playermap$factorid[playermap$globalplayerid == playerseasons[3,1]], MLE=FALSE)
+  avg4 <- mcmc_avg(player.mcmc, j=playermap$factorid[playermap$globalplayerid == playerseasons[4,1]], MLE=FALSE)
   
   save(avg1, file="../rdatafiles/avg1.RData")
   save(avg2, file="../rdatafiles/avg2.RData")
@@ -427,7 +427,7 @@ if(!load_chains){
 
 }
 
-plot_contours(avg1)
+plot_contours(avg1, "Hello")
 plot_contours(avg2)
 plot_contours(avg3)
 plot_contours(avg4)
@@ -816,6 +816,7 @@ fit_games <- function(dat = NA, discount_wt = 0.975, S = 10000, B = 500){
   game.mcmc.list <- as.list(rep(NA, G))
 
   for(g in 1:G){
+    print(g)
     game.mcmc <- fit_game(dat, g, discount_wt, S, B)
     game.mcmc.list[[g]] <- game.mcmc
   }
@@ -864,25 +865,38 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
      params.season[(M*(g-1) + 1):(M*g), 1:ncol(params.game)] <- params.game
   }
   
+  n2 <- dat %>% group_by(gameid, globalplayerid) %>% summarize(nshots = n()) %>% as.data.frame()
+  params.season <- merge(params.season, n2, all=TRUE)
+  params.season$nshots[is.na(params.season$nshots)] <- 0
+
   return(params.season)
 }
 
-game.mcmc.list.all <- fit_games(allgameshots, 1000, 100)
-params.season.all <- get_season_params(allgameshots, game.mcmc.list.all)
-save(game.mcmc.list.all, file="rdatafiles/gamemcmclist.RData")
-save(params.season.all, file="rdatafiles/paramsseason.RData")
+if(!load_chains){
+  
+  game.mcmc.list.all <- fit_games(allgameshots, 0.975, 1000, 100)
+  params.season.all <- get_season_params(allgameshots, game.mcmc.list.all)
 
-load(file="rdatafiles/gamemcmclist.RData")
-load(file="rdatafiles/paramsseason.RData")
+  save(game.mcmc.list.all, file="../rdatafiles/gamemcmclist.RData")
+  save(params.season.all, file="../rdatafiles/paramsseason.RData")
+}else{
+  
+  load(file="../rdatafiles/gamemcmclist.RData")
+  load(file="../rdatafiles/paramsseason.RData")
+  
+}
 
-
-plot_time_effect <- function(params.season = NA, id = NA, parameter = NA){
+plot_time_effect <- function(params.season = NA, id = NA, parameter = NA, only_fga_games = TRUE){
   
   param_map <- list()
   param_map[["int"]] <- "Intercept"
   param_map[["r"]] <- "Distance"
   param_map[["theta"]] <- "Angle"
 
+  if(only_fga_games){
+    params.season <- params.season %>% filter(nshots > 0)
+  }
+  
   plotdat <- params.season %>% 
     filter(globalplayerid == id) %>% 
     select(g, 
@@ -908,7 +922,7 @@ plot_time_effect <- function(params.season = NA, id = NA, parameter = NA){
     # the above plot shows the player struggling around game 13ish and 21 (the last one)
     # link g to gameids
     # use box scores and see if the player above struggles shooting from distance in the 13th-ish and 21st games.
-
+plot_time_effect(params.season.all, id=id2, parameter="int")
 ```
 
 
