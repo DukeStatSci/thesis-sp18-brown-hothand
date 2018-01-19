@@ -1,6 +1,6 @@
 ---
 author: 'Nathaniel Brown'
-date: 'May 20xx'
+date: 'May 2018'
 institution: 'Duke University'
 division: 'Trinity College of Arts and Sciences'
 advisor: 'Advisor F. Name'

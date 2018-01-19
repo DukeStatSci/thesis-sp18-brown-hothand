@@ -14,10 +14,13 @@
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE)
 
-library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid)
-
+library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra)
 
 load(file="../rdatafiles/allgameshots.RData")
+N <- nrow(allgameshots)
+testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
+Xtrain <- allgameshots[-testrows,]
+Xtest <- allgameshots[testrows,]
 
 load_chains <- TRUE
 
@@ -42,7 +45,7 @@ rownames(playermap) <- NULL
 
 ```
 
-For our models, we consider the shot location and the shooter identity as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or $r$ and $\theta$. 
+For our models, we consider the shot location, the shooter identity, and shooting outcomes in previous games as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or $r$ and $\theta$. Diagnostic plots for these models can be found in Appendix 1.
 
 <!--
 ```{r}
@@ -66,7 +69,7 @@ The results of the credible intervals are reported for the same four players, in
 
 ```{r, glm, cache=TRUE, eval=FALSE}
 
-priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
 mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
 tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
@@ -118,23 +121,29 @@ plot_params <- function(sim.mcmc = NA){
     coefs <- sim.mcmc[,c("beta_int","beta_r","beta_theta")] %>% apply(2, quantile, c(0.025,0.5,0.975)) %>% t() %>% as.data.frame()
     
     colnames(coefs) <- c("lo", "mid", "hi")
-  
-    ggplot(data = coefs, aes(x=c("intercept","distance","angle"),y=mid)) + 
+    
+    xtext <- c("intercept","distance","angle")
+    xfact <- factor(xtext, levels=xtext)
+
+    ggplot(data = coefs, aes(x=xfact , y=mid)) + 
       geom_point() + 
       geom_errorbar(aes(ymin=lo, ymax=hi), width=0.5) + 
       geom_abline(intercept=0, slope=0, linetype=2) + 
-      labs(title="GLM Posterior Parameters (95% Credible Intervals)",x="Predictor", y="Estimate") + 
-      theme_bw() 
+      labs(title="GLM Posterior Parameters (95% Credible Intervals)",
+           x="Predictor", 
+           y="Estimate") + 
+      theme_bw()
 }
 
-dat1 <- allgameshots %>% filter(globalplayerid %in% playerseasons[1,1] & 
+dat1 <- Xtrain %>% filter(globalplayerid %in% playerseasons[1,1] & 
                                 season %in% playerseasons[1,2])
-dat2 <- allgameshots %>% filter(globalplayerid %in% playerseasons[2,1] & 
+dat2 <- Xtrain %>% filter(globalplayerid %in% playerseasons[2,1] & 
                                 season %in% playerseasons[2,2])
-dat3 <- allgameshots %>% filter(globalplayerid %in% playerseasons[3,1] & 
+dat3 <- Xtrain %>% filter(globalplayerid %in% playerseasons[3,1] & 
                                 season %in% playerseasons[3,2])
-dat4 <- allgameshots %>% filter(globalplayerid %in% playerseasons[4,1] & 
+dat4 <- Xtrain %>% filter(globalplayerid %in% playerseasons[4,1] & 
                                 season %in% playerseasons[4,2])
+
 
 if(!load_chains){
 
@@ -142,34 +151,40 @@ if(!load_chains){
   glm2 <- fit_glm(dat2)
   glm3 <- fit_glm(dat3)
   glm4 <- fit_glm(dat4)
+  glmtot <- fit_glm(Xtrain)
    
   save(glm1, file="../rdatafiles/glm1.RData")
   save(glm2, file="../rdatafiles/glm2.RData")
   save(glm3, file="../rdatafiles/glm3.RData")
   save(glm4, file="../rdatafiles/glm4.RData")
-
+  save(glmtot, file="../rdatafiles/glmtot.RData")
+  
 }else{
   
   load(file="../rdatafiles/glm1.RData")
   load(file="../rdatafiles/glm2.RData")
   load(file="../rdatafiles/glm3.RData")
   load(file="../rdatafiles/glm4.RData")
+  load(file="../rdatafiles/glmtot.RData")
   
 }
+
+
 
 plot_params(glm1)
 plot_params(glm2)
 plot_params(glm3)
 plot_params(glm4)
+plot_params(glmtot)
 
 ```
 
-The four plots show the GLM parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section. From these plots we see that the effect of the angle contains zero, and it is probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot decreases as distance from the basket increases. 
+The five plots above show the posteriors of the generalized linear model parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section, and the parameters for the entire team over all seasons. From these plots, we see that the effect of the angle contains zero, and it is probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot decreases as distance from the basket increases. 
 
 
 #### Player-by-Player Hierarchical Model
 ```{r, hier, cache=TRUE}
-priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
 mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
 tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
@@ -177,8 +192,8 @@ tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 
 fit_players <- function(dat = NA, S = 10000, B = 500){
   
-  # cond <- allgameshots$globalplayerid %in% playerids & allgameshots$season %in% seasons
-  # allgameshots_sub <- allgameshots %>% filter(cond)
+  # cond <- Xtrain$globalplayerid %in% playerids & Xtrain$season %in% seasons
+  # Xtrain_sub <- Xtrain %>% filter(cond)
 
   
   model.player <- function(){
@@ -259,13 +274,17 @@ get_player_params <- function(dat=NA, sim.mcmc.hier=NA){
 }
 
 if(!load_chains){
-  player.mcmc <- fit_players(dat = allgameshots)
+  player.mcmc <- fit_players(dat = Xtrain)
+  player.params <- get_player_params(Xtrain, player.mcmc)
   save(player.mcmc, file="../rdatafiles/playermcmc.RData")
+  save(player.params, file="../rdatafiles/playerparams.RData")
 }else{
+  
   load("../rdatafiles/playermcmc.RData")
+  load("../rdatafiles/playerparams.RData")
 }
 
-fourparams <- merge((playerseasons), get_player_params(allgameshots, player.mcmc),all=FALSE) %>% select(globalplayerid, int, r, theta)
+fourparams <- merge(playerseasons, params.player ,all=FALSE) %>% select(globalplayerid, int, r, theta)
 
 mainlab <- "Posterior Density with Four Players"
 
@@ -413,18 +432,21 @@ if(!load_chains){
   avg2 <- mcmc_avg(player.mcmc, j=playermap$factorid[playermap$globalplayerid == playerseasons[2,1]], MLE=FALSE)
   avg3 <- mcmc_avg(player.mcmc, j=playermap$factorid[playermap$globalplayerid == playerseasons[3,1]], MLE=FALSE)
   avg4 <- mcmc_avg(player.mcmc, j=playermap$factorid[playermap$globalplayerid == playerseasons[4,1]], MLE=FALSE)
+  avgtot <- mcmc_avg(player.mcmc, j=0, MLE=FALSE)
   
   save(avg1, file="../rdatafiles/avg1.RData")
   save(avg2, file="../rdatafiles/avg2.RData")
   save(avg3, file="../rdatafiles/avg3.RData")
   save(avg4, file="../rdatafiles/avg4.RData")
-
+  save(avgtot, file="../rdatafiles/avgtot.RData")
+  
 }else{
   
   load("../rdatafiles/avg1.RData")
   load("../rdatafiles/avg2.RData")
   load("../rdatafiles/avg3.RData")
   load("../rdatafiles/avg4.RData")
+  load("../rdatafiles/avgtot.RData")
 
 }
 
@@ -432,20 +454,21 @@ plot_contours(avg1, "Hello")
 plot_contours(avg2)
 plot_contours(avg3)
 plot_contours(avg4)
+plot_contours(avgtot, "Team Effect")
 
 ```
 
 #### Dynamic Generalized Linear Model
 ```{r, dglm, cache=TRUE, eval=FALSE}
-priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 
 fit_dglm <- function(playerids, seasons, iterate=TRUE){
   {
-  cond <- allgameshots$globalplayerid %in% playerids & allgameshots$season %in% seasons
-  allgameshots_sub <- allgameshots %>% filter(cond)
-  Z <- allgameshots_sub %>% mutate(logr = log(r) - mean(log(r))) %>% select(logr, theta) %>% cbind(1,.)
-  X <- allgameshots_sub %>% select(x=xt, y=yt)
-  y <- allgameshots_sub %>% select(result) %>% '[['(1)
+  cond <- Xtrain$globalplayerid %in% playerids & Xtrain$season %in% seasons
+  Xtrain_sub <- Xtrain %>% filter(cond)
+  Z <- Xtrain_sub %>% mutate(logr = log(r) - mean(log(r))) %>% select(logr, theta) %>% cbind(1,.)
+  X <- Xtrain_sub %>% select(x=xt, y=yt)
+  y <- Xtrain_sub %>% select(result) %>% '[['(1)
 
   ym <- 94; xm <- 50
   shots <- rep(TRUE,nrow(Z)) #no missing shots in this case
@@ -722,7 +745,7 @@ The amount of volatility that we see in the posterior distribution of the parame
 
   # one player (j), one game (t) --> one MCMC chain (S)
 
-priormod <- glm(result ~ log(r) + theta, data=allgameshots %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
 mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
 tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
@@ -875,8 +898,8 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
 
 if(!load_chains){
   
-  game.mcmc.list.all <- fit_games(allgameshots, 0.975, 10000, 500)
-  params.season.all <- get_season_params(allgameshots, game.mcmc.list.all)
+  game.mcmc.list.all <- fit_games(Xtrain, 0.975, 10000, 500)
+  params.season.all <- get_season_params(Xtrain, game.mcmc.list.all)
 
   save(game.mcmc.list.all, file="../rdatafiles/gamemcmclist.RData")
   save(params.season.all, file="../rdatafiles/paramsseason.RData")
@@ -928,6 +951,47 @@ plot_time_effect(params.season.all, id=id2, parameter="int")
 
 
 
+
+```{r preds}
+# posterior mean   --> minimize sq err
+# posterior median --> minimize abs err
+
+#formats the data to return three parameters for every combination of globalplayerid and gameid
+params.team <- apply(select(glmtot, -deviance), 2, median) %>% 
+  t() %>%
+  as.data.frame() %>%
+  select(beta_int, beta_r, beta_theta)
+
+params.player <- player.params %>% 
+  select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid)
+
+params.playergame <- params.season.all %>%
+  select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid, gameid)
+
+pred_shot <- function(dat=NA, params=NA){
+  X <- merge(dat, params)
+  X <- X %>% 
+    mutate(
+      int_eff = beta_int,
+      r_eff = log(r)*beta_r,
+      theta_eff = theta*beta_theta,
+      Y = int_eff + r_eff + theta_eff,
+      P = exp(Y)/(1+exp(Y))
+    )
+  return(X$P)
+}
+
+p.team <- pred_shot(allgameshots, params.team)
+p.player <- pred_shot(allgameshots, params.player)
+p.playergame <- pred_shot(allgameshots, params.playergame)
+
+pROC::roc(allgameshots$result, p.team, plot=TRUE)
+pROC::roc(allgameshots$result, p.player, plot=TRUE)
+pROC::roc(allgameshots$result, p.playergame, plot=TRUE)
+
+```
+
+
 ```{r onestest, eval=FALSE}
 model.ones <- function(){
   for(i in 1:N) {
@@ -966,3 +1030,4 @@ sim.mcmc.ones <- as.data.frame(as.mcmc(sim.ones)[[1]])
   #model comparisons?
   #don't forget a "future considerations" section in your conclusion or something
 ```     
+

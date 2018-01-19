@@ -4,7 +4,6 @@
 
 <!--
 If you feel it necessary to include an appendix, it goes here.
--->
 
 
 # The First Appendix
@@ -22,3 +21,51 @@ This first appendix includes all of the R chunks of code that were hidden throug
 ```
 
 # The Second Appendix, for Fun
+-->
+
+# Appendix 1: Code
+
+
+# Appendix 2: Diagnostic Plots
+
+## 2.1:
+```{r, include=FALSE}
+diagnostic_plots <- function(chain=NA, chain_name = ""){
+  
+  chain_df <- as.data.frame(chain)
+  
+  density <- ggplot(data=chain_df, aes(x=chain)) + geom_density() + 
+    labs(title=paste("Posterior Density of", chain_name),
+         x=chain_name, 
+         y="Density") + 
+    theme_bw() +
+    theme(panel.grid = element_blank()) +
+    geom_vline(xintercept=0, linetype=1, color="red") 
+
+  trace <- ggplot(data=chain_df, aes(y=chain, x=1:length(chain))) + 
+    geom_line() + 
+    labs(title=paste("Trace Plot of", chain_name),
+         x="Iteration", 
+         y=chain_name) + 
+    theme_bw() +
+    theme(panel.grid = element_blank()) +
+    geom_abline(intercept=0, slope=0, linetype=1, color="red") 
+
+  
+  lagautocorr <- ggplot(data=as.data.frame(1:50), aes(x=1:50, y=as.numeric(autocorr(as.mcmc(chain), lags = 1:50)))) + 
+    geom_col(fill="black") + 
+    labs(title=paste("Lag-t Autocorrelation of", chain_name),
+         x="t", 
+         y="Autocorrelation") + 
+    theme_bw() +
+    theme(panel.grid = element_blank()) +
+    coord_cartesian(ylim = c(-1, 1)) +
+    geom_abline(intercept=0, slope=0, linetype=1, color="red") 
+
+  gridExtra::grid.arrange(density, trace, lagautocorr, nrow=3)
+}
+
+diagnostic_plots(glm1[[2]], "heyhey")
+
+
+```
