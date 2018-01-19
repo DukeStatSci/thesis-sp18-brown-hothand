@@ -24,7 +24,7 @@ testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
 Xtrain <- allgameshots[-testrows,]
 Xtest <- allgameshots[testrows,]
 
-load_chains <- FALSE
+load_chains <- TRUE
 
 id4 <- 601140 
 id3 <- 603106 
