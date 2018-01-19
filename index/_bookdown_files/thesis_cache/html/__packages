@@ -13,3 +13,5 @@ pROC
 xml2
 reshape2
 bindrcpp
+png
+gridExtra

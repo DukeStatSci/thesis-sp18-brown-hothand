@@ -28,8 +28,11 @@ This first appendix includes all of the R chunks of code that were hidden throug
 
 # Appendix 2: Diagnostic Plots
 
-## 2.1:
-```{r, include=FALSE}
+
+## GLM:
+
+```{r, echo=FALSE}
+library(ggplot2); library(coda)
 diagnostic_plots <- function(chain=NA, chain_name = ""){
   
   chain_df <- as.data.frame(chain)
@@ -64,6 +67,8 @@ diagnostic_plots <- function(chain=NA, chain_name = ""){
 
   gridExtra::grid.arrange(density, trace, lagautocorr, nrow=3)
 }
+
+load(file="../rdatafiles/glm1.RData")
 
 diagnostic_plots(glm1[[2]], "heyhey")
 

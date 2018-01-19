@@ -111,8 +111,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="6" data-path="6-model.html"><a href="6-model.html"><i class="fa fa-check"></i><b>6</b> Models</a></li>
 <li class="chapter" data-level="7" data-path="7-disc.html"><a href="7-disc.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
 <li class="appendix"><span><b>Appendix</b></span></li>
-<li class="chapter" data-level="A" data-path="A-the-first-appendix.html"><a href="A-the-first-appendix.html"><i class="fa fa-check"></i><b>A</b> The First Appendix</a></li>
-<li class="chapter" data-level="B" data-path="B-the-second-appendix-for-fun.html"><a href="B-the-second-appendix-for-fun.html"><i class="fa fa-check"></i><b>B</b> The Second Appendix, for Fun</a></li>
+<li class="chapter" data-level="A" data-path="A-appendix-1-code.html"><a href="A-appendix-1-code.html"><i class="fa fa-check"></i><b>A</b> Appendix 1: Code</a></li>
+<li class="chapter" data-level="B" data-path="B-appendix-2-diagnostic-plots.html"><a href="B-appendix-2-diagnostic-plots.html"><i class="fa fa-check"></i><b>B</b> Appendix 2: Diagnostic Plots</a><ul>
+<li class="chapter" data-level="B.1" data-path="B-appendix-2-diagnostic-plots.html"><a href="B-appendix-2-diagnostic-plots.html#section"><i class="fa fa-check"></i><b>B.1</b> 2.1:</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -138,10 +140,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="exploratory-data-analysis" class="section level4">
 <h4><span class="header-section-number">5.0.0.1</span> Exploratory Data Analysis</h4>
 <p>The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University, and we leave the others in the Appendix. Each plot represents a single player’s ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">datafolder &lt;-<span class="st"> &quot;C:/Users/Nathaniel Brown/Documents/important things/DMBBall Data/&quot;</span>
-githubfolder &lt;-<span class="st"> &quot;C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand/&quot;</span>
-<span class="kw">source</span>(<span class="kw">paste0</span>(githubfolder,<span class="st">&quot;sportvu_fxns.R&quot;</span>))</code></pre></div>
-<pre><code>Warning: package &#39;xml2&#39; was built under R version 3.3.3</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="dt">file=</span><span class="st">&quot;../rdatafiles/allgameshots.RData&quot;</span>)
+
+id4 &lt;-<span class="st"> </span><span class="dv">601140</span> 
+id3 &lt;-<span class="st"> </span><span class="dv">603106</span> 
+id2 &lt;-<span class="st"> </span><span class="dv">842301</span> 
+id1 &lt;-<span class="st"> </span><span class="dv">887665</span> 
+playerseasons &lt;-<span class="st"> </span><span class="kw">matrix</span>(
+  <span class="kw">c</span>(id1,   <span class="dv">2016</span>,
+    id2,   <span class="dv">2015</span>,
+    id3,   <span class="dv">2014</span>,
+    id4,   <span class="dv">2015</span>
+  ),<span class="dt">ncol=</span><span class="dv">2</span>,<span class="dt">byrow =</span> <span class="ot">TRUE</span>
+)
+<span class="kw">colnames</span>(playerseasons) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;globalplayerid&quot;</span> ,<span class="st">&quot;season&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotshottime &lt;-<span class="st"> </span>function(playerid, season){
   allgameshots_sub &lt;-<span class="st"> </span>allgameshots[allgameshots$globalplayerid==playerid &amp;<span class="st"> </span>allgameshots$season==season,]
   if(<span class="kw">nrow</span>(allgameshots_sub) &lt;<span class="st"> </span><span class="dv">10</span>){

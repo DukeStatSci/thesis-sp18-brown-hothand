@@ -6,9 +6,20 @@
 The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University, and we leave the others in the Appendix. Each plot represents a single player's ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome. 
 
 ```{r, load}
-datafolder <- "C:/Users/Nathaniel Brown/Documents/important things/DMBBall Data/"
-githubfolder <- "C:/Users/Nathaniel Brown/Documents/GitHub/thesis-sp18-brown-hothand/"
-source(paste0(githubfolder,"sportvu_fxns.R"))
+load(file="../rdatafiles/allgameshots.RData")
+
+id4 <- 601140 
+id3 <- 603106 
+id2 <- 842301 
+id1 <- 887665 
+playerseasons <- matrix(
+  c(id1,   2016,
+    id2,   2015,
+    id3,   2014,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
 ```
 
 ```{r, plots}

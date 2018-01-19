@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="6-model.html">
-<link rel="next" href="A-the-first-appendix.html">
+<link rel="next" href="A-appendix-1-code.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -111,8 +111,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="6" data-path="6-model.html"><a href="6-model.html"><i class="fa fa-check"></i><b>6</b> Models</a></li>
 <li class="chapter" data-level="7" data-path="7-disc.html"><a href="7-disc.html"><i class="fa fa-check"></i><b>7</b> Discussion</a></li>
 <li class="appendix"><span><b>Appendix</b></span></li>
-<li class="chapter" data-level="A" data-path="A-the-first-appendix.html"><a href="A-the-first-appendix.html"><i class="fa fa-check"></i><b>A</b> The First Appendix</a></li>
-<li class="chapter" data-level="B" data-path="B-the-second-appendix-for-fun.html"><a href="B-the-second-appendix-for-fun.html"><i class="fa fa-check"></i><b>B</b> The Second Appendix, for Fun</a></li>
+<li class="chapter" data-level="A" data-path="A-appendix-1-code.html"><a href="A-appendix-1-code.html"><i class="fa fa-check"></i><b>A</b> Appendix 1: Code</a></li>
+<li class="chapter" data-level="B" data-path="B-appendix-2-diagnostic-plots.html"><a href="B-appendix-2-diagnostic-plots.html"><i class="fa fa-check"></i><b>B</b> Appendix 2: Diagnostic Plots</a><ul>
+<li class="chapter" data-level="B.1" data-path="B-appendix-2-diagnostic-plots.html"><a href="B-appendix-2-diagnostic-plots.html#section"><i class="fa fa-check"></i><b>B.1</b> 2.1:</a></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
@@ -143,6 +145,31 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 If you feel it necessary to include an appendix, it goes here.
+
+
+# The First Appendix
+
+This first appendix includes all of the R chunks of code that were hidden throughout the document (using the `include = FALSE` chunk tag) to help with readibility and/or setup.
+
+**In the main Rmd file**
+
+
+```r
+# This chunk ensures that the thesisdowndss package is
+# installed and loaded. This thesisdowndss package includes
+# the template files for the thesis.
+if(!require(devtools))
+  install.packages("devtools", repos = "http://cran.rstudio.com")
+if(!require(thesisdowndss))
+  devtools::install_github("mine-cetinkaya-rundel/thesisdowndss")
+library(thesisdowndss)
+```
+
+**In Chapter \@ref(ref-labels):**
+
+
+
+# The Second Appendix, for Fun
 -->
 </div>
             </section>
@@ -151,7 +178,7 @@ If you feel it necessary to include an appendix, it goes here.
         </div>
       </div>
 <a href="6-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="A-the-first-appendix.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="A-appendix-1-code.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

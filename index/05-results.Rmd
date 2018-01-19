@@ -12,7 +12,9 @@
   # get rid of DGLM mensions in the rest of the paper.
   # you have a lot of mixtures/autocorrelations/chains to check...
 
-knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+set.seed(493)
+
+knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
 library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra)
 
@@ -22,7 +24,7 @@ testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
 Xtrain <- allgameshots[-testrows,]
 Xtest <- allgameshots[testrows,]
 
-load_chains <- TRUE
+load_chains <- FALSE
 
 id4 <- 601140 
 id3 <- 603106 
@@ -169,8 +171,6 @@ if(!load_chains){
   
 }
 
-
-
 plot_params(glm1)
 plot_params(glm2)
 plot_params(glm3)
@@ -284,7 +284,7 @@ if(!load_chains){
   load("../rdatafiles/playerparams.RData")
 }
 
-fourparams <- merge(playerseasons, params.player ,all=FALSE) %>% select(globalplayerid, int, r, theta)
+fourparams <- merge(playerseasons, player.params ,all=FALSE) %>% select(globalplayerid, int, r, theta)
 
 mainlab <- "Posterior Density with Four Players"
 
@@ -390,7 +390,7 @@ plot_contours <- function(probsxy = NA, main=""){
   all_xn <- seq(min(all_x), max(all_x), length=nrow(probsxy_melt))
   
   #img.path <- "/home/grad/neb20/hothand/index/figure/Basketball-Court-Dimensions2.png"
-  img.path <- "/home/grad/neb20/hothand/index/figure/ncaa_bball_court2.png"
+  img.path <- "./figure/ncaa_bball_court2.png"
   img <- readPNG(img.path)
 
 a <- 0.7
@@ -935,7 +935,7 @@ plot_time_effect <- function(params.season = NA, id = NA, parameter = NA, only_f
     guides(linetype=FALSE) + 
     geom_line() +   
     theme_bw() +
-    labs(title=paste("Changes in Estimate for", param_map[[parameter]], "Parameter Over Time"), y="Estimate", x="Game Number") + 
+    labs(title=paste("Changes in Estimate for", param_map[[parameter]], "Parameter Over Time"), y="Estimate", x="Game") + 
     theme(panel.grid = element_blank())
   
 }
@@ -957,6 +957,8 @@ plot_time_effect(params.season.all, id=id2, parameter="int")
 # posterior median --> minimize abs err
 
 #formats the data to return three parameters for every combination of globalplayerid and gameid
+
+load(file="../rdatafiles/glmtot.RData")
 params.team <- apply(select(glmtot, -deviance), 2, median) %>% 
   t() %>%
   as.data.frame() %>%
@@ -981,13 +983,35 @@ pred_shot <- function(dat=NA, params=NA){
   return(X$P)
 }
 
+conf_mat <- function(actual = NA, pred = NA, cutoff = 0.5){
+  
+  ret1 <- array(NA, c(2,2))
+  rownames(ret1) <- c("predicted miss", "predicted make")
+  colnames(ret1) <- c("actual miss", "actual make")
+  pred01 <- ifelse(pred < cutoff, 0, 1)
+  
+  ret1[1,1] <- sum(actual==0 & pred01==0)
+  ret1[1,2] <- sum(actual==1 & pred01==0)
+  ret1[2,1] <- sum(actual==0 & pred01==1)
+  ret1[2,2] <- sum(actual==1 & pred01==1)
+  
+  ret2 <- (ret1[1,1]+ret1[2,2])/length(actual)
+  
+  return(list(ret1, ret2))
+}
+
 p.team <- pred_shot(allgameshots, params.team)
 p.player <- pred_shot(allgameshots, params.player)
 p.playergame <- pred_shot(allgameshots, params.playergame)
 
-pROC::roc(allgameshots$result, p.team, plot=TRUE)
-pROC::roc(allgameshots$result, p.player, plot=TRUE)
-pROC::roc(allgameshots$result, p.playergame, plot=TRUE)
+
+conf_mat(allgameshots$result, p.team)
+
+# pROC::roc(allgameshots$result, p.team, plot=TRUE)
+# pROC::roc(allgameshots$result, p.player, plot=TRUE)
+# pROC::roc(allgameshots$result, p.playergame, plot=TRUE)
+
+
 
 ```
 
