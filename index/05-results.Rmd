@@ -12,11 +12,13 @@
   # get rid of DGLM mensions in the rest of the paper.
   # you have a lot of mixtures/autocorrelations/chains to check...
 
-set.seed(493)
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
 library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra)
+
+set.seed(493)
+load_chains <- FALSE
 
 load(file="../rdatafiles/allgameshots.RData")
 N <- nrow(allgameshots)
@@ -24,7 +26,6 @@ testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
 Xtrain <- allgameshots[-testrows,]
 Xtest <- allgameshots[testrows,]
 
-load_chains <- TRUE
 
 id4 <- 601140 
 id3 <- 603106 
@@ -853,23 +854,6 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
   G <- n_distinct(dat$gameid)
   M <- n_distinct(dat$globalplayerid)
 
-  # params.season <- data.frame(
-  #   factorid = rep(1:M, times=G),
-  #   globalplayerid = NA
-  # )
-  # 
-  # for(g in 1:G){
-  #   game.mcmc <- fit_game(dat, g)
-  #   params.game <- get_player_params(dat, game.mcmc) %>% filter(!is.na(factorid))
-  #   if(g==1){
-  #     params.season <- data.frame(matrix(nrow = M*G, ncol = ncol(params.game)+1))
-  #     colnames(params.season) <- c(colnames(params.game),"g")
-  #     params.season$g <- rep(1:G, each=M)
-  #   }
-  #   params.season[(M*(g-1) + 1):(M*g), 1:ncol(params.game)] <- params.game
-  # }
-  
-
   gamemap <- data.frame(
     gameid   = dat$gameid,
     factorid = as.integer(as.factor(dat$gameid))
@@ -921,14 +905,26 @@ plot_time_effect <- function(params.season = NA, id = NA, parameter = NA, only_f
     params.season <- params.season %>% filter(nshots > 0)
   }
   
-  plotdat <- params.season %>% 
-    filter(globalplayerid == id) %>% 
-    select(g, 
-           lo  = paste0(parameter,"025"),
-           mid = paste0(parameter,"50"),
-           hi  = paste0(parameter,"975")) %>%
-    melt(id = "g") %>%
-    select(g, type = variable, y = value)
+  if(id == 0){
+    plotdat <- params.season %>% 
+      #filter(globalplayerid == id) %>% 
+      select(g, 
+             lo  = paste0(parameter,"025"),
+             mid = paste0(parameter,"50"),
+             hi  = paste0(parameter,"975")) %>%
+      melt(id = "g") %>%
+      select(g, type = variable, y = value)
+    
+  }else{
+    plotdat <- params.season %>% 
+      filter(globalplayerid == id) %>% 
+      select(g, 
+             lo  = paste0(parameter,"025"),
+             mid = paste0(parameter,"50"),
+             hi  = paste0(parameter,"975")) %>%
+      melt(id = "g") %>%
+      select(g, type = variable, y = value)
+  }
   
   ggplot(data = plotdat, 
          aes(x=g, y=y, z=type, linetype=(type!="mid"))) + 
@@ -946,7 +942,12 @@ plot_time_effect <- function(params.season = NA, id = NA, parameter = NA, only_f
     # the above plot shows the player struggling around game 13ish and 21 (the last one)
     # link g to gameids
     # use box scores and see if the player above struggles shooting from distance in the 13th-ish and 21st games.
-plot_time_effect(params.season.all, id=id2, parameter="int")
+g1 <- plot_time_effect(params.season.all, id=id1, parameter="int")
+g2 <- plot_time_effect(params.season.all, id=id2, parameter="int")
+g3 <- plot_time_effect(params.season.all, id=id3, parameter="int")
+g4 <- plot_time_effect(params.season.all, id=id4, parameter="int")
+g5 <- plot_time_effect(params.season.all, id=0, parameter="int")
+gridExtra::grid.arrange(g1,g2,g3,g4, nrow=2)
 ```
 
 
@@ -959,16 +960,16 @@ plot_time_effect(params.season.all, id=id2, parameter="int")
 #formats the data to return three parameters for every combination of globalplayerid and gameid
 
 load(file="../rdatafiles/glmtot.RData")
-params.team <- apply(select(glmtot, -deviance), 2, median) %>% 
+params.team <- apply(select(glmtot, -deviance), 2, mean) %>% 
   t() %>%
   as.data.frame() %>%
   select(beta_int, beta_r, beta_theta)
 
 params.player <- player.params %>% 
-  select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid)
+  select(beta_int=int, beta_r=r, beta_theta=theta, globalplayerid)
 
 params.playergame <- params.season.all %>%
-  select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid, gameid)
+  select(beta_int=int, beta_r=r, beta_theta=theta, globalplayerid, gameid)
 
 pred_shot <- function(dat=NA, params=NA){
   X <- merge(dat, params)
@@ -1000,12 +1001,14 @@ conf_mat <- function(actual = NA, pred = NA, cutoff = 0.5){
   return(list(ret1, ret2))
 }
 
-p.team <- pred_shot(allgameshots, params.team)
-p.player <- pred_shot(allgameshots, params.player)
-p.playergame <- pred_shot(allgameshots, params.playergame)
+p.team <- pred_shot(Xtest, params.team)
+p.player <- pred_shot(Xtest, params.player)
+p.playergame <- pred_shot(Xtest, params.playergame)
 
 
-conf_mat(allgameshots$result, p.team)
+conf_mat(Xtest$result, p.team)
+conf_mat(Xtest$result, p.player)
+conf_mat(Xtest$result, p.playergame)
 
 # pROC::roc(allgameshots$result, p.team, plot=TRUE)
 # pROC::roc(allgameshots$result, p.player, plot=TRUE)
