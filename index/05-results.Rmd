@@ -396,7 +396,7 @@ plot_contours <- function(probsxy = NA, main=""){
 a <- 0.7
 contplot <- ggplot(probsxy_melt, aes(x = x, y = y, z = value)) +
   annotation_custom(rasterGrob(img,
-                               x=0.5,y=0.50,
+                               x=0.50, y=0.50,
                                width = .92, height = .92),
                     -Inf, Inf, -Inf, Inf) + 
   geom_tile(aes(fill = value), alpha=a) + # the color gradient
@@ -404,27 +404,13 @@ contplot <- ggplot(probsxy_melt, aes(x = x, y = y, z = value)) +
   scale_fill_gradient2(low = rgb(1,1,1), # white
                        mid = rgb(1,1,0), # yellow 
                        high= rgb(1,0,0), # red 
-                       midpoint=0.4) +
+                       midpoint=0.45) +
   labs(title = main, y="", x="") +
   guides(fill = guide_colorbar(title = "Probability")) + # the legend
-  # geom_line(aes(x=all_xn, y=sqrt(19.75^2 - all_xn^2))) + 
-  # geom_line(aes(x=all_xn, y=94/2)) + 
   theme_bw() + 
-  theme(panel.grid = element_blank(), panel.border=element_blank())
-
+  theme(panel.grid = element_blank(), panel.border = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
 
   contplot
-  
-  # library(png); library(gridExtra); library(grid)
-  # grid.draw(grid.raster(img))#+ contplot
-  
-# r_three <- 20.75
-#   topofkey <- 19.75
-#   lane <- 0
-#   r_rim <- 1.5/2
-#   x3 <- seq(-r_three, r_three, 0.1)
-#   y3 <- sqrt(r_three^2 - x3^2)
-#   lines(x3, y3)
 }
 
 if(!load_chains){
