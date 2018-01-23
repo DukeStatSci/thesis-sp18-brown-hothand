@@ -109,14 +109,14 @@ fit_glm <- function(dat, S = 10000, B = 500){
   
   params.glm <- c("beta_int","beta_r", "beta_theta")
 
-  inits.all <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0#,
+  initslist <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0#,
                          #"beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
                          #"tau_int"=1, "tau_r"=1, "tau_theta"=1
                          ))
                     
   sim <- jags(data = datlist.glm, 
               n.iter = S, n.chains = 1, n.burnin = B,
-              inits=inits.all,
+              inits=initslist,
               parameters.to.save = params.glm,
               model.file=model.glm
   )
@@ -241,14 +241,14 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
                 )
   params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0", "tau_int", "tau_r", "tau_theta")
 
-  inits.all <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
+  initslist <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
                          "beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
                          "tau_int"=1, "tau_r"=1, "tau_theta"=1
                          ))
 
   sim.player <- jags(data = datlist.player, 
               n.iter = S, n.chains = 1, n.burnin = B,
-              inits=inits.all,
+              inits=initslist,
               parameters.to.save = params,
               model.file=model.player
   )
@@ -753,7 +753,7 @@ tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 # this assumes that the i = 1:N observations are indexed by individual shots, and there is therefore a need to identify the index of the game for shot i as well - so as to enable the correct discount factor delta[i] below
 
   del <- 0.975 # global discount factor; to be ``tuned later on''
-  t <- 40      # current anchor game; must rerun separately for each anchor game t,
+#  t <- 40      # current anchor game; must rerun separately for each anchor game t,
                # and save MCMC output summaries for each
 
 fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 500){
@@ -818,14 +818,14 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 
   #same params as player model (may need to change)
   params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0", "tau_int", "tau_r", "tau_theta")
 
-  inits.all <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
+  initslist <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
                          "beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
                          "tau_int"=1, "tau_r"=1, "tau_theta"=1
                          ))
 
   sim.game <- jags(data = datlist.game, 
               n.iter = S, n.chains = 1, n.burnin = B,
-              inits = inits.all,
+              inits = initslist,
               parameters.to.save = params,
               model.file=model.game
   )
@@ -860,8 +860,6 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
     factorid = as.integer(as.factor(dat$gameid))
   ) %>% unique()
   
-  
-
   for(g in 1:G){
     params.game <- get_player_params(dat, sim.mcmc.list[[g]]) %>% filter(!is.na(factorid))
     if(g==1){
@@ -883,16 +881,28 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
 
 if(!load_chains){
   
-  game.mcmc.list.all <- fit_games(Xtrain, 0.975, 10000, 500)
-  params.season.all <- get_season_params(Xtrain, game.mcmc.list.all)
+  game.mcmc.list.950 <- fit_games(Xtrain, 0.950, 10000, 500)
+  params.season.950  <- get_season_params(Xtrain, game.mcmc.list.950)
+  game.mcmc.list.975 <- fit_games(Xtrain, 0.975, 10000, 500)
+  params.season.975  <- get_season_params(Xtrain, game.mcmc.list.975)
+  game.mcmc.list.999 <- fit_games(Xtrain, 0.999, 10000, 500)
+  params.season.999  <- get_season_params(Xtrain, game.mcmc.list.999)
 
-  save(game.mcmc.list.all, file="../rdatafiles/gamemcmclist.RData")
-  save(params.season.all, file="../rdatafiles/paramsseason.RData")
+  save(game.mcmc.list.950, file="../rdatafiles/gamemcmclist950.RData")
+  save(params.season.950,  file="../rdatafiles/paramsseason950.RData")
+  save(game.mcmc.list.975, file="../rdatafiles/gamemcmclist975.RData")
+  save(params.season.975,  file="../rdatafiles/paramsseason975.RData")
+  save(game.mcmc.list.999, file="../rdatafiles/gamemcmclist999.RData")
+  save(params.season.999,  file="../rdatafiles/paramsseason999.RData")
   
 }else{
   
-  load(file="../rdatafiles/gamemcmclist.RData")
-  load(file="../rdatafiles/paramsseason.RData")
+  load(file="../rdatafiles/gamemcmclist950.RData")
+  load(file="../rdatafiles/paramsseason950.RData")
+  load(file="../rdatafiles/gamemcmclist975.RData")
+  load(file="../rdatafiles/paramsseason975.RData")
+  load(file="../rdatafiles/gamemcmclist999.RData")
+  load(file="../rdatafiles/paramsseason999.RData")
   
 }
 
@@ -944,11 +954,12 @@ plot_time_effect <- function(params.season = NA, id = NA, parameter = NA, only_f
     # the above plot shows the player struggling around game 13ish and 21 (the last one)
     # link g to gameids
     # use box scores and see if the player above struggles shooting from distance in the 13th-ish and 21st games.
-g1 <- plot_time_effect(params.season.all, id=id1, parameter="int")
-g2 <- plot_time_effect(params.season.all, id=id2, parameter="int")
-g3 <- plot_time_effect(params.season.all, id=id3, parameter="int")
-g4 <- plot_time_effect(params.season.all, id=id4, parameter="int")
-g5 <- plot_time_effect(params.season.all, id=0, parameter="int")
+params.season <- params.season.950
+g1 <- plot_time_effect(params.season, id=id1, parameter="int")
+g2 <- plot_time_effect(params.season, id=id2, parameter="int")
+g3 <- plot_time_effect(params.season, id=id3, parameter="int")
+g4 <- plot_time_effect(params.season, id=id4, parameter="int")
+g5 <- plot_time_effect(params.season, id=0, parameter="int")
 gridExtra::grid.arrange(g1,g2,g3,g4, nrow=2)
 ```
 
@@ -972,7 +983,7 @@ params1 <- apply(select(glmtot, -deviance), 2, mean) %>%
 params2 <- player.params %>% 
   select(beta_int=int, beta_r=r, beta_theta=theta, globalplayerid)
 
-params3 <- params.season.all %>%
+params3 <- params.season %>%
   select(beta_int=int, beta_r=r, beta_theta=theta, globalplayerid, gameid)
 
 # medians
@@ -984,7 +995,7 @@ params1 <- apply(select(glmtot, -deviance), 2, median) %>%
 params2 <- player.params %>% 
   select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid)
 
-params3 <- params.season.all %>%
+params3 <- params.season %>%
   select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid, gameid)
 
 # parameter estimates for each combination of gameid and playerid...even if player did not play in that game.
