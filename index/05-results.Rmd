@@ -20,11 +20,11 @@ library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(kni
 set.seed(493)
 load_chains <- FALSE
 
-load(file="../rdatafiles/allgameshots.RData")
-N <- nrow(allgameshots)
+load(file="../rdatafiles/Xtot.RData")
+N <- nrow(Xtot)
 testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
-Xtrain <- allgameshots[-testrows,]
-Xtest <- allgameshots[testrows,]
+Xtrain <- Xtot[-testrows,]
+Xtest <- Xtot[testrows,]
 
 
 id4 <- 601140 
@@ -41,8 +41,8 @@ playerseasons <- matrix(
 colnames(playerseasons) <- c("globalplayerid" ,"season")
 
 playermap <- data.frame(
-  factorid = as.integer(as.factor(allgameshots$globalplayerid)),
-  globalplayerid = allgameshots$globalplayerid
+  factorid = as.integer(as.factor(Xtot$globalplayerid)),
+  globalplayerid = Xtot$globalplayerid
 ) %>% unique()
 rownames(playermap) <- NULL
 
@@ -109,9 +109,14 @@ fit_glm <- function(dat, S = 10000, B = 500){
   
   params.glm <- c("beta_int","beta_r", "beta_theta")
 
+  inits.all <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0#,
+                         #"beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
+                         #"tau_int"=1, "tau_r"=1, "tau_theta"=1
+                         ))
+                    
   sim <- jags(data = datlist.glm, 
               n.iter = S, n.chains = 1, n.burnin = B,
-              #inits=list(list(p = rep(0.5, nrow(P0)))),
+              inits=inits.all,
               parameters.to.save = params.glm,
               model.file=model.glm
   )
@@ -236,10 +241,14 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
                 )
   params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0", "tau_int", "tau_r", "tau_theta")
 
+  inits.all <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
+                         "beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
+                         "tau_int"=1, "tau_r"=1, "tau_theta"=1
+                         ))
 
   sim.player <- jags(data = datlist.player, 
               n.iter = S, n.chains = 1, n.burnin = B,
-              #inits=list(list(p = rep(0.5, nrow(P0)))),
+              inits=inits.all,
               parameters.to.save = params,
               model.file=model.player
   )
@@ -809,8 +818,14 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 
   #same params as player model (may need to change)
   params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0", "tau_int", "tau_r", "tau_theta")
 
+  inits.all <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
+                         "beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
+                         "tau_int"=1, "tau_r"=1, "tau_theta"=1
+                         ))
+
   sim.game <- jags(data = datlist.game, 
               n.iter = S, n.chains = 1, n.burnin = B,
+              inits = inits.all,
               parameters.to.save = params,
               model.file=model.game
   )
@@ -873,6 +888,7 @@ if(!load_chains){
 
   save(game.mcmc.list.all, file="../rdatafiles/gamemcmclist.RData")
   save(params.season.all, file="../rdatafiles/paramsseason.RData")
+  
 }else{
   
   load(file="../rdatafiles/gamemcmclist.RData")
@@ -946,28 +962,42 @@ gridExtra::grid.arrange(g1,g2,g3,g4, nrow=2)
 #formats the data to return three parameters for every combination of globalplayerid and gameid
 
 load(file="../rdatafiles/glmtot.RData")
-params.team <- apply(select(glmtot, -deviance), 2, mean) %>% 
+
+# means
+params1 <- apply(select(glmtot, -deviance), 2, mean) %>% 
   t() %>%
   as.data.frame() %>%
   select(beta_int, beta_r, beta_theta)
 
-params.player <- player.params %>% 
+params2 <- player.params %>% 
   select(beta_int=int, beta_r=r, beta_theta=theta, globalplayerid)
 
-params.playergame <- params.season.all %>%
+params3 <- params.season.all %>%
   select(beta_int=int, beta_r=r, beta_theta=theta, globalplayerid, gameid)
 
+# medians
+params1 <- apply(select(glmtot, -deviance), 2, median) %>% 
+  t() %>%
+  as.data.frame() %>%
+  select(beta_int, beta_r, beta_theta)
+
+params2 <- player.params %>% 
+  select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid)
+
+params3 <- params.season.all %>%
+  select(beta_int=int50, beta_r=r50, beta_theta=theta50, globalplayerid, gameid)
+
+# parameter estimates for each combination of gameid and playerid...even if player did not play in that game.
+
 pred_shot <- function(dat=NA, params=NA){
-  X <- merge(dat, params)
-  X <- X %>% 
+  
+  DAT <- merge(dat, params) %>% 
     mutate(
-      int_eff = beta_int,
-      r_eff = log(r)*beta_r,
-      theta_eff = theta*beta_theta,
-      Y = int_eff + r_eff + theta_eff,
+      Y = beta_int + log(r)*beta_r + theta*beta_theta,
       P = exp(Y)/(1+exp(Y))
-    )
-  return(X$P)
+    ) %>% arrange(time)
+  
+  return(DAT$P)
 }
 
 conf_mat <- function(actual = NA, pred = NA, cutoff = 0.5){
@@ -987,19 +1017,42 @@ conf_mat <- function(actual = NA, pred = NA, cutoff = 0.5){
   return(list(ret1, ret2))
 }
 
-p.team <- pred_shot(Xtest, params.team)
-p.player <- pred_shot(Xtest, params.player)
-p.playergame <- pred_shot(Xtest, params.playergame)
+p.team <- pred_shot(Xtest, params1)
+p.player <- pred_shot(Xtest, params2)
+p.playergame <- pred_shot(Xtest, params3)
 
 
 conf_mat(Xtest$result, p.team)
 conf_mat(Xtest$result, p.player)
 conf_mat(Xtest$result, p.playergame)
 
-# pROC::roc(allgameshots$result, p.team, plot=TRUE)
-# pROC::roc(allgameshots$result, p.player, plot=TRUE)
-# pROC::roc(allgameshots$result, p.playergame, plot=TRUE)
+# pROC::roc(Xtot$result, p.team, plot=TRUE)
+# pROC::roc(Xtot$result, p.player, plot=TRUE)
+# pROC::roc(Xtot$result, p.playergame, plot=TRUE)
 
+
+#investigative work on poor predictions. I think it is be because of the order of the shots after the merge
+
+X <- merge(Xtest, params1) %>% 
+  merge(params2, by=c("globalplayerid"), suffix=c("","2")) %>% 
+  merge(params3, by=c("globalplayerid", "gameid"), suffix=c("","3")) %>%
+  rename(beta_int1 = beta_int, beta_r1 = beta_r, beta_theta1 = beta_theta) %>%
+  mutate(
+    Y1 = beta_int1 + log(r)*beta_r1 + theta*beta_theta1,
+    Y2 = beta_int2 + log(r)*beta_r2 + theta*beta_theta2,
+    Y3 = beta_int3 + log(r)*beta_r3 + theta*beta_theta3,
+    P1 = exp(Y1)/(1+exp(Y1)),
+    P2 = exp(Y2)/(1+exp(Y2)),
+    P3 = exp(Y3)/(1+exp(Y3)),
+    Y = result
+  ) %>% 
+  arrange(time)
+  
+par(mfrow=c(3,1))
+hist(X$P1, breaks=30) #why is the distribution of probabilities so wierd?
+hist(X$P2, breaks=30)
+hist(X$P3, breaks=30)
+par(mfrow=c(1,1))
 
 
 ```
