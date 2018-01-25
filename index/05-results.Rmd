@@ -4,13 +4,15 @@
 ```{r, init, include=FALSE}
 
 # TODO:
-  # PREDICT PREDICT PREDICT
-  # specify the reasoning behind your priors and tuning parameters
   # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
-    # visualization idea: non-circular contour plot.
-    # fix court lines to your ggplot contours!!!
-  # get rid of DGLM mensions in the rest of the paper.
-  # you have a lot of mixtures/autocorrelations/chains to check...
+  # get rid of DGLM mentions in the rest of the paper.
+  # put diagnostic plots in the Appendix
+  # intercept variation between games = hotness/consistency?
+  # check for best delta!!! cross-validation!
+    # predict shot outcomes using different deltas on the same train-test subsets!
+    # repeat on different hold-out samples of course.
+  # model comparisons?
+  # don't forget a "future considerations" section in your conclusion or something
 
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
@@ -48,7 +50,9 @@ rownames(playermap) <- NULL
 
 ```
 
-For our models, we consider the shot location, the shooter identity, and shooting outcomes in previous games as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or $r$ and $\theta$. Diagnostic plots for these models can be found in Appendix 1.
+For our models, we consider the shot location, the shooter identity, and shooting outcomes in previous games as factors that can affect a shot outcome. We use Gibbs sampling in JAGS to calculate the posterior distribution of the shot location parameters (distance and angle). We build models to control for shooter identity and game identity using mixed effects and discounted likelihood, in order to see how consistent the parameters are between games for each shooter. In our sampling method, we set priors using the Maximum Likelihood Estimates for the first four games in the dataset, and we initialize our chains using values of 0 for all means, and 1 for all variances.
+
+Diagnostic plots for these models can be found in Appendix 1.
 
 <!--
 ```{r}
@@ -185,7 +189,7 @@ plot_params(glmtot)
 
 ```
 
-The five plots above show the posteriors of the generalized linear model parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section, and the parameters for the entire team over all seasons. From these plots, we see that the effect of the angle contains zero, and it is probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot decreases as distance from the basket increases. 
+The five plots above show the posteriors of the generalized linear model parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section, and the parameters for the entire team over all seasons. From these plots, we see that the effect of the angle contains zero, and it is therefore probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot significantly decreases as distance from the basket increases. 
 
 
 #### Player-by-Player Hierarchical Model
@@ -234,14 +238,15 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
                 int = rep(1, nrow(dat)), 
                 M = n_distinct(dat$globalplayerid),
                 mu0r = mu0r,
-                mu0theta = mu0theta,
-                tau0r = tau0r,
-                tau0theta = tau0theta
+                mu0theta = mu0theta#,
+                # tau0r = tau0r,
+                # tau0theta = tau0theta
 
                 )
   params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0", "tau_int", "tau_r", "tau_theta")
 
-  initslist <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
+  M <- n_distinct(dat$globalplayerid)
+  initslist <- list(list("beta_int"=rep(0,M), "beta_r"=rep(0,M), "beta_theta"=rep(0,M),
                          "beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
                          "tau_int"=1, "tau_r"=1, "tau_theta"=1
                          ))
@@ -330,10 +335,9 @@ ggplot(data = player.mcmc, aes(x=beta_theta0)) +
 ```
 
 
-The hierarchical model shows us that our four high-usage players of interest do not appear to be randomly spread across the population of players. The intercept plot shows that all four are in or close to the top half of values, and the radius plot shows the opposite with the four players trending towards lower parameter values. The high intercepts make intuitive sense, because the players who take a lot of shots are most more capable of making them under baseline conditions than their teammates are. However, the observation that these players would have a more drastic drop in field goal percentage than an average Duke player as they move farther from the basket is surprising.
+The hierarchical model shows us that our four high-usage players of interest do not appear to be randomly spread across the population of players. The intercept plot shows that all four are in or close to the top half of values, and the radius plot shows the opposite with the four players trending towards lower parameter values. The high intercepts make intuitive sense, because the players who take a lot of shots are generally more capable of making them under baseline conditions than their teammates are. However, the observation that these players would have a more drastic drop in field goal percentage than an average Duke player as they move farther from the basket is surprising.
 
-#### finish this section!
-In the plots, below, we have contour plots showing players' expected field goal percentages at different locations on the court.
+In the plots below, we have contour plots showing players' expected field goal percentages at different locations on the court. Between our four players of interest, we can observe how player *1* is more effective on the ____ side of the basket than the others, and how player ____ is the ___ long-range shooter.
 
 ```{r contours}
 
@@ -454,6 +458,7 @@ plot_contours(avgtot, "Team Effect")
 
 ```
 
+<!--
 #### Dynamic Generalized Linear Model
 ```{r, dglm, cache=TRUE, eval=FALSE}
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
@@ -721,25 +726,10 @@ plot_posteriors(dglm4[[4]])
 
 The amount of volatility that we see in the posterior distribution of the parameters with a discount factor of $\delta$ = 0.99 suggests that there is time dependency in the data. However, the state means of the dynamic parameters appear to be unstable. Therefore, we must apply a better-fitting time series model before concluding that the parameters have time dependencies.
 
+-->
+
 #### Game-by-Game Hierarchical Model
 ```{r hier2}
-# TODO:
-  # simplify time variation
-  # player level variation game-to-game (not shot-to-shot! there's not enough data!)
-    # this is a hierarchical model with one more level of hierarchy
-    # weighted least squares? discount factors?
-      # pick an anchor game in the middle
-      # as you go out farther from the anchor t, delta(g) = an additional power
-      # do this for all possible anchor points t
-      # each new anchor game is a new mcmc!
-      # look up weighted liklihood in jags AND rstan 
-        # (talk to Merlise and Alex if that doesn't work)
-  # understand the concept of weighted observations
-  # I understand that at time t we get G different game posteriors
-  
-  # but how do we combine g|t and g|(t-1) and g|1 etc. to get one g posterior?
-
-  # one player (j), one game (t) --> one MCMC chain (S)
 
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
@@ -747,14 +737,6 @@ mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
 tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 
-
-# A start on new code for the model function:    
-
-# this assumes that the i = 1:N observations are indexed by individual shots, and there is therefore a need to identify the index of the game for shot i as well - so as to enable the correct discount factor delta[i] below
-
-  del <- 0.975 # global discount factor; to be ``tuned later on''
-#  t <- 40      # current anchor game; must rerun separately for each anchor game t,
-               # and save MCMC output summaries for each
 
 fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 500){
 
@@ -776,7 +758,6 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 
       #result[i] ~ dbern(prob[i])
       #y[i] <- 1 # "ones trick" dummy outcomes THIS LINE CAUSES PROBLEMS
       y[i] ~ dbern(p[i]) # defines correct discounted likelihood function
-      # TODO: understand what the ones trick means...
     }
     
     #same priors as player model.
@@ -807,8 +788,8 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 
     M = n_distinct(dat$globalplayerid),
     mu0r = mu0r,
     mu0theta = mu0theta,
-    tau0r = tau0r,
-    tau0theta = tau0theta,
+    # tau0r = tau0r,
+    # tau0theta = tau0theta,
     del = discount_wt,
     games = as.integer(as.factor(dat$gameid)),
     g0 = anchor,
@@ -818,7 +799,8 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 
   #same params as player model (may need to change)
   params <- c("beta_int","beta_r", "beta_theta","beta_int0","beta_r0", "beta_theta0", "tau_int", "tau_r", "tau_theta")
 
-  initslist <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0,
+  M <- n_distinct(dat$globalplayerid)
+  initslist <- list(list("beta_int"=rep(0,M), "beta_r"=rep(0,M), "beta_theta"=rep(0,M),
                          "beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
                          "tau_int"=1, "tau_r"=1, "tau_theta"=1
                          ))
@@ -842,7 +824,7 @@ fit_games <- function(dat = NA, discount_wt = 0.975, S = 10000, B = 500){
   game.mcmc.list <- as.list(rep(NA, G))
 
   for(g in 1:G){
-    print(g)
+    print(paste(discount_wt, g, sep=" : "))
     game.mcmc <- fit_game(dat, g, discount_wt, S, B)
     game.mcmc.list[[g]] <- game.mcmc
   }
@@ -950,10 +932,7 @@ plot_time_effect <- function(params.season = NA, id = NA, parameter = NA, only_f
 # params.season %>% filter(globalplayerid == 603106) %>% '[['("r50") %>% plot(type="l")
 # params.season %>% filter(globalplayerid == 603106) %>% '[['("r025") %>% lines(lty=2)
 # params.season %>% filter(globalplayerid == 603106) %>% '[['("r975") %>% lines(lty=2)
-# TODO: Check the realisticness of the model 
-    # the above plot shows the player struggling around game 13ish and 21 (the last one)
-    # link g to gameids
-    # use box scores and see if the player above struggles shooting from distance in the 13th-ish and 21st games.
+
 params.season <- params.season.950
 g1 <- plot_time_effect(params.season, id=id1, parameter="int")
 g2 <- plot_time_effect(params.season, id=id2, parameter="int")
@@ -1097,14 +1076,5 @@ sim.ones <- jags(data = c("constant","N","outcome", "outcome.ones"),
 )
 sim.mcmc.ones <- as.data.frame(as.mcmc(sim.ones)[[1]])
 
-# TODO:
-  #visualize those confidence intervals for each of player j's games throughout career
-  #each player j will have three time plots to draw how posteriors change over time.
-  #intercept variation = hotness/consistency?
-  #check for best delta!!! cross-validation!
-    # predict shot outcomes using different deltas on the same train-test subsets!
-    # repeat on different hold-out samples of course.
-  #model comparisons?
-  #don't forget a "future considerations" section in your conclusion or something
 ```     
 

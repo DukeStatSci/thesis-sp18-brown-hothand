@@ -4,7 +4,7 @@ The proposed study is an investigation of Bayesian statistical models and analys
 
 \par
 
-The models we use to investigate this data are a Generalized Linear Model, a Dynamic Generalized Linear Model, and a Bayesian Hierarchichal Model.
+The models we use to investigate this data are a Bayesian logistic generalized linear model, a hierarchical model, and a discounted likelihood model
 
 <!-- hidden Markov Model? -->
 
