@@ -25,7 +25,7 @@ rm(list=ls())
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
-library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra)
+library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra); library(stringr)
 
 set.seed(493)
 load_chains <- TRUE
@@ -1004,29 +1004,36 @@ load(file="../rdatafiles/glmtot.RData")
 
 # MCMC Averages
 Xpred <- Xtest
-Xmat <- as.matrix(
-          cbind(1, 
-            select(
-              mutate(Xpred, logr = log(r)
-              ),
-            logr, 
-            theta,
-            globalplayerid,
-            gameid,
-            time)
-          )
-        )
+Xmat <- Xpred %>% 
+  mutate(logr = log(r)) %>%
+  select(logr, theta, globalplayerid, gameid, time) %>% 
+  cbind(1,.) %>%
+  merge(playermap) %>% 
+  select(-globalplayerid) %>% 
+  arrange(time) %>%
+  as.matrix()
 
 # we want S predictions per shot. an N x S matrix. then we take MCMC average.
-
+params.glm <- t(select(glmtot, -deviance))
 pred.glm <- Xmat[,1:3] %>%
-  '%*%'(t(select(glmtot, -deviance))) %>%
+  '%*%'(params.glm) %>%
   arm::invlogit() %>%
   apply(., 1, median)
 
 #TODO: oh man, factoring in player id and game id is not going to be easy...
-pred.me <- Xmat %>% merge(playermap) %>% arrange(time)
-# order the playerparams by personid....then gameid
+
+params.me <- player.mcmc %>% 
+  mutate("s" = 1:nrow(player.mcmc)) %>%
+  select(which(grepl("[", names(.), fixed=TRUE) | colnames(.) == "s")) %>%
+  melt(id = "s") %>% 
+  mutate(factorid = str_extract(variable, "[[:digit:]]+"),
+         param    = sub(variable, pat="\\[(.*)",rep="")) %>%
+  dcast(s + factorid ~ param, value.var = "value")
+
+pred.me <- Xmat[,1:3] %>%
+  '%*%'(t(matrix(as.numeric(params.me[,c(-1,-2)]), ncol=3)))
+
+keeprows.me <- 0 #somehow filter out unnecessary rows from pred.me
 
 pred_shot <- function(dat=NA, params=NA){
   
