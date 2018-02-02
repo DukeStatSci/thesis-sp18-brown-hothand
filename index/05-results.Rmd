@@ -12,20 +12,30 @@
     # repeat on different hold-out samples of course.
   # model comparisons?
   # don't forget a "future considerations" section in your conclusion or something
-  #talk about there's no covariance in parameter priors. all are independent.
-  #use posterior medians, not means
-  # MCMC average instead of simply plugging in median as estimate
-    # do matrix multiplication on mcmc list and calculate 10000 * 5500 different probabilities! then average.
-    # not beta_hat * X, but mean(BETA * X)
+  # in introducing model, talk about there's no covariance in parameter priors. all are independent.
   # make a calibration plot for each game.
+    # calibration plots for training AND testing
+    # draw horizontal lines through points to show bin widths.
+    # draw vertical lines through points to show uncertainty
+      # +/- 2 std. devs using standard binomial calculation
+      # std. dev = sqrt(pq/n)
+      # we want all of these vertical lines to cross the y=x line :)
+    # another thing that would be useful is to look at histogram of probs within a bin.
+      # then you see if bins are biased
+  # replace brier score (MSE) with log likelihood.
+    # do for train and test
+    # plot a loglik by delta plot!
+    # this is an approximate log likelihood for the best delta. without using cross-validation.
+    # sum(y*log(p) + (1-y)*log(1-p))
+    # if this density looks nice, then we have "the level of time variation that the data supports"
   # also look at very low-usage players!
-  # look up Brier score.
 
 rm(list=ls())
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
-library(mvtnorm); library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra); library(stringr)
+#library(mvtnorm); 
+library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra); library(stringr)
 
 set.seed(493)
 load_chains <- TRUE
@@ -55,6 +65,12 @@ playermap <- data.frame(
   globalplayerid = Xtot$globalplayerid
 ) %>% unique()
 rownames(playermap) <- NULL
+
+gamemap <- data.frame(
+  factorid = as.integer(as.factor(Xtot$gameid)),
+  gameid   = Xtot$gameid
+) %>% unique()
+rownames(gamemap) <- NULL
 
 ```
 
@@ -127,7 +143,7 @@ fit_glm <- function(dat, S = 10000, B = 500){
                          ))
                     
   sim <- jags(data = datlist.glm, 
-              n.iter = S, n.chains = 1, n.burnin = B,
+              n.chains = 1, n.iter = S, n.burnin = B, n.thin = 1,
               inits=initslist,
               parameters.to.save = params.glm,
               model.file=model.glm
@@ -262,7 +278,7 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
                          ))
 
   sim.player <- jags(data = datlist.player, 
-              n.iter = S, n.chains = 1, n.burnin = B,
+              n.iter = S, n.chains = 1, n.burnin = B, n.thin = 1,
               inits=initslist,
               parameters.to.save = params,
               model.file=model.player
@@ -399,10 +415,7 @@ mcmc_avg <- function(sim.mcmc = player.mcmc, j = NA, MLE=FALSE){
   probsxy <- apply(PROBSXY, c(1,2), mean)
   return(probsxy)
 }
-  # filled.contour(x = all_x, y = all_y, z = probsxy,
-  #              main = "Shot Success Probabilities", 
-  #              xaxt = "n", yaxt= "n", 
-  #              color.palette = colorRampPalette(c("yellow", "red")))
+
 plot_contours <- function(probsxy = NA, main=""){
   
   all_x <- seq(-25,25, 1)
@@ -816,7 +829,7 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 
                          ))
 
   sim.game <- jags(data = datlist.game, 
-              n.iter = S, n.chains = 1, n.burnin = B,
+              n.iter = S, n.chains = 1, n.burnin = B, n.thin = 1,
               inits = initslist,
               parameters.to.save = params,
               model.file=model.game
@@ -832,6 +845,7 @@ fit_games <- function(dat = NA, discount_wt = 0.975, S = 10000, B = 500){
   M <- n_distinct(dat$globalplayerid)
 
   game.mcmc.list <- as.list(rep(NA, G))
+  #game.mcmc <- array(NA, c(1, 1, G))
 
   for(g in 1:G){
     print(paste(discount_wt, g, sep=" : "))
@@ -847,11 +861,6 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
   G <- n_distinct(dat$gameid)
   M <- n_distinct(dat$globalplayerid)
 
-  gamemap <- data.frame(
-    gameid   = dat$gameid,
-    factorid = as.integer(as.factor(dat$gameid))
-  ) %>% unique()
-  
   for(g in 1:G){
     params.game <- get_player_params(dat, sim.mcmc.list[[g]]) %>% filter(!is.na(factorid))
     if(g==1){
@@ -873,42 +882,78 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
 
 if(!load_chains){
   
+  game.mcmc.list.100 <- fit_games(Xtrain, 0.100, 10000, 500)
+  game.mcmc.list.250 <- fit_games(Xtrain, 0.250, 10000, 500)
+  game.mcmc.list.375 <- fit_games(Xtrain, 0.375, 10000, 500)
   game.mcmc.list.500 <- fit_games(Xtrain, 0.500, 10000, 500)
-  params.season.500  <- get_season_params(Xtrain, game.mcmc.list.500)
+  game.mcmc.list.625 <- fit_games(Xtrain, 0.625, 10000, 500)
   game.mcmc.list.750 <- fit_games(Xtrain, 0.750, 10000, 500)
-  params.season.750  <- get_season_params(Xtrain, game.mcmc.list.750)
-  
+  game.mcmc.list.850 <- fit_games(Xtrain, 0.850, 10000, 500)
+  game.mcmc.list.900 <- fit_games(Xtrain, 0.900, 10000, 500)
   game.mcmc.list.950 <- fit_games(Xtrain, 0.950, 10000, 500)
-  params.season.950  <- get_season_params(Xtrain, game.mcmc.list.950)
   game.mcmc.list.975 <- fit_games(Xtrain, 0.975, 10000, 500)
-  params.season.975  <- get_season_params(Xtrain, game.mcmc.list.975)
   game.mcmc.list.999 <- fit_games(Xtrain, 0.999, 10000, 500)
+
+  params.season.100  <- get_season_params(Xtrain, game.mcmc.list.100)
+  params.season.250  <- get_season_params(Xtrain, game.mcmc.list.250)
+  params.season.375  <- get_season_params(Xtrain, game.mcmc.list.375)
+  params.season.500  <- get_season_params(Xtrain, game.mcmc.list.500)
+  params.season.625  <- get_season_params(Xtrain, game.mcmc.list.625)
+  params.season.750  <- get_season_params(Xtrain, game.mcmc.list.750)
+  params.season.850  <- get_season_params(Xtrain, game.mcmc.list.850)
+  params.season.900  <- get_season_params(Xtrain, game.mcmc.list.900)
+  params.season.950  <- get_season_params(Xtrain, game.mcmc.list.950)
+  params.season.975  <- get_season_params(Xtrain, game.mcmc.list.975)
   params.season.999  <- get_season_params(Xtrain, game.mcmc.list.999)
 
+  save(game.mcmc.list.100, file="../rdatafiles/gamemcmclist100.RData")
+  save(game.mcmc.list.250, file="../rdatafiles/gamemcmclist250.RData")
+  save(game.mcmc.list.375, file="../rdatafiles/gamemcmclist375.RData")
   save(game.mcmc.list.500, file="../rdatafiles/gamemcmclist500.RData")
-  save(params.season.500,  file="../rdatafiles/paramsseason500.RData")
+  save(game.mcmc.list.625, file="../rdatafiles/gamemcmclist625.RData")
   save(game.mcmc.list.750, file="../rdatafiles/gamemcmclist750.RData")
-  save(params.season.750,  file="../rdatafiles/paramsseason750.RData")
-
+  save(game.mcmc.list.850, file="../rdatafiles/gamemcmclist850.RData")
+  save(game.mcmc.list.900, file="../rdatafiles/gamemcmclist900.RData")
   save(game.mcmc.list.950, file="../rdatafiles/gamemcmclist950.RData")
-  save(params.season.950,  file="../rdatafiles/paramsseason950.RData")
   save(game.mcmc.list.975, file="../rdatafiles/gamemcmclist975.RData")
-  save(params.season.975,  file="../rdatafiles/paramsseason975.RData")
   save(game.mcmc.list.999, file="../rdatafiles/gamemcmclist999.RData")
+  
+  save(params.season.100,  file="../rdatafiles/paramsseason100.RData")
+  save(params.season.250,  file="../rdatafiles/paramsseason250.RData")
+  save(params.season.375,  file="../rdatafiles/paramsseason375.RData")
+  save(params.season.500,  file="../rdatafiles/paramsseason500.RData")
+  save(params.season.625,  file="../rdatafiles/paramsseason625.RData")
+  save(params.season.750,  file="../rdatafiles/paramsseason750.RData")
+  save(params.season.850,  file="../rdatafiles/paramsseason850.RData")
+  save(params.season.900,  file="../rdatafiles/paramsseason900.RData")
+  save(params.season.950,  file="../rdatafiles/paramsseason950.RData")
+  save(params.season.975,  file="../rdatafiles/paramsseason975.RData")
   save(params.season.999,  file="../rdatafiles/paramsseason999.RData")
   
 }else{
   
+  load(file="../rdatafiles/gamemcmclist100.RData")
+  load(file="../rdatafiles/gamemcmclist250.RData")
+  load(file="../rdatafiles/gamemcmclist375.RData")
   load(file="../rdatafiles/gamemcmclist500.RData")
-  load(file="../rdatafiles/paramsseason500.RData")
+  load(file="../rdatafiles/gamemcmclist625.RData")
   load(file="../rdatafiles/gamemcmclist750.RData")
-  load(file="../rdatafiles/paramsseason750.RData")
-
+  load(file="../rdatafiles/gamemcmclist850.RData")
+  load(file="../rdatafiles/gamemcmclist900.RData")
   load(file="../rdatafiles/gamemcmclist950.RData")
-  load(file="../rdatafiles/paramsseason950.RData")
   load(file="../rdatafiles/gamemcmclist975.RData")
-  load(file="../rdatafiles/paramsseason975.RData")
   load(file="../rdatafiles/gamemcmclist999.RData")
+  
+  load(file="../rdatafiles/paramsseason100.RData")
+  load(file="../rdatafiles/paramsseason250.RData")
+  load(file="../rdatafiles/paramsseason375.RData")
+  load(file="../rdatafiles/paramsseason500.RData")
+  load(file="../rdatafiles/paramsseason625.RData")
+  load(file="../rdatafiles/paramsseason750.RData")
+  load(file="../rdatafiles/paramsseason850.RData")
+  load(file="../rdatafiles/paramsseason900.RData")
+  load(file="../rdatafiles/paramsseason950.RData")
+  load(file="../rdatafiles/paramsseason975.RData")
   load(file="../rdatafiles/paramsseason999.RData")
   
 }
@@ -1004,49 +1049,94 @@ load(file="../rdatafiles/glmtot.RData")
 
 # MCMC Averages
 Xpred <- Xtest
-Xmat <- Xpred %>% 
-  mutate(logr = log(r)) %>%
-  select(logr, theta, globalplayerid, gameid, time) %>% 
-  cbind(1,.) %>%
-  merge(playermap) %>% 
-  select(-globalplayerid) %>% 
-  arrange(time) %>%
-  as.matrix()
 
 # we want S predictions per shot. an N x S matrix. then we take MCMC average.
-params.glm <- t(select(glmtot, -deviance))
-pred.glm <- Xmat[,1:3] %>%
-  '%*%'(params.glm) %>%
-  arm::invlogit() %>%
-  apply(., 1, median)
-
-#TODO: oh man, factoring in player id and game id is not going to be easy...
-
-params.me <- player.mcmc %>% 
-  mutate("s" = 1:nrow(player.mcmc)) %>%
-  select(which(grepl("[", names(.), fixed=TRUE) | colnames(.) == "s")) %>%
-  melt(id = "s") %>% 
-  mutate(factorid = str_extract(variable, "[[:digit:]]+"),
-         param    = sub(variable, pat="\\[(.*)",rep="")) %>%
-  dcast(s + factorid ~ param, value.var = "value")
-
-pred.me <- Xmat[,1:3] %>%
-  '%*%'(t(matrix(as.numeric(params.me[,c(-1,-2)]), ncol=3)))
-
-keeprows.me <- 0 #somehow filter out unnecessary rows from pred.me
-
-pred_shot <- function(dat=NA, params=NA){
+pred_glm <- function(Xpred = NA, MCMC = NA){
   
-  DAT <- merge(dat, params) %>% 
-    mutate(
-      Y = beta_int + log(r)*beta_r + theta*beta_theta,
-      P = exp(Y)/(1+exp(Y))
-    ) %>% arrange(time)
+  Xmat <- X %>% 
+    mutate(logr = log(r)) %>%
+    select(logr, theta, globalplayerid, gameid, time) %>% 
+    cbind(1,.) %>%
+    merge(playermap) %>% 
+    select(-globalplayerid) %>% 
+    arrange(time) %>%
+    as.matrix()
+
+  params.glm <- t(select(MCMC, -deviance))
+  pred.glm <- Xmat[,1:3] %>%
+    '%*%'(params.glm) %>%
+    arm::invlogit() %>%
+    apply(., 1, median)
   
-  return(DAT$P)
+  return(pred.glm)
 }
 
-eval_models <- function(actual = NA, pred = NA, cutoff = 0.5){
+pred_me <- function(Xpred = NA, MCMC = NA){
+
+  Xmat <- Xpred %>% 
+    mutate(logr = log(r)) %>%
+    select(logr, theta, globalplayerid, gameid, time) %>% 
+    cbind(1,.) %>%
+    merge(playermap) %>% 
+    select(-globalplayerid) %>% 
+    arrange(time) %>%
+    as.matrix()
+
+  params.me <- MCMC %>% 
+    mutate("s" = 1:nrow(MCMC)) %>%
+    select(which(grepl("[", names(.), fixed=TRUE) | colnames(.) == "s")) %>%
+    melt(id = "s") %>% 
+    mutate(factorid = as.numeric(str_extract(variable, "[[:digit:]]+")),
+           param    = (sub(variable, pat="\\[(.*)",rep=""))) %>%
+    dcast(s + factorid ~ param, value.var = "value") %>%
+    t()
+
+  pred.me.large <- Xmat[,1:3] %>%
+    '%*%'(params.me[-c(1,2),]) %>%
+    arm::invlogit()
+  # each row is a shot attempt from Xmat labeled with a shooter id.
+  # each col is a combination of S and M from the MCMC chain
+  # thus, we should keep every row, and only keep the columns where M = shooter id
+  # M = shooter id for S columns per row. End up with N x S matrix.
+  # then do MCMC average over S for all N to get an N x 1 matrix.
+
+  rownames(pred.me.large) <- Xmat[,"factorid"] 
+  colnames(pred.me.large) <- params.me["factorid",] 
+
+  pred.me.inds <- array(NA, c(nrow(Xmat), nrow(MCMC)) )
+  pred.me <- array(NA, c(nrow(Xmat), 1))
+
+  for(i in 1:nrow(Xmat)){
+    keepcols <- colnames(pred.me.large) == Xmat[i,"factorid"]
+    pred.me.inds[i,] <- pred.me.large[i, keepcols]
+  }
+
+  pred.me <- apply(pred.me.inds, 1, median)
+  
+  return(pred.me)
+}
+
+pred_disc <- function(Xpred = NA, MCMC.LIST=NA){
+  
+  pred.disc.large <- lapply(X=MCMC.LIST, FUN=pred_me, Xpred=Xpred) %>% 
+    as.data.frame() %>%
+    as.matrix()
+  
+  colnames(pred.disc.large) <- gamemap$gameid
+  rownames(pred.disc.large) <- Xpred$gameid
+  
+  pred.disc <- array(NA, c(nrow(Xpred), 1))
+
+  for(i in 1:nrow(Xpred)){
+    keepcol <- colnames(pred.disc.large) == Xpred[i,"gameid"]
+    pred.disc[i,] <- pred.disc.large[i, keepcol]
+  }
+
+  return(pred.disc)
+  
+}
+
+eval_pred <- function(actual = NA, pred = NA, cutoff = 0.5, nbins = 8){
   
   ret1 <- array(NA, c(2,2))
   rownames(ret1) <- c("predicted miss", "predicted make")
@@ -1063,28 +1153,65 @@ eval_models <- function(actual = NA, pred = NA, cutoff = 0.5){
   #brier score = MSE for binary predction
   ret3 <- sum((pred - actual)^2)/length(actual)
   
-  return(list(confmat = ret1, classrate = ret2, brier = ret3))
+  if(n_distinct(pred) == 1){
+    ret4 <- NA
+  }else{
+    predquants <- c(0, quantile(pred, (1:nbins)/nbins))
+    predmidpts <- ((predquants + c(0,predquants[-length(predquants)]))/2) %>% '['(-1)
+  
+    pred1N <- sapply(pred, findInterval, vec=predquants, all.inside=TRUE, rightmost.closed=TRUE, left.open=TRUE)
+  
+    ret4tab <- table(pred1N, actual)
+    rownames(ret4tab) <- round(predmidpts, 4)
+    ret4 <- ret4tab %>% 
+      as.data.frame() %>%
+      dcast(pred1N ~ actual, value.var = "Freq") %>%
+      mutate(p = `1`/(`0`+`1`))
+    colnames(ret4) <- c("bin", "actual0", "actual1", "p")
+  }  
+  return(list(confusionmat = ret1, 
+              classificationrate = ret2, 
+              brierscore = ret3,
+              calibration = ret4))
 }
 
-Xpred <- Xtest
-pred.glm <- pred_shot(Xpred, params.glm)
-pred.me  <- pred_shot(Xpred, params.me)
-pred.500 <- pred_shot(Xpred, params.500)
-pred.750 <- pred_shot(Xpred, params.750)
-pred.950 <- pred_shot(Xpred, params.950)
-pred.975 <- pred_shot(Xpred, params.975)
-pred.999 <- pred_shot(Xpred, params.999)
-pred.0 <- rep(0, nrow(Xpred))
-pred.1 <- rep(1, nrow(Xpred))
+pred.team     <- pred_glm(Xtest, glmtot)
+pred.player   <- pred_me(Xtest, player.mcmc)
+pred.game.500 <- pred_disc(Xtest, game.mcmc.list.500)
+pred.game.750 <- pred_disc(Xtest, game.mcmc.list.750)
+pred.game.950 <- pred_disc(Xtest, game.mcmc.list.950)
+pred.game.975 <- pred_disc(Xtest, game.mcmc.list.975)
+pred.game.999 <- pred_disc(Xtest, game.mcmc.list.999)
+pred.0        <- rep(0, nrow(Xtest))
+pred.1        <- rep(1, nrow(Xtest))
 
-conf_mat(Xpred$result, pred.glm)
-conf_mat(Xpred$result, pred.me)
-conf_mat(Xpred$result, pred.500)
-conf_mat(Xpred$result, pred.750)
-conf_mat(Xpred$result, pred.950)
-conf_mat(Xpred$result, pred.975)
-conf_mat(Xpred$result, pred.999)
-conf_mat(Xpred$result, pred.0)
+eval.team     <- eval_pred(Xtest$result, pred.team)
+eval.player   <- eval_pred(Xtest$result, pred.player)
+eval.game.500 <- eval_pred(Xtest$result, pred.game.500, nbins=20)
+eval.game.750 <- eval_pred(Xtest$result, pred.game.750)
+eval.game.950 <- eval_pred(Xtest$result, pred.game.950)
+eval.game.975 <- eval_pred(Xtest$result, pred.game.975)
+eval.game.999 <- eval_pred(Xtest$result, pred.game.999)
+eval.0        <- eval_pred(Xtest$result, pred.0)
+eval.1        <- eval_pred(Xtest$result, pred.1)
+
+plot_calibration <- function(dat, title){
+  ggplot(data = dat, aes(x=as.numeric(as.character(bin)), y=p, group=0)) + 
+    geom_line() + 
+    geom_point() + 
+    geom_abline(slope=1) +
+    coord_cartesian(xlim=c(0,1), ylim=c(0,1)) + 
+    theme(panel.grid = element_blank()
+          #,panel.border = element_blank(), axis.text = element_blank(), axis.ticks =   element_blank()
+          ) + 
+    theme_bw() + 
+    labs(x="bin", main=title)
+}
+
+plot_calibration(eval.team, "")
+
+
+pred.game.500[pred.game.500 > mean(c(.1526, .3354)) & pred.game.500 < mean(c(0.3355,0.3887))]
 
 # pROC::roc(Xtot$result, p.team, plot=TRUE)
 # pROC::roc(Xtot$result, p.player, plot=TRUE)
@@ -1119,7 +1246,7 @@ outcome = rbinom(n=N,size=1,prob=1/2)
 #likelihood = runif(n=N)
 
 sim.ones <- jags(data = c("constant","N","outcome", "outcome.ones"), 
-            n.iter = 1000, n.chains = 1, n.burnin = 500,
+            n.iter = 1000, n.chains = 1, n.burnin = 500, n.thin = 1,
             parameters.to.save = "theta",
             model.file=model.ones
 )
