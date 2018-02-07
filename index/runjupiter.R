@@ -42,6 +42,34 @@ mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
 tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 
+get_player_params <- function(dat=NA, sim.mcmc.hier=NA){
+  
+  sim.mcmc.means <- colMeans(sim.mcmc.hier)
+  sim.mcmc.quants <- apply(sim.mcmc.hier, 2, quantile, c(0.025, 0.25, 0.50, 0.75, 0.975))
+  
+  #playermapshots <- factorid #merge(factorid, playermap, by="globalplayerid", all=TRUE)
+  playermapparams <- playermap %>% 
+    mutate(int = NA, r = NA, theta = NA,
+           int025 = NA, int25  = NA, int50  = NA, int75  = NA, int975 = NA, 
+           r025 = NA, r25  = NA, r50  = NA, r75  = NA, r975 = NA, 
+           theta025 = NA, theta25  = NA, theta50  = NA, theta75  = NA, theta975 = NA)
+  
+  
+  for(i in 1:nrow(playermap)){
+    fid <- playermapparams$factorid[i]
+    if(!is.na(fid)){
+      theta_i <- sim.mcmc.means[grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))]
+      theta_i <- c(theta_i, sim.mcmc.quants[,grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))])
+    }else{
+      theta_i <- sim.mcmc.means[grep(paste0("(int0)|(r0)|(theta0)"), names(sim.mcmc.means))]
+      theta_i <- c(theta_i, sim.mcmc.quants[,grep(paste0("(int0)|(r0)|(theta0)"), names(sim.mcmc.means))])
+    }
+    playermapparams[i,3:ncol(playermapparams)] <- theta_i
+  }
+  return(playermapparams)
+}
+
+
 fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 500){
   
   model.game <- function(){
@@ -169,9 +197,9 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
 # game.mcmc.list.750 <- fit_games(Xtrain, 0.750, 10000, 500)
 # game.mcmc.list.850 <- fit_games(Xtrain, 0.850, 10000, 500)
 # game.mcmc.list.900 <- fit_games(Xtrain, 0.900, 10000, 500)
-game.mcmc.list.950 <- fit_games(Xtrain, 0.950, 10000, 500)
-game.mcmc.list.975 <- fit_games(Xtrain, 0.975, 10000, 500)
-game.mcmc.list.999 <- fit_games(Xtrain, 0.999, 10000, 500)
+# game.mcmc.list.950 <- fit_games(Xtrain, 0.950, 10000, 500)
+# game.mcmc.list.975 <- fit_games(Xtrain, 0.975, 10000, 500)
+# game.mcmc.list.999 <- fit_games(Xtrain, 0.999, 10000, 500)
 
 # params.season.100  <- get_season_params(Xtrain, game.mcmc.list.100)
 # params.season.250  <- get_season_params(Xtrain, game.mcmc.list.250)
@@ -181,9 +209,9 @@ game.mcmc.list.999 <- fit_games(Xtrain, 0.999, 10000, 500)
 # params.season.750  <- get_season_params(Xtrain, game.mcmc.list.750)
 # params.season.850  <- get_season_params(Xtrain, game.mcmc.list.850)
 # params.season.900  <- get_season_params(Xtrain, game.mcmc.list.900)
-params.season.950  <- get_season_params(Xtrain, game.mcmc.list.950)
-params.season.975  <- get_season_params(Xtrain, game.mcmc.list.975)
-params.season.999  <- get_season_params(Xtrain, game.mcmc.list.999)
+# params.season.950  <- get_season_params(Xtrain, game.mcmc.list.950)
+# params.season.975  <- get_season_params(Xtrain, game.mcmc.list.975)
+# params.season.999  <- get_season_params(Xtrain, game.mcmc.list.999)
 
 # save(game.mcmc.list.100, file="../rdatafiles/gamemcmclist100.RData")
 # save(game.mcmc.list.250, file="../rdatafiles/gamemcmclist250.RData")
@@ -193,9 +221,9 @@ params.season.999  <- get_season_params(Xtrain, game.mcmc.list.999)
 # save(game.mcmc.list.750, file="../rdatafiles/gamemcmclist750.RData")
 # save(game.mcmc.list.850, file="../rdatafiles/gamemcmclist850.RData")
 # save(game.mcmc.list.900, file="../rdatafiles/gamemcmclist900.RData")
-save(game.mcmc.list.950, file="../rdatafiles/gamemcmclist950.RData")
-save(game.mcmc.list.975, file="../rdatafiles/gamemcmclist975.RData")
-save(game.mcmc.list.999, file="../rdatafiles/gamemcmclist999.RData")
+# save(game.mcmc.list.950, file="../rdatafiles/gamemcmclist950.RData")
+# save(game.mcmc.list.975, file="../rdatafiles/gamemcmclist975.RData")
+# save(game.mcmc.list.999, file="../rdatafiles/gamemcmclist999.RData")
 
 # save(params.season.100,  file="../rdatafiles/paramsseason100.RData")
 # save(params.season.250,  file="../rdatafiles/paramsseason250.RData")
@@ -205,6 +233,20 @@ save(game.mcmc.list.999, file="../rdatafiles/gamemcmclist999.RData")
 # save(params.season.750,  file="../rdatafiles/paramsseason750.RData")
 # save(params.season.850,  file="../rdatafiles/paramsseason850.RData")
 # save(params.season.900,  file="../rdatafiles/paramsseason900.RData")
-save(params.season.950,  file="../rdatafiles/paramsseason950.RData")
-save(params.season.975,  file="../rdatafiles/paramsseason975.RData")
-save(params.season.999,  file="../rdatafiles/paramsseason999.RData")
+# save(params.season.950,  file="../rdatafiles/paramsseason950.RData")
+# save(params.season.975,  file="../rdatafiles/paramsseason975.RData")
+# save(params.season.999,  file="../rdatafiles/paramsseason999.RData")
+
+delta <- "850"
+load(file=paste0("../rdatafiles/gamemcmclist",delta,".RData"))
+GL <- eval(parse(text=paste0("game.mcmc.list.",delta)))
+for(g in 1:length(GL)){
+  if(g < 100){
+    g_str <- formatC(g, digits=2, flag="0")
+  }
+  print(g_str)
+  game <- GL[[g]]
+  eval(parse(text=paste0("game.mcmc.",delta,"_",g_str," <- game")))
+  save(list = paste0("game.mcmc.",delta,"_",g_str), 
+       file = paste0("../rdatafiles/gamemcmc",delta,"_",g_str,".RData"))
+}

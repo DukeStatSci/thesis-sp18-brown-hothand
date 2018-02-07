@@ -42,6 +42,34 @@ mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
 tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 
+get_player_params <- function(dat=NA, sim.mcmc.hier=NA){
+  
+  sim.mcmc.means <- colMeans(sim.mcmc.hier)
+  sim.mcmc.quants <- apply(sim.mcmc.hier, 2, quantile, c(0.025, 0.25, 0.50, 0.75, 0.975))
+  
+  #playermapshots <- factorid #merge(factorid, playermap, by="globalplayerid", all=TRUE)
+  playermapparams <- playermap %>% 
+    mutate(int = NA, r = NA, theta = NA,
+           int025 = NA, int25  = NA, int50  = NA, int75  = NA, int975 = NA, 
+           r025 = NA, r25  = NA, r50  = NA, r75  = NA, r975 = NA, 
+           theta025 = NA, theta25  = NA, theta50  = NA, theta75  = NA, theta975 = NA)
+  
+  
+  for(i in 1:nrow(playermap)){
+    fid <- playermapparams$factorid[i]
+    if(!is.na(fid)){
+      theta_i <- sim.mcmc.means[grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))]
+      theta_i <- c(theta_i, sim.mcmc.quants[,grep(paste0("\\[",fid,"\\]"), names(sim.mcmc.means))])
+    }else{
+      theta_i <- sim.mcmc.means[grep(paste0("(int0)|(r0)|(theta0)"), names(sim.mcmc.means))]
+      theta_i <- c(theta_i, sim.mcmc.quants[,grep(paste0("(int0)|(r0)|(theta0)"), names(sim.mcmc.means))])
+    }
+    playermapparams[i,3:ncol(playermapparams)] <- theta_i
+  }
+  return(playermapparams)
+}
+
+
 fit_game <- function(dat = NA, anchor = NA, discount_wt = 0.975, S = 10000, B = 500){
   
   model.game <- function(){
