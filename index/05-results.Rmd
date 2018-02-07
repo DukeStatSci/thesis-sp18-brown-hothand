@@ -884,7 +884,7 @@ get_game_params <- function(dat=NA, sim.mcmc.list=NA){
 
 #saves the list by its elements so it will fit in github
 save_gamelist <- function(GL=NA, delta_str=NA, dir = "../rdatafiles"){
-  
+
   for(g in 1:length(GL)){
     if(g < 100){
       g_str <- formatC(g, digits=2, flag="0")
@@ -905,11 +905,18 @@ load_gamelist <- function(delta_str=NA, dir = "../rdatafiles"){
   localenv <- new.env()
   GL <- list()
   filenames <- paste0(dir,"/",list.files(path=dir, pattern=paste0("gamemcmc", delta_str))) %>% '['(order(.))
+  
   for(i in 1:length(filenames)){
     load(filenames[i], envir=localenv)
     GL[[i]] <- localenv$game
+    if(length(localenv$game) == 0){
+      eval(parse(
+        text=paste0("GL[[i]] <- localenv$game.mcmc.",delta_str,"_",formatC(i, digits=2, flag="0"))
+      ))
+    }
+
   }
-  rm(game)
+  
   return(GL)
 }
 
@@ -920,7 +927,7 @@ if(!load_chains){
   ))
   
   eval(parse(
-    text=paste0("game.params.",deltas_str," <- get_game_params(Xtrain, game.mcmc.list.",deltas_str,");\n      save(", "game.params.",deltas_str,", file='../rdatafiles/gameparams",deltas_str,".RData';\n")
+    text=paste0("game.params.",deltas_str," <- get_game_params(Xtrain, game.mcmc.list.",deltas_str,");\n      save(game.params.",deltas_str,", file='../rdatafiles/gameparams",deltas_str,".RData');\n")
   ))
   
 }else{

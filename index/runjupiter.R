@@ -237,8 +237,18 @@ get_season_params <- function(dat=NA, sim.mcmc.list=NA){
 # save(params.season.975,  file="../rdatafiles/paramsseason975.RData")
 # save(params.season.999,  file="../rdatafiles/paramsseason999.RData")
 
-delta <- "850"
-load(file=paste0("../rdatafiles/gamemcmclist",delta,".RData"))
+for(d in deltas_str[-(1:8)]){
+  
+  GL <- load_gamelist(d)
+  P <- get_game_params(Xtrain, GL)
+  
+  eval(parse(
+    text=paste0(
+      "game.params.",d," <- P;\n",
+      "save(game.params.",d,", file='../rdatafiles/gameparams",d,".RData');\n")
+  ))
+}
+
 GL <- eval(parse(text=paste0("game.mcmc.list.",delta)))
 for(g in 1:length(GL)){
   if(g < 100){
