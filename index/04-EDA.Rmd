@@ -3,15 +3,15 @@
 
 #### Exploratory Data Analysis
 
-The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University, and we leave the others in Appendix *number*. Each plot represents a single player's ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome. 
+The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University between the *season* and *season* seasons, and we leave the others in Appendix *number*. Each plot represents a single player's ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome. 
 
 ```{r, load}
-load(file="../rdatafiles/allgameshots.RData")
+load(file="../rdatafiles/Xtot.RData")
 
-id4 <- 601140 
-id3 <- 603106 
-id2 <- 842301 
 id1 <- 887665 
+id2 <- 842301 
+id3 <- 603106 
+id4 <- 601140 
 playerseasons <- matrix(
   c(id1,   2016,
     id2,   2015,
@@ -24,73 +24,31 @@ colnames(playerseasons) <- c("globalplayerid" ,"season")
 
 ```{r, plots}
 
-plotshottime <- function(playerid, season){
-  allgameshots_sub <- allgameshots[allgameshots$globalplayerid==playerid & allgameshots$season==season,]
-  if(nrow(allgameshots_sub) < 10){
+plotshottime <- function(playerid, season, playernum){
+  Xtot_sub <- Xtot[Xtot$globalplayerid==playerid & Xtot$season==season,]
+  par(las=1)
+  if(nrow(Xtot_sub) < 10){
+    # ggplot(data=NULL) + labs(title = "Not Enough Data") + theme_bw()
     plot(0,0,type="n", yaxt="n",xaxt="n", ylab="",xlab="")
     text(0,0,label="Not Enough Data", cex=2)
   }else{
-    Y <- allgameshots_sub$result #zoo::rollmean((allgameshots_sub$result), 4)
+    Y <- Xtot_sub$result #zoo::rollmean((Xtot_sub$result), 4)
     X <- 1:length(Y)
-    scatter.smooth(X,Y,span=20/length(Y), main = paste0("Smoothed Shooting Outcomes"),
+    scatter.smooth(X,Y,span=20/length(Y), main = paste0("Smoothed Shooting Outcomes: Player ",playernum),
                    yaxt="n",ylab="Result",xlab="Order")
     axis(side=2,at=c(0,1),labels=c("Miss","Make"))
   }
 }
 
-maxseason <- allgameshots %>% group_by(globalplayerid, season) %>% summarize(num=n()) %>% group_by(globalplayerid) %>% mutate(m=max(num)) %>% filter(num==m) %>% as.data.frame()
+maxseason <- Xtot %>% group_by(globalplayerid, season) %>% summarize(num=n()) %>% group_by(globalplayerid) %>% mutate(m=max(num)) %>% filter(num==m) %>% as.data.frame()
 
 
 for(i in 1:nrow(playerseasons)){
   r <- playerseasons[i,]
-  plotshottime(r[[1]],r[[2]])
+  plotshottime(r[[1]],r[[2]],i)
 }
 ```
 
 We can see that the plots vary in the consistency of their made shots, since they all contain spikes and trends. For example, the third plot initially has a very high success rate, which quickly falls to the middle after about thirty shot attempts, and the second plot has a noticeable upward trend in shot success beginning around shot number one hundred fifty.
 
 We investigate the shooting outcome using Bayesian models, and show the results in the next section.
-
-<!--
-#### Generalized Linear Model by Shot
-```{r, cache=TRUE}
-playerid <- id2
-seasons <- c(2014,2015,2016,2017)
-# Z <- allgameshots %>% filter(globalplayerid == playerid & season %in% seasons) %>% mutate(logr = log(r) - mean(log(r))) %>% select(result, theta, logr)
-# #mean center r.
-# mod0 <- glm(result ~ 1, data=Z, family="binomial")
-# mod1 <- glm(result ~ logr, data=Z, family="binomial")
-# mod2 <- (glm(result ~ theta + logr, data=Z, family="binomial")) #high p-values everywhere
-# 
-# pred0 <- predict(mod0, newdata=Z, type="response")
-# pred1 <- predict(mod1, newdata=Z, type="response")
-# pred2 <- predict(mod2, newdata=Z, type="response")
-
-plot_params <- function(playerid=NA, playerseason=NA){
-  
-  Z <- allgameshots %>% filter(globalplayerid == playerid & season == playerseason) %>% mutate(logr = log(r) - mean(log(r))) %>% select(result, theta, logr)
-    
-  if(nrow(Z) == 0){
-    return(NULL)
-  }else{
-    #mod0 <- glm(result ~ 1, data=Z, family="binomial")
-    #mod1 <- glm(result ~ logr, data=Z, family="binomial")
-    mod2 <- (glm(result ~ theta + logr, data=Z, family="binomial")) #high p-values everywhere
-  
-    coefs <- summary(mod2)$coef %>% as.data.frame() %>% mutate(name = rownames(.), mean = Estimate, stderr = `Std. Error`, hi = mean + 1.96*stderr, lo = mean-1.96*stderr) %>% select(name, mean, hi, lo)
-  
-    ggplot(data = coefs, aes(x=name, y=mean)) + 
-      geom_point() + 
-      geom_errorbar(aes(ymin=lo, ymax=hi), width=0.5) + 
-      geom_abline(intercept=0, slope=0) + 
-      labs(title=paste(playerid, playerseason, sep=", "),x="predictor", y="estimate") 
-  }
-}
-
-for(i in c(id1, id2)){
-  for(j in 2014:2017){
-    print(plot_params(i,j))
-  }
-}
-```
--->
