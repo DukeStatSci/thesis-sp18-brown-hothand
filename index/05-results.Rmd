@@ -29,19 +29,10 @@ library(grid)
 library(gridExtra)
 
 set.seed(493)
-rdatafiles <- "../rdatafiles/"
-load(file=paste0(rdatafiles,"Xtot.RData"))
-load_chains <- TRUE
-N <- nrow(Xtot)
-testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
-Xtrain <- Xtot[-testrows,] %>% arrange(time)
-Xtest <- Xtot[testrows,] %>% arrange(time)
 
-# XH <- Xtot[Xtot$home == 1,]
-# NH <- nrow(XH)
-# testrowsH <- sample(x=1:NH, size=floor(0.2*NH), replace=FALSE)
-# XtrainH <- Xtot[-testrowsH,] %>% arrange(time)
-# XtestH <- Xtot[testrowsH,] %>% arrange(time)
+load_chains <- TRUE
+season_2015 <- TRUE
+
 
 id1 <- 887665 
 id2 <- 842301 
@@ -55,6 +46,36 @@ playerseasons <- matrix(
   ),ncol=2,byrow = TRUE
 )
 colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+if(season_2015){
+  
+  rdatafiles <- "../rdatafiles2015/"
+  id1 <- 842297
+  id3 <- 842298
+  playerseasons <- matrix(
+  c(id1,   2015,
+    id2,   2015,
+    id3,   2015,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+}
+
+
+load(file=paste0(rdatafiles,"Xtot.RData"))
+N <- nrow(Xtot)
+testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
+Xtrain <- Xtot[-testrows,] %>% arrange(time)
+Xtest <- Xtot[testrows,] %>% arrange(time)
+
+# XH <- Xtot[Xtot$home == 1,]
+# NH <- nrow(XH)
+# testrowsH <- sample(x=1:NH, size=floor(0.2*NH), replace=FALSE)
+# XtrainH <- Xtot[-testrowsH,] %>% arrange(time)
+# XtestH <- Xtot[testrowsH,] %>% arrange(time)
+
 
 #deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
 deltas <- c(seq(0.75, 0.95, 0.05),0.999)
@@ -326,10 +347,13 @@ get_player_params <- function(sim.mcmc.hier=NA){
 }
 
 if(!load_chains){
+  
   player.mcmc <- fit_players(dat = Xtrain)
   player.params <- get_player_params(player.mcmc)
+  
   save(player.mcmc, file=paste0(rdatafiles,"playermcmc.RData"))
   save(player.params, file=paste0(rdatafiles,"playerparams.RData"))
+
 }else{
   
   load(paste0(rdatafiles,"playermcmc.RData"))
