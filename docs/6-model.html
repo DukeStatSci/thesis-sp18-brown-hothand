@@ -137,43 +137,26 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="model" class="section level1">
 <h1><span class="header-section-number">Chapter 6</span> Models</h1>
-<p>For our models, we consider the shot location, the shooter identity, and shooting outcomes in previous games as factors that can affect a shot outcome. For each of the following models, shot location is parametrized in polar coordinates, or <span class="math inline">\(r\)</span> and <span class="math inline">\(\theta\)</span>. Diagnostic plots for these models can be found in Appendix 1.</p>
-<!--
-
-Parameter   Formula                  Range             
-----------  -----------------------  ------------------
-distance    r = v(x^2^ + y^2^)       r > 0             
-angle       <U+03B8> = arctan(x/y)   -p < <U+03B8> < p 
--->
+<p>For our models, we consider the shot location, the shooter identity, and shooting outcomes in previous games as factors that can affect a shot outcome. In every model, we use Gibbs sampling in the JAGS library to build a logistic regression model that provides the posterior distribution of the shot location parameters (distance and angle). The model does not account for covariance between these predictors. In addition, we build mixed effects and discounted likelihood models to control for shooter identity and game identity, respectively. These models will show us how consistent the show location parameters are between between shooters and between games. In our sampling method, we set priors using the Maximum Likelihood Estimates for the first four games in the dataset, and we initialize our chains using values of 0 for all means, and 1 for all variances.</p>
+<p>Diagnostic plots for these models can be found in Appendix 1.</p>
 <div id="generalized-linear-model" class="section level4">
 <h4><span class="header-section-number">6.0.0.1</span> Generalized Linear Model</h4>
 <p>The results of the credible intervals are reported for the same four players, in the same order.</p>
-<p>The five plots above show the posteriors of the generalized linear model parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section, and the parameters for the entire team over all seasons. From these plots, we see that the effect of the angle contains zero, and it is probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot decreases as distance from the basket increases.</p>
+<p><img src="thesis_files/figure-html/glm-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/glm-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The five plots above show the posteriors of the generalized linear model parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section, and the parameters for the entire team over all seasons. From these plots, we see that the effect of the angle contains zero, and it is therefore probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot significantly decreases as distance from the basket increases.</p>
 </div>
-<div id="player-by-player-hierarchical-model" class="section level4">
-<h4><span class="header-section-number">6.0.0.2</span> Player-by-Player Hierarchical Model</h4>
-<p><img src="thesis_files/figure-html/hier-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/hier-2.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/hier-3.png" width="672" style="display: block; margin: auto;" /></p>
-<p>The hierarchical model shows us that our four high-usage players of interest do not appear to be randomly spread across the population of players. The intercept plot shows that all four are in or close to the top half of values, and the radius plot shows the opposite with the four players trending towards lower parameter values. The high intercepts make intuitive sense, because the players who take a lot of shots are most more capable of making them under baseline conditions than their teammates are. However, the observation that these players would have a more drastic drop in field goal percentage than an average Duke player as they move farther from the basket is surprising.</p>
-</div>
-<div id="finish-this-section" class="section level4">
-<h4><span class="header-section-number">6.0.0.3</span> finish this section!</h4>
-<p>In the plots, below, we have contour plots showing players’ expected field goal percentages at different locations on the court.</p>
-<p><img src="thesis_files/figure-html/contours-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/contours-2.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/contours-3.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/contours-4.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/contours-5.png" width="672" style="display: block; margin: auto;" /></p>
-</div>
-<div id="dynamic-generalized-linear-model" class="section level4">
-<h4><span class="header-section-number">6.0.0.4</span> Dynamic Generalized Linear Model</h4>
-<p>The amount of volatility that we see in the posterior distribution of the parameters with a discount factor of <span class="math inline">\(\delta\)</span> = 0.99 suggests that there is time dependency in the data. However, the state means of the dynamic parameters appear to be unstable. Therefore, we must apply a better-fitting time series model before concluding that the parameters have time dependencies.</p>
+<div id="hierarchical-generalized-linear-model" class="section level4">
+<h4><span class="header-section-number">6.0.0.2</span> Hierarchical Generalized Linear Model</h4>
+<p><img src="thesis_files/figure-html/hier-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The hierarchical model shows us that our four high-usage players of interest do not appear to be randomly spread across the population of players. The intercept plot shows that all four are in or close to the top half of values, and the radius plot shows the opposite with the four players trending towards lower parameter values. The high intercepts make intuitive sense, because the players who take a lot of shots are generally more capable of making them under baseline conditions than their teammates are. However, the observation that these players would have a more drastic drop in field goal percentage than an average Duke player as they move farther from the basket is surprising.</p>
+<p>In the plots below, we have contour plots showing players’ expected field goal percentages at different locations on the court. Between our four players of interest, we can observe how player <em>1</em> is more effective on the ____ side of the basket than the others, and how player ____ is the ___ long-range shooter.</p>
+<p><img src="thesis_files/figure-html/contours-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/contours-2.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="game-by-game-hierarchical-model" class="section level4">
-<h4><span class="header-section-number">6.0.0.5</span> Game-by-Game Hierarchical Model</h4>
-<p><img src="thesis_files/figure-html/hier2-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre><code>[[1]]
-               actual miss actual make
-predicted miss        1846        1180
-predicted make         957        1484
-
-[[2]]
-[1] 0.6091092</code></pre>
+<h4><span class="header-section-number">6.0.0.3</span> Game-by-Game Hierarchical Model</h4>
+<p><img src="thesis_files/figure-html/hier-disc-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/hier-disc-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="thesis_files/figure-html/model-eval-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>From these plots, we can observe that all of the models have different strengths. The simple model that does not account for player effects or game-by-game variation has the highest classification rate (with a 0.50 probability cutoff) and the smallest Mean Squared Error. However, the model with player effects and discounted likelihood based on game index has the highest likelihood. Upon investigating why the smallest delta has the best likelihood, but the worst classification rate and MSE, we noticed that as delta decreases, the distribution of the fitted values becomes smoother. <em>insert graph</em> This explains how ___.</p>
 
 </div>
 </div>

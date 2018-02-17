@@ -139,13 +139,13 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1><span class="header-section-number">Chapter 5</span> Exploratory Data Analysis</h1>
 <div id="exploratory-data-analysis" class="section level4">
 <h4><span class="header-section-number">5.0.0.1</span> Exploratory Data Analysis</h4>
-<p>The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University, and we leave the others in the Appendix. Each plot represents a single player’s ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="dt">file=</span><span class="st">&quot;../rdatafiles/allgameshots.RData&quot;</span>)
+<p>The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University between the <em>season</em> and <em>season</em> seasons, and we leave the others in Appendix <em>number</em>. Each plot represents a single player’s ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="dt">file=</span><span class="st">&quot;../rdatafiles/Xtot.RData&quot;</span>)
 
-id4 &lt;-<span class="st"> </span><span class="dv">601140</span> 
-id3 &lt;-<span class="st"> </span><span class="dv">603106</span> 
-id2 &lt;-<span class="st"> </span><span class="dv">842301</span> 
 id1 &lt;-<span class="st"> </span><span class="dv">887665</span> 
+id2 &lt;-<span class="st"> </span><span class="dv">842301</span> 
+id3 &lt;-<span class="st"> </span><span class="dv">603106</span> 
+id4 &lt;-<span class="st"> </span><span class="dv">601140</span> 
 playerseasons &lt;-<span class="st"> </span><span class="kw">matrix</span>(
   <span class="kw">c</span>(id1,   <span class="dv">2016</span>,
     id2,   <span class="dv">2015</span>,
@@ -154,92 +154,31 @@ playerseasons &lt;-<span class="st"> </span><span class="kw">matrix</span>(
   ),<span class="dt">ncol=</span><span class="dv">2</span>,<span class="dt">byrow =</span> <span class="ot">TRUE</span>
 )
 <span class="kw">colnames</span>(playerseasons) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;globalplayerid&quot;</span> ,<span class="st">&quot;season&quot;</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotshottime &lt;-<span class="st"> </span>function(playerid, season){
-  allgameshots_sub &lt;-<span class="st"> </span>allgameshots[allgameshots$globalplayerid==playerid &amp;<span class="st"> </span>allgameshots$season==season,]
-  if(<span class="kw">nrow</span>(allgameshots_sub) &lt;<span class="st"> </span><span class="dv">10</span>){
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotshottime &lt;-<span class="st"> </span>function(playerid, season, playernum){
+  Xtot_sub &lt;-<span class="st"> </span>Xtot[Xtot$globalplayerid==playerid &amp;<span class="st"> </span>Xtot$season==season,]
+  <span class="kw">par</span>(<span class="dt">las=</span><span class="dv">1</span>)
+  if(<span class="kw">nrow</span>(Xtot_sub) &lt;<span class="st"> </span><span class="dv">10</span>){
+    <span class="co"># ggplot(data=NULL) + labs(title = &quot;Not Enough Data&quot;) + theme_bw()</span>
     <span class="kw">plot</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dt">type=</span><span class="st">&quot;n&quot;</span>, <span class="dt">yaxt=</span><span class="st">&quot;n&quot;</span>,<span class="dt">xaxt=</span><span class="st">&quot;n&quot;</span>, <span class="dt">ylab=</span><span class="st">&quot;&quot;</span>,<span class="dt">xlab=</span><span class="st">&quot;&quot;</span>)
     <span class="kw">text</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dt">label=</span><span class="st">&quot;Not Enough Data&quot;</span>, <span class="dt">cex=</span><span class="dv">2</span>)
   }else{
-    Y &lt;-<span class="st"> </span>allgameshots_sub$result <span class="co">#zoo::rollmean((allgameshots_sub$result), 4)</span>
+    Y &lt;-<span class="st"> </span>Xtot_sub$result <span class="co">#zoo::rollmean((Xtot_sub$result), 4)</span>
     X &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="kw">length</span>(Y)
-    <span class="kw">scatter.smooth</span>(X,Y,<span class="dt">span=</span><span class="dv">20</span>/<span class="kw">length</span>(Y), <span class="dt">main =</span> <span class="kw">paste0</span>(<span class="st">&quot;Smoothed Shooting Outcomes&quot;</span>),
+    <span class="kw">scatter.smooth</span>(X,Y,<span class="dt">span=</span><span class="dv">20</span>/<span class="kw">length</span>(Y), <span class="dt">main =</span> <span class="kw">paste0</span>(<span class="st">&quot;Smoothed Shooting Outcomes: Player &quot;</span>,playernum),
                    <span class="dt">yaxt=</span><span class="st">&quot;n&quot;</span>,<span class="dt">ylab=</span><span class="st">&quot;Result&quot;</span>,<span class="dt">xlab=</span><span class="st">&quot;Order&quot;</span>)
     <span class="kw">axis</span>(<span class="dt">side=</span><span class="dv">2</span>,<span class="dt">at=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),<span class="dt">labels=</span><span class="kw">c</span>(<span class="st">&quot;Miss&quot;</span>,<span class="st">&quot;Make&quot;</span>))
   }
 }
 
-maxseason &lt;-<span class="st"> </span>allgameshots %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid, season) %&gt;%<span class="st"> </span><span class="kw">summarize</span>(<span class="dt">num=</span><span class="kw">n</span>()) %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">m=</span><span class="kw">max</span>(num)) %&gt;%<span class="st"> </span><span class="kw">filter</span>(num==m) %&gt;%<span class="st"> </span><span class="kw">as.data.frame</span>()</code></pre></div>
+maxseason &lt;-<span class="st"> </span>Xtot %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid, season) %&gt;%<span class="st"> </span><span class="kw">summarize</span>(<span class="dt">num=</span><span class="kw">n</span>()) %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">m=</span><span class="kw">max</span>(num)) %&gt;%<span class="st"> </span><span class="kw">filter</span>(num==m) %&gt;%<span class="st"> </span><span class="kw">as.data.frame</span>()</code></pre></div>
 <pre><code>Warning: package &#39;bindrcpp&#39; was built under R version 3.3.3</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">for(i in <span class="dv">1</span>:<span class="kw">nrow</span>(playerseasons)){
   r &lt;-<span class="st"> </span>playerseasons[i,]
-  <span class="kw">plotshottime</span>(r[[<span class="dv">1</span>]],r[[<span class="dv">2</span>]])
+  <span class="kw">plotshottime</span>(r[[<span class="dv">1</span>]],r[[<span class="dv">2</span>]],i)
 }</code></pre></div>
 <p><img src="thesis_files/figure-html/plots-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/plots-2.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/plots-3.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/plots-4.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We can see that the plots vary in the consistency of their made shots, since they all contain spikes and trends. For example, the third plot initially has a very high success rate, which quickly falls to the middle after about thirty shot attempts, and the second plot has a noticeable upward trend in shot success beginning around shot number one hundred fifty.</p>
 <p>We investigate the shooting outcome using Bayesian models, and show the results in the next section.</p>
-<!--
-#### Generalized Linear Model by Shot
-
-```r
-playerid <- id2
-seasons <- c(2014,2015,2016,2017)
-# Z <- allgameshots %>% filter(globalplayerid == playerid & season %in% seasons) %>% mutate(logr = log(r) - mean(log(r))) %>% select(result, theta, logr)
-# #mean center r.
-# mod0 <- glm(result ~ 1, data=Z, family="binomial")
-# mod1 <- glm(result ~ logr, data=Z, family="binomial")
-# mod2 <- (glm(result ~ theta + logr, data=Z, family="binomial")) #high p-values everywhere
-# 
-# pred0 <- predict(mod0, newdata=Z, type="response")
-# pred1 <- predict(mod1, newdata=Z, type="response")
-# pred2 <- predict(mod2, newdata=Z, type="response")
-
-plot_params <- function(playerid=NA, playerseason=NA){
-  
-  Z <- allgameshots %>% filter(globalplayerid == playerid & season == playerseason) %>% mutate(logr = log(r) - mean(log(r))) %>% select(result, theta, logr)
-    
-  if(nrow(Z) == 0){
-    return(NULL)
-  }else{
-    #mod0 <- glm(result ~ 1, data=Z, family="binomial")
-    #mod1 <- glm(result ~ logr, data=Z, family="binomial")
-    mod2 <- (glm(result ~ theta + logr, data=Z, family="binomial")) #high p-values everywhere
-  
-    coefs <- summary(mod2)$coef %>% as.data.frame() %>% mutate(name = rownames(.), mean = Estimate, stderr = `Std. Error`, hi = mean + 1.96*stderr, lo = mean-1.96*stderr) %>% select(name, mean, hi, lo)
-  
-    ggplot(data = coefs, aes(x=name, y=mean)) + 
-      geom_point() + 
-      geom_errorbar(aes(ymin=lo, ymax=hi), width=0.5) + 
-      geom_abline(intercept=0, slope=0) + 
-      labs(title=paste(playerid, playerseason, sep=", "),x="predictor", y="estimate") 
-  }
-}
-
-for(i in c(id1, id2)){
-  for(j in 2014:2017){
-    print(plot_params(i,j))
-  }
-}
-```
-
-```
-NULL
-NULL
-```
-
-<img src="thesis_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" />
-
-```
-NULL
-NULL
-```
-
-<img src="thesis_files/figure-html/unnamed-chunk-1-2.png" width="672" style="display: block; margin: auto;" />
-
-```
-NULL
-NULL
-```
--->
 
 </div>
 </div>

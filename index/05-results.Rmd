@@ -29,23 +29,50 @@
     # sum(y*log(p) + (1-y)*log(1-p))
     # if this density looks nice, then we have "the level of time variation that the data supports"
   # also look at very low-usage players!
+<<<<<<< HEAD
+  # use the log likelihood on the training data, for delta, not testing
+    # run the model only on home games too.
+    # if "MLE" delta is 0, then that means the data is saying there is TOO MUCH game-to-game variation for the model.
+=======
+>>>>>>> parent of 35e6867... predictions and fitted values
 
 rm(list=ls())
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
-#library(mvtnorm); 
-library(dplyr); library(ggplot2); library(R2jags); library(knitr); library(reshape2); library(png); library(grid); library(gridExtra); library(stringr)
+library(knitr)     # for knitting
+library(dplyr)     # used throughout
+library(ggplot2)
+library(stringr)
+library(reshape2)
+library(R2jags)    # for MCMC
+library(png)       # for graphics
+library(grid)
+library(gridExtra)
 
 set.seed(493)
+<<<<<<< HEAD
+load_chains <- FALSE
+rdatafiles <- "../rdatafiles2015/"
+load(file=paste0(rdatafiles,"Xtot.RData"))
+=======
 load_chains <- TRUE
 
 load(file="../rdatafiles/Xtot.RData")
+>>>>>>> parent of 35e6867... predictions and fitted values
 N <- nrow(Xtot)
 testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
 Xtrain <- Xtot[-testrows,] %>% arrange(time)
 Xtest <- Xtot[testrows,] %>% arrange(time)
 
+<<<<<<< HEAD
+# XH <- Xtot[Xtot$home == 1,]
+# NH <- nrow(XH)
+# testrowsH <- sample(x=1:NH, size=floor(0.2*NH), replace=FALSE)
+# XtrainH <- Xtot[-testrowsH,] %>% arrange(time)
+# XtestH <- Xtot[testrowsH,] %>% arrange(time)
+=======
+>>>>>>> parent of 35e6867... predictions and fitted values
 
 id4 <- 601140 
 id3 <- 603106 
@@ -80,22 +107,6 @@ rownames(gamemap) <- NULL
 For our models, we consider the shot location, the shooter identity, and shooting outcomes in previous games as factors that can affect a shot outcome. We use Gibbs sampling in JAGS to calculate the posterior distribution of the shot location parameters (distance and angle). We build models to control for shooter identity and game identity using mixed effects and discounted likelihood, in order to see how consistent the parameters are between games for each shooter. In our sampling method, we set priors using the Maximum Likelihood Estimates for the first four games in the dataset, and we initialize our chains using values of 0 for all means, and 1 for all variances.
 
 Diagnostic plots for these models can be found in Appendix 1.
-
-<!--
-```{r}
-theta <- "\u03b8"
-root <- "\u221a"
-pi <- "\u03c0"
-paramstr <- c("distance","angle",
-              paste0("r = ",root,"(x^2^ + y^2^)"), paste0(theta," = arctan(x/y)"),
-              "r > 0", paste0("-",pi," < \u03b8 < ",pi))
-
-paramtab <- matrix(paramstr,ncol=3)
-colnames(paramtab) <- c("Parameter","Formula","Range")
-kable(paramtab)
-```
--->
-
 
 #### Generalized Linear Model
 
@@ -208,11 +219,15 @@ if(!load_chains){
   
 }
 
-plot_params(glm1)
-plot_params(glm2)
-plot_params(glm3)
-plot_params(glm4)
-plot_params(glmtot)
+glmplot1 <- plot_params(glm1)
+glmplot2 <- plot_params(glm2)
+glmplot3 <- plot_params(glm3)
+glmplot4 <- plot_params(glm4)
+glmplot5 <- plot_params(glmtot)
+grid.arrange(glmplot1,glmplot2,glmplot3,glmplot4, nrow=2)
+glmplot5
+
+
 
 load_chains <- TRUE
 
@@ -221,7 +236,7 @@ load_chains <- TRUE
 The five plots above show the posteriors of the generalized linear model parameters for the four players and seasons that we investigated in the Exploratory Data Analysis section, and the parameters for the entire team over all seasons. From these plots, we see that the effect of the angle contains zero, and it is therefore probably not predictive of a made shot. We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot significantly decreases as distance from the basket increases. 
 
 
-#### Player-by-Player Hierarchical Model
+#### Hierarchical Generalized Linear Model
 ```{r, hier, cache=TRUE}
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
@@ -330,29 +345,53 @@ if(!load_chains){
 
 fourparams <- merge(playerseasons, player.params ,all=FALSE) %>% select(globalplayerid, int, r, theta)
 
+<<<<<<< HEAD
+meplotA <- ggplot(data = player.mcmc, aes(x=beta_intA0)) + 
+=======
 mainlab <- "Posterior Density with Four Players"
 
 ggplot(data = player.mcmc, aes(x=beta_int0)) + 
+>>>>>>> parent of 35e6867... predictions and fitted values
   geom_density() + 
   geom_vline(xintercept = fourparams[["int"]], col="red") + 
   labs(title=mainlab,x="Intercept", y="Density") + 
   theme_bw() + 
   theme(panel.grid = element_blank())
   
+<<<<<<< HEAD
+meplotH <- ggplot(data = player.mcmc, aes(x=beta_intH0)) + 
+  geom_density() + 
+  geom_vline(xintercept=fourparams[["intH"]], col="red") + 
+  geom_label(data=fourparams, aes(x=intH, y=0, label=1:4)) +
+  labs(x="Intercept (Home)", y="Density") + 
+  theme_bw() + 
+  theme(panel.grid = element_blank())
+
+meplotr <- ggplot(data = player.mcmc, aes(x=beta_r0)) + 
+=======
 ggplot(data = player.mcmc, aes(x=beta_r0)) + 
+>>>>>>> parent of 35e6867... predictions and fitted values
   geom_density() + 
   geom_vline(xintercept = fourparams[["r"]], col="red") + 
   labs(title=mainlab,x="Distance", y="Density") + 
   theme_bw() +
   theme(panel.grid = element_blank())
   
+<<<<<<< HEAD
+meplottheta <- ggplot(data = player.mcmc, aes(x=beta_theta0)) + 
+=======
 ggplot(data = player.mcmc, aes(x=beta_theta0)) + 
+>>>>>>> parent of 35e6867... predictions and fitted values
   geom_density() + 
   geom_vline(xintercept = fourparams[["theta"]], col="red") + 
   labs(title=mainlab,x="Angle", y="Density") + 
   theme_bw() +
   theme(panel.grid = element_blank())
   
+<<<<<<< HEAD
+mainlab <- "Posterior Densities with Four Players"
+grid.arrange(meplotA, meplotH, meplotr, meplottheta, nrow=2, top = mainlab)
+=======
 # plot(density(player.mcmc[["beta_int0"]]), mainlab,xlab="intercept")
 # abline(v=fourparams[["int"]], col="red")
 # 
@@ -361,6 +400,7 @@ ggplot(data = player.mcmc, aes(x=beta_theta0)) +
 # 
 # plot(density(player.mcmc[["beta_theta0"]]),mainlab, xlab="theta")
 # abline(v=fourparams[,3], col="red")
+>>>>>>> parent of 35e6867... predictions and fitted values
 ```
 
 
@@ -368,7 +408,7 @@ The hierarchical model shows us that our four high-usage players of interest do 
 
 In the plots below, we have contour plots showing players' expected field goal percentages at different locations on the court. Between our four players of interest, we can observe how player *1* is more effective on the ____ side of the basket than the others, and how player ____ is the ___ long-range shooter.
 
-```{r contours}
+```{r contours, cache=TRUE}
 
 get_raneffs <- function(sim.mcmc = player.mcmc, j=NA){
   if(j>0){
@@ -476,11 +516,14 @@ if(!load_chains){
 
 }
 
-plot_contours(avg1, "Hello")
-plot_contours(avg2)
-plot_contours(avg3)
-plot_contours(avg4)
-plot_contours(avgtot, "Team Effect")
+contplot1 <- plot_contours(avg1)
+contplot2 <- plot_contours(avg2)
+contplot3 <- plot_contours(avg3)
+contplot4 <- plot_contours(avg4)
+contplotteam <- plot_contours(avgtot, "Team Effect")
+
+grid.arrange(contplot1, contplot2, contplot3, contplot4, nrow=2)
+contplotteam
 
 ```
 
@@ -755,7 +798,7 @@ The amount of volatility that we see in the posterior distribution of the parame
 -->
 
 #### Game-by-Game Hierarchical Model
-```{r hier2}
+```{r hier-disc, cache=TRUE}
 
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
@@ -932,9 +975,9 @@ if(!load_chains){
   
 }else{
   
-  eval(parse(
-    text=paste0("game.mcmc.list.",deltas_str," <- load_gamelist(",deltas_str,");\n")
-  ))
+  # eval(parse(
+  #   text=paste0("game.mcmc.list.",deltas_str," <- load_gamelist(",deltas_str,");\n")
+  # ))
   
   eval(parse(
     text=paste0("load(file='../rdatafiles/gameparams",deltas_str,".RData');\n")
@@ -943,6 +986,17 @@ if(!load_chains){
 
 }
 
+<<<<<<< HEAD
+game.params <- game.params.999
+discplot1 <- plot_time_effect(game.params, id=id1, parameter="intH", main="Intercept (Home) Player 1")
+discplot2 <- plot_time_effect(game.params, id=id2, parameter="intH", main="Intercept (Home) Player 2")
+discplot3 <- plot_time_effect(game.params, id=id3, parameter="intH", main="Intercept (Home) Player 3")
+discplot4 <- plot_time_effect(game.params, id=id4, parameter="intH", main="Intercept (Home) Player 4")
+discplot5 <- plot_time_effect(game.params, id=0, parameter="intH", main="Intercept (Home) Team")
+
+grid.arrange(discplot1,discplot2,discplot3,discplot4, nrow=2)
+discplot5
+=======
 plot_time_effect <- function(game.params = NA, id = NA, parameter = NA, only_fga_games = TRUE){
   
   param_map <- list()
@@ -995,15 +1049,19 @@ g3 <- plot_time_effect(game.params, id=id3, parameter="int")
 g4 <- plot_time_effect(game.params, id=id4, parameter="int")
 g5 <- plot_time_effect(game.params, id=0, parameter="int")
 gridExtra::grid.arrange(g1,g2,g3,g4, nrow=2)
+>>>>>>> parent of 35e6867... predictions and fitted values
 ```
 
 
 
 
-```{r preds}
+```{r preds, cache=TRUE}
 # posterior mean   --> minimize sq err
 # posterior median --> minimize abs err
 
+<<<<<<< HEAD
+#load(file=paste0(rdatafiles,"glmtot.RData"))
+=======
 #formats the data to return three parameters for every combination of globalplayerid and gameid
 
 load(file="../rdatafiles/glmtot.RData")
@@ -1034,6 +1092,7 @@ load(file="../rdatafiles/glmtot.RData")
 
 # MCMC Averages
 Xpred <- Xtest
+>>>>>>> parent of 35e6867... predictions and fitted values
 
 # we want S predictions per shot. an N x S matrix. then we take MCMC average.
 pred_glm <- function(Xpred = NA, MCMC = NA){
@@ -1121,7 +1180,11 @@ pred_disc <- function(Xpred = NA, MCMC.LIST=NA){
   
 }
 
+<<<<<<< HEAD
+eval_pred <- function(observed = NA, predicted = NA, cutoff = 0.5, nbins = 20, gameids = NA){
+=======
 eval_pred <- function(actual = NA, pred = NA, cutoff = 0.5, nbins = 8){
+>>>>>>> parent of 35e6867... predictions and fitted values
   
   ret1 <- array(NA, c(2,2))
   rownames(ret1) <- c("predicted miss", "predicted make")
@@ -1193,6 +1256,75 @@ plot_calibration <- function(dat, title){
     labs(x="bin", main=title)
 }
 
+<<<<<<< HEAD
+Xmine <- data.frame(
+  result = rep(c(0,1),each=5),
+  home   = 1,
+  r      = 10,
+  theta  = 0,
+  globalplayerid = c(937663,937674,937647,937669,937650),
+  gameid = c(201501170314,201501190173),
+  time = 1:10
+)
+
+if(!load_chains){
+  
+  pred.team     <- pred_glm(Xtest, glmtot)
+  pred.player   <- pred_me(Xtest, player.mcmc)
+  eval(parse(
+    text=paste0("pred.game.",deltas_str," <- pred_disc(Xtest, game.mcmc.list.", deltas_str, ");\n")
+  ))
+  pred.0        <- rep(0, nrow(Xtest))
+  pred.1        <- rep(1, nrow(Xtest))
+
+  savepreds <- ls() %>% grep(pattern="pred.",fixed=TRUE,value=TRUE)
+  temp <- lapply(as.list(savepreds), function(x){
+    save(list=x, 
+         file=paste0(rdatafiles,gsub(patt=".",rep="",x=x,fixed=TRUE),".RData"))
+    })
+  
+  fitted.team     <- pred_glm(Xtrain, glmtot)
+  fitted.player   <- pred_me(Xtrain, player.mcmc)
+  eval(parse(
+    text=paste0("fitted.game.", deltas_str," <- pred_disc(Xtrain, game.mcmc.list.", deltas_str, ");\n")
+  ))
+  fitted.0        <- rep(0, nrow(Xtrain))
+  fitted.1        <- rep(1, nrow(Xtrain))
+  
+  savefitteds <- ls() %>% grep(pattern="fitted.",fixed=TRUE,value=TRUE)
+  temp <- lapply(as.list(savefitteds), function(x){
+    save(list=x, 
+         file=paste0(rdatafiles,gsub(patt=".",rep="",x=x,fixed=TRUE),".RData"))
+  })
+  
+
+}else{
+  
+  loadpreds <- list.files(rdatafiles, pattern="pred")
+  temp <- lapply(as.list(loadpreds), function(x){
+    load(file=paste0(rdatafiles,x), envir = globalenv())
+  })
+  
+  loadfitteds <- list.files(rdatafiles, pattern="fitted")
+  temp <- lapply(as.list(loadfitteds), function(x){
+    load(file=paste0(rdatafiles,x), envir = globalenv())
+  })
+
+  
+}
+
+eval.team.p   <- eval_pred(Xtest$result, pred.team)
+eval.player.p <- eval_pred(Xtest$result, pred.player)
+eval(parse(
+  text=paste0("eval.",deltas_str,".p <- eval_pred(Xtest$result, pred.game.", deltas_str, ");\n")
+  ))
+
+eval.team.f   <- eval_pred(Xtrain$result, fitted.team)
+eval.player.f <- eval_pred(Xtrain$result, fitted.player)
+eval(parse(
+  text=paste0("eval.",deltas_str,".f <- eval_pred(Xtrain$result, fitted.game.", deltas_str, ");\n")
+  ))
+=======
 plot_calibration(eval.team, "")
 
 
@@ -1205,10 +1337,77 @@ pred.game.500[pred.game.500 > mean(c(.1526, .3354)) & pred.game.500 < mean(c(0.3
 glm1 <- glm(result ~ log(r) + globalplayerid, data=Xtrain, family="binomial")
 p.glm1 <- predict(glm1, Xtest, type="response")
 conf_mat(Xtest$result, p.glm1)
+>>>>>>> parent of 35e6867... predictions and fitted values
 
 ```
 
 
+<<<<<<< HEAD
+```{r model-eval, cache=TRUE}
+
+logliks_delta <- eval(parse(
+  text=paste0("c(",paste0("eval.",deltas_str,".f[[1]]$loglik", collapse = ", "),")")
+))
+
+classrates_delta <- eval(parse(
+  text=paste0("c(",paste0("eval.",deltas_str,".p[[1]]$classificationrate", collapse = ", "),")")
+))
+
+mses_delta <- eval(parse(
+  text=paste0("c(",paste0("eval.",deltas_str,".p[[1]]$mse", collapse = ", "),")")
+))
+
+classrates <- c(eval.team.p[[1]]$classificationrate, 
+                eval.player.p[[1]]$classificationrate
+                )
+
+logliks <- c(eval.team.f[[1]]$loglik, 
+             eval.player.f[[1]]$loglik
+             )
+
+mses <- c(eval.team.p[[1]]$mse, 
+          eval.player.p[[1]]$mse
+          )
+
+df_delta <- data.frame(d = deltas, classrates_delta, logliks_delta, mses_delta)
+types <- c("GLM", "Mixed Effects")
+df <- data.frame(type=factor(types, levels=types), classrates, logliks, mses)
+
+g1 <- ggplot(data=df_delta, aes(x=d,y=classrates_delta)) +
+  geom_point() + 
+  geom_hline(data=df, aes(yintercept=classrates, linetype=type)) +
+  theme_bw() + 
+  labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "")
+
+
+g2 <- ggplot(data=df_delta, aes(x=d,y=logliks_delta)) +
+  geom_point() + 
+  geom_hline(data=df, aes(yintercept=logliks, linetype=type)) +
+  theme_bw() + 
+  labs(y="Log Likelihood", x="delta", linetype = "")
+
+g3 <- ggplot(data=df_delta, aes(x=d,y=mses_delta)) +
+  geom_point() + 
+  geom_hline(data=df, aes(yintercept=mses, linetype=type)) +
+  theme_bw() + 
+  labs(y="MSE", x="delta", linetype = "")
+
+grid.arrange(g1, g2, g3, nrow=2)
+
+# df_fitvals <- data.frame(
+#   d750 = fitted.game.750,
+#   d800 = fitted.game.800,
+#   d850 = fitted.game.850,
+#   d900 = fitted.game.900,
+#   d950 = fitted.game.950,
+#   d999 = fitted.game.999
+# ) %>% melt(id=NULL)
+# 
+# ggplot(df_fitvals, aes(x=value, col=variable)) + geom_density(size=1)
+```
+
+From these plots, we can observe that all of the models have different strengths. The simple generalized linear model that does not account for player effects or game-by-game variation has the highest classification rate (with a 0.50 probability cutoff) and the smallest Mean Squared Error. However, the model with mixed effects and a discounted likelihood with a discount weight of 0.75 has the highest likelihood. 
+=======
 ```{r onestest, eval=FALSE}
 model.ones <- function(){
   for(i in 1:N) {
@@ -1236,6 +1435,7 @@ sim.ones <- jags(data = c("constant","N","outcome", "outcome.ones"),
             model.file=model.ones
 )
 sim.mcmc.ones <- as.data.frame(as.mcmc(sim.ones)[[1]])
+>>>>>>> parent of 35e6867... predictions and fitted values
 
-```     
+Upon investigating why the smallest delta has the best likelihood, but the worst classification rate and MSE, we noticed that as delta decreases, the distribution of the fitted values becomes smoother. *insert graph* This explains how ___.
 

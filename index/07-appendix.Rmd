@@ -31,8 +31,74 @@ This first appendix includes all of the R chunks of code that were hidden throug
 
 ## GLM:
 
-```{r, echo=FALSE}
-library(ggplot2); library(coda)
+
+```{r, init, include=FALSE}
+
+knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
+
+library(knitr)     # for knitting
+library(dplyr)     # used throughout
+library(ggplot2)
+library(stringr)
+library(reshape2)
+library(R2jags)    # for MCMC
+library(png)       # for graphics
+library(grid)
+library(gridExtra)
+library(coda)      # for MCMC graphics
+
+set.seed(493)
+load_chains <- TRUE
+rdatafiles <- "../rdatafiles/"
+load(file=paste0(rdatafiles,"Xtot.RData"))
+N <- nrow(Xtot)
+testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
+Xtrain <- Xtot[-testrows,] %>% arrange(time)
+Xtest <- Xtot[testrows,] %>% arrange(time)
+
+XH <- Xtot[Xtot$home == 1,]
+NH <- nrow(XH)
+testrowsH <- sample(x=1:NH, size=floor(0.2*NH), replace=FALSE)
+XtrainH <- Xtot[-testrowsH,] %>% arrange(time)
+XtestH <- Xtot[testrowsH,] %>% arrange(time)
+
+
+id1 <- 887665 
+id2 <- 842301 
+id3 <- 603106 
+id4 <- 601140 
+playerseasons <- matrix(
+  c(id1,   2016,
+    id2,   2015,
+    id3,   2014,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+#deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
+deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+deltas_str <- as.character(deltas*1000)
+
+playermap <- data.frame(
+  factorid = as.integer(as.factor(Xtot$globalplayerid)),
+  globalplayerid = Xtot$globalplayerid
+) %>% unique()
+rownames(playermap) <- NULL
+
+gamemap <- data.frame(
+  factorid = as.integer(as.factor(Xtot$gameid)),
+  gameid   = Xtot$gameid
+) %>% unique()
+rownames(gamemap) <- NULL
+
+```
+
+
+```{r diagnostics, echo=FALSE, include=FALSE, cache=TRUE}
+
+rdatafiles <- "../rdatafiles/"
+
 diagnostic_plots <- function(chain=NA, chain_name = ""){
   
   chain_df <- as.data.frame(chain)
@@ -53,8 +119,6 @@ diagnostic_plots <- function(chain=NA, chain_name = ""){
     theme_bw() +
     theme(panel.grid = element_blank()) +
     geom_abline(intercept=0, slope=0, linetype=1, color="red") 
-
-  
   lagautocorr <- ggplot(data=as.data.frame(1:50), aes(x=1:50, y=as.numeric(autocorr(as.mcmc(chain), lags = 1:50)))) + 
     geom_col(fill="black") + 
     labs(title=paste("Lag-t Autocorrelation of", chain_name),
@@ -64,13 +128,65 @@ diagnostic_plots <- function(chain=NA, chain_name = ""){
     theme(panel.grid = element_blank()) +
     coord_cartesian(ylim = c(-1, 1)) +
     geom_abline(intercept=0, slope=0, linetype=1, color="red") 
-
-  gridExtra::grid.arrange(density, trace, lagautocorr, nrow=3)
+  return(grid.arrange(density, trace, lagautocorr, nrow=3))
 }
 
-load(file="../rdatafiles/glm1.RData")
+load_gamelist <- function(delta_str=NA, dir = rdatafiles){
+  
+  # load(file=paste0(dir,"/gamemcmclist",delta_str,".RData"), envir = globalenv())
+  localenv <- new.env()
+  GL <- list()
+  filenames <- paste0(dir,"/",list.files(path=dir, pattern=paste0("gamemcmc", delta_str))) %>% '['(order(.))
+  
+  for(i in 1:length(filenames)){
+    load(filenames[i], envir=localenv)
+    GL[[i]] <- localenv$game
+    if(length(localenv$game) == 0){
+      eval(parse(
+        text=paste0("GL[[i]] <- localenv$game.mcmc.",delta_str,"_",formatC(i, digits=2, flag="0"))
+      ))
+    }
 
-diagnostic_plots(glm1[[2]], "heyhey")
+  }
+  names(GL) <- as.character(gamemap$gameid)
+
+  return(GL)
+}
+
+load(file=paste0(rdatafiles,"glmtot.RData"))
+load(file=paste0(rdatafiles,"playermcmc.RData"))
+game.mcmc.list.750 <- load_gamelist(750)
+
+glmdiag1 <- diagnostic_plots(glmtot[[1]], "Intercept (Away)")
+glmdiag2 <- diagnostic_plots(glmtot[[2]], "Intercept (Home)")
+glmdiag3 <- diagnostic_plots(glmtot[[3]], "Distance")
+glmdiag4 <- diagnostic_plots(glmtot[[4]], "Angle")
+
+# grid.arrange(glmdiag1, glmdiag2, glmdiag3, glmdiag4, nrow=2, top="GLM")
+
+mediag1 <- diagnostic_plots(player.mcmc[paste0("beta_intA[",id1,"]")], "Intercept (Away)")
+mediag2 <- diagnostic_plots(player.mcmc[paste0("beta_intH[",id1,"]")], "Intercept (Home)")
+mediag3 <- diagnostic_plots(player.mcmc[paste0("beta_r[",id1,"]")], "Distance")
+mediag4 <- diagnostic_plots(player.mcmc[paste0("beta_theta[",id1,"]")], "Angle")
+
+# grid.arrange(mediag1, mediag2, mediag3, mediag4, nrow=2, top="Mixed Effects (Player 1)")
+
+discdiag1 <- diagnostic_plots(player.mcmc[paste0("beta_intA[",id1,"]")], "Intercept (Away)")
+discdiag2 <- diagnostic_plots(player.mcmc[paste0("beta_intH[",id1,"]")], "Intercept (Home)")
+discdiag3 <- diagnostic_plots(player.mcmc[paste0("beta_r[",id1,"]")], "Distance")
+discdiag4 <- diagnostic_plots(player.mcmc[paste0("beta_theta[",id1,"]")], "Angle")
+
+# grid.arrange(discdiag1, discdiag2, discdiag3, discdiag4, nrow=2, top="Discounted Weight Effects (Player 1)")
+
+```
+
+```{r diagplots, fig.height=10}
+
+grid.arrange(glmdiag1, glmdiag2, glmdiag3, glmdiag4, nrow=2, top="GLM")
+
+grid.arrange(mediag1, mediag2, mediag3, mediag4, nrow=2, top="Mixed Effects (Player 1)")
+
+grid.arrange(discdiag1, discdiag2, discdiag3, discdiag4, nrow=2, top="Discounted Weight Effects (Player 1)")
 
 
 ```
