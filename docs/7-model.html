@@ -117,7 +117,8 @@
 <h4><span class="header-section-number">7.0.0.3</span> Game-by-Game Hierarchical Model</h4>
 <p><img src="thesis_files/figure-html/hier-disc-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/hier-disc-2.png" width="672" style="display: block; margin: auto;" /></p>
 <p><img src="thesis_files/figure-html/model-eval-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>From these plots, we can observe that all of the models have different strengths. The simple model that does not account for player effects or game-by-game variation has the highest classification rate (with a 0.50 probability cutoff) and the smallest Mean Squared Error. However, the model with player effects and discounted likelihood based on game index has the highest likelihood. Upon investigating why the smallest delta has the best likelihood, but the worst classification rate and MSE, we noticed that as delta decreases, the distribution of the fitted values becomes smoother. <em>insert graph</em> This explains how ___.</p>
+<p>From these plots, we can observe that all of the models have different strengths. The simple generalized linear model that does not account for player effects or game-by-game variation has the highest classification rate (with a 0.50 probability cutoff) and the smallest Mean Squared Error. However, the model with mixed effects and a discounted likelihood with a discount weight of 0.75 has the highest likelihood.</p>
+<p>Upon investigating why the smallest delta has the best likelihood, but the worst classification rate and MSE, we noticed that as delta decreases, the distribution of the fitted values becomes smoother. <em>insert graph</em> This explains how ___.</p>
 
 </div>
 </div>
