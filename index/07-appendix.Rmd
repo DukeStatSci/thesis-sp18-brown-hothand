@@ -34,6 +34,19 @@ This first appendix includes all of the R chunks of code that were hidden throug
 
 ```{r, init, include=FALSE}
 
+# TODO:
+  # I think the likelihood is all messed up because that should be used to compare nested models...right?
+  # time to settle on a "best" model!
+  # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
+  # put diagnostic plots in the Appendix...but not all of them!
+  # don't forget a "future considerations" section in your conclusion or something
+  # make a calibration plot for each game.
+    # another thing that would be useful is to look at histogram of probs within a  calibration bin.
+      # then you see if bins are biased
+  # also look at very low-usage players!
+
+rm(list=ls())
+
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
 library(knitr)     # for knitting
@@ -45,22 +58,11 @@ library(R2jags)    # for MCMC
 library(png)       # for graphics
 library(grid)
 library(gridExtra)
-library(coda)      # for MCMC graphics
 
 set.seed(493)
-load_chains <- TRUE
-rdatafiles <- "../rdatafiles/"
-load(file=paste0(rdatafiles,"Xtot.RData"))
-N <- nrow(Xtot)
-testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
-Xtrain <- Xtot[-testrows,] %>% arrange(time)
-Xtest <- Xtot[testrows,] %>% arrange(time)
 
-XH <- Xtot[Xtot$home == 1,]
-NH <- nrow(XH)
-testrowsH <- sample(x=1:NH, size=floor(0.2*NH), replace=FALSE)
-XtrainH <- Xtot[-testrowsH,] %>% arrange(time)
-XtestH <- Xtot[testrowsH,] %>% arrange(time)
+load_chains <- TRUE
+season_2015 <- FALSE
 
 
 id1 <- 887665 
@@ -75,6 +77,36 @@ playerseasons <- matrix(
   ),ncol=2,byrow = TRUE
 )
 colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+if(season_2015){
+  
+  rdatafiles <- "../rdatafiles2015/"
+  id1 <- 842297
+  id3 <- 842298
+  playerseasons <- matrix(
+  c(id1,   2015,
+    id2,   2015,
+    id3,   2015,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+}
+
+
+load(file=paste0(rdatafiles,"Xtot.RData"))
+N <- nrow(Xtot)
+testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
+Xtrain <- Xtot[-testrows,] %>% arrange(time)
+Xtest <- Xtot[testrows,] %>% arrange(time)
+
+# XH <- Xtot[Xtot$home == 1,]
+# NH <- nrow(XH)
+# testrowsH <- sample(x=1:NH, size=floor(0.2*NH), replace=FALSE)
+# XtrainH <- Xtot[-testrowsH,] %>% arrange(time)
+# XtestH <- Xtot[testrowsH,] %>% arrange(time)
+
 
 #deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
 deltas <- c(seq(0.75, 0.95, 0.05),0.999)
@@ -96,8 +128,6 @@ rownames(gamemap) <- NULL
 
 
 ```{r diagnostics, echo=FALSE, include=FALSE, cache=TRUE}
-
-rdatafiles <- "../rdatafiles/"
 
 diagnostic_plots <- function(chain=NA, chain_name = ""){
   

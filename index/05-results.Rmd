@@ -4,8 +4,8 @@
 ```{r, init, include=FALSE}
 
 # TODO:
-  # email mike your delta conundrum
-    # time to settle on a "best" model!
+  # I think the likelihood is all messed up because that should be used to compare nested models...right?
+  # time to settle on a "best" model!
   # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
   # put diagnostic plots in the Appendix...but not all of them!
   # don't forget a "future considerations" section in your conclusion or something
@@ -699,7 +699,6 @@ save_gamelist <- function(GL=NA, delta_str=NA, dir = rdatafiles){
 
 }
 
-
 #takes the elements from the rdata files and formats them into a list
 load_gamelist <- function(delta_str=NA, dir = rdatafiles){
   
@@ -722,7 +721,6 @@ load_gamelist <- function(delta_str=NA, dir = rdatafiles){
 
   return(GL)
 }
-
 
 plot_time_effect <- function(game.params = NA, id = NA, parameter = NA, main=NA, only_fga_games = TRUE){
   
@@ -885,8 +883,10 @@ eval_pred <- function(observed = NA, predicted = NA, cutoff = 0.5, nbins = 20, g
     
     rate <- (tab[1,1]+tab[2,2])/length(obs)
     
-    #log likelihood
-    loglik <- sum(obs*log(pred) + (1-obs)*log(1-pred))
+    #deviance
+    loglik <- sum(
+      obs*log(pred) + (1-obs)*log((1-pred))
+    )
     
     MSE <- mean((obs - pred)^2)
     
@@ -1059,8 +1059,23 @@ grid.arrange(g1, g2, g3, nrow=2)
 # ggplot(df_fitvals, aes(x=value, col=variable)) + geom_density(size=1)
 ```
 
+
+```{r logliks}
+#theoretically, likelihood should increase for each one
+m1 <- glm(result ~ 1, data=Xtrain, family=binomial)
+m2 <- glm(result ~ r, data=Xtrain, family=binomial)
+m3 <- glm(result ~ r + theta, data=Xtrain, family=binomial)
+m4 <- glm(result ~ r + globalplayerid, data=Xtrain, family=binomial)
+m5 <- glm(result ~ r + theta + globalplayerid, data=Xtrain, family=binomial)
+# and it does increase.
+
+```
+
 From these plots, we can observe that all of the models have different strengths. The simple generalized linear model that does not account for player effects or game-by-game variation has the highest classification rate (with a 0.50 probability cutoff) and the smallest Mean Squared Error. However, the model with mixed effects and a discounted likelihood with a discount weight of 0.75 has the highest likelihood. 
 
 
 Upon investigating why the smallest delta has the best likelihood, but the worst classification rate and MSE, we noticed that as delta decreases, the distribution of the fitted values becomes smoother. *insert graph* This explains how ___.
+
+
+For the remainder of this paper, we will select the 
 
