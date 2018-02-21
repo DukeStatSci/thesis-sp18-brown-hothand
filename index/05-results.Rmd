@@ -3,6 +3,20 @@
 
 ```{r, init, include=FALSE}
 
+#### TODO: uncomment these lines when finished multi-processing ####
+# rm(list=ls())
+# k0 <- 1 #between 1 and k, inclusive
+# deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+
+k0 <- as.numeric(strsplit(srv, "")[[1]][1])
+ltr <- strsplit(srv, "")[[1]][2]
+if(ltr == "A"){
+  deltas <- c(0.750, 0.800)
+}else if(ltr == "B"){
+  deltas <- c(0.850, 0.900)
+}else if(ltr == "C"){
+  deltas <- c(0.950, 0.999)
+}
 # TODO:
   # I think the likelihood is all messed up because that should be used to compare nested models...right?
   # time to settle on a "best" model!
@@ -14,7 +28,7 @@
       # then you see if bins are biased
   # also look at very low-usage players!
 
-rm(list=ls())
+# rm(list=ls())
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
@@ -28,12 +42,13 @@ library(png)       # for graphics
 library(grid)
 library(gridExtra)
 
-set.seed(493)
+set.seed(49301)
 
-load_chains <- TRUE
-season_2015 <- TRUE
+load_chains <- FALSE
+season_2015 <- FALSE
+k <- 5 #k-fold cross-validation
 
-
+rdatafiles <- paste0("../rdatafiles",k0,"/")
 id1 <- 887665 
 id2 <- 842301 
 id3 <- 603106 
@@ -66,7 +81,8 @@ colnames(playerseasons) <- c("globalplayerid" ,"season")
 
 load(file=paste0(rdatafiles,"Xtot.RData"))
 N <- nrow(Xtot)
-testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
+kgroups <- rmultinom(n=N, size=1, prob = rep(1/k,k)) %>% '=='(1) %>% apply(2,which)
+testrows <- which(kgroups == k0)
 Xtrain <- Xtot[-testrows,] %>% arrange(time)
 Xtest <- Xtot[testrows,] %>% arrange(time)
 
@@ -78,7 +94,7 @@ Xtest <- Xtot[testrows,] %>% arrange(time)
 
 
 #deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
-deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+# deltas <- c(seq(0.75, 0.95, 0.05),0.999)
 deltas_str <- as.character(deltas*1000)
 
 playermap <- data.frame(
@@ -107,8 +123,8 @@ The results of the credible intervals are reported for the same four players, in
 
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
-mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
-tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+tau0r <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]^2
 tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 
 
@@ -236,8 +252,8 @@ The five plots above show the posteriors of the generalized linear model paramet
 ```{r, hier, cache=TRUE}
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
-mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
-tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+tau0r <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]^2
 tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
 
 fit_players <- function(dat = NA, S = 10000, B = 500){
@@ -534,9 +550,50 @@ contplotteam
 
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
 mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
-mu0theta <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]
-tau0r <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+tau0r <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]^2
 tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+
+
+#saves the list by its elements so it will fit in github
+save_gamelist <- function(GL=NA, delta_str=NA, g_str=NA, dir = rdatafiles){
+
+  for(g in 1:length(GL)){
+    if(is.na(g_str[g])){
+      g_str2 <- formatC(g, digits=2, flag="0")
+    }else{
+      g_str2 <- g_str[g]
+    }
+    
+    game <- GL[[g]]
+    save(game, file = paste0(dir,"/gamemcmc",delta_str,"_",g_str2,".RData"))
+    #giving them all the same workspace name will make it easier to delete them.
+  }
+
+}
+
+#takes the elements from the rdata files and formats them into a list
+load_gamelist <- function(delta_str=NA, dir = rdatafiles){
+  
+  # load(file=paste0(dir,"/gamemcmclist",delta_str,".RData"), envir = globalenv())
+  localenv <- new.env()
+  GL <- list()
+  filenames <- paste0(dir,"/",list.files(path=dir, pattern=paste0("gamemcmc", delta_str))) %>% '['(order(.))
+  
+  for(i in 1:length(filenames)){
+    load(filenames[i], envir=localenv)
+    GL[[i]] <- localenv$game
+    if(length(localenv$game) == 0){
+      eval(parse(
+        text=paste0("GL[[i]] <- localenv$game.mcmc.",delta_str,"_",formatC(i, digits=2, flag="0"))
+      ))
+    }
+
+  }
+  names(GL) <- as.character(gamemap$gameid)
+
+  return(GL)
+}
 
 fit_game <- function(dat = NA, anchor = NA, discount_wt = NA, S = 10000, B = 500){
 
@@ -643,7 +700,7 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = NA, S = 10000, B = 500
 
 }
 
-fit_games <- function(dat = NA, discount_wt = NA, S = 10000, B = 500){
+fit_games <- function(dat = NA, discount_wt = NA, gstart = 1, S = 10000, B = 500){
     
   G <- n_distinct(dat$gameid)
   gnames <- unique(dat$gameid)
@@ -651,10 +708,12 @@ fit_games <- function(dat = NA, discount_wt = NA, S = 10000, B = 500){
 
   game.mcmc.list <- as.list(rep(NA, G))
 
-  for(g in 1:G){
-    print(paste(discount_wt, g, sep=" : "))
+  for(g in gstart:G){
+    print(paste(k0, discount_wt, g, sep=" : "))
     game.mcmc <- fit_game(dat, g, discount_wt, S, B)
     game.mcmc.list[[ g ]] <- game.mcmc
+    
+    save_gamelist(game.mcmc.list[g], delta_str=1000*discount_wt, g_str=formatC(g, digits=2, flag="0"))
   }
   
   names(game.mcmc.list) <- as.character(gamemap$gameid)
@@ -682,44 +741,6 @@ get_game_params <- function(sim.mcmc.list=NA, dat=NA){
   params.season$nshots[is.na(params.season$nshots)] <- 0
 
   return(params.season)
-}
-
-#saves the list by its elements so it will fit in github
-save_gamelist <- function(GL=NA, delta_str=NA, dir = rdatafiles){
-
-  for(g in 1:length(GL)){
-    if(g < 100){
-      g_str <- formatC(g, digits=2, flag="0")
-    }
-    print(g_str)
-    game <- GL[[g]]
-    save(game, file = paste0(dir,"/gamemcmc",delta_str,"_",g_str,".RData"))
-    #giving them all the same workspace name will make it easier to delete them.
-  }
-
-}
-
-#takes the elements from the rdata files and formats them into a list
-load_gamelist <- function(delta_str=NA, dir = rdatafiles){
-  
-  # load(file=paste0(dir,"/gamemcmclist",delta_str,".RData"), envir = globalenv())
-  localenv <- new.env()
-  GL <- list()
-  filenames <- paste0(dir,"/",list.files(path=dir, pattern=paste0("gamemcmc", delta_str))) %>% '['(order(.))
-  
-  for(i in 1:length(filenames)){
-    load(filenames[i], envir=localenv)
-    GL[[i]] <- localenv$game
-    if(length(localenv$game) == 0){
-      eval(parse(
-        text=paste0("GL[[i]] <- localenv$game.mcmc.",delta_str,"_",formatC(i, digits=2, flag="0"))
-      ))
-    }
-
-  }
-  names(GL) <- as.character(gamemap$gameid)
-
-  return(GL)
 }
 
 plot_time_effect <- function(game.params = NA, id = NA, parameter = NA, main=NA, only_fga_games = TRUE){
@@ -758,8 +779,9 @@ plot_time_effect <- function(game.params = NA, id = NA, parameter = NA, main=NA,
 if(!load_chains){
   
   eval(parse(
-    text=paste0("game.mcmc.list.",deltas_str," <- fit_games(Xtrain,0.",deltas_str,",10000,500);\n    save_gamelist(game.mcmc.list.",deltas_str,",",deltas_str,");\n")
-  ))
+    text=paste0("game.mcmc.list.",deltas_str," <- fit_games(Xtrain,0.",deltas_str,", gstart=1, S=10000, B=500);")))
+  #               "\n    save_gamelist(game.mcmc.list.",deltas_str,",",deltas_str,");\n")
+  # ))
   
   eval(parse(
     text=paste0("game.params.",deltas_str," <- get_game_params(dat=Xtrain, game.mcmc.list.",deltas_str,");\n      save(game.params.",deltas_str,", file='",rdatafiles,"gameparams",deltas_str,".RData');\n")
