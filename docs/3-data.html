@@ -137,19 +137,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="data" class="section level1">
 <h1><span class="header-section-number">Chapter 3</span> Data</h1>
-<p>The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men’s Basketball team permitted the use of their SportVU data from the 2014 to 2017 basketball seasons for this project. However, since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play—only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games.</p>
+<p>The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men’s Basketball team permitted us to use their SportVU data from the 2014 to 2017 basketball seasons for this project. Since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play—only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games.</p>
 <p>For our analysis, we use the following files for each game:</p>
 <ul>
 <li><p>Final Sequence Play-by-Play Optical:</p>
 <p>This dataset comes in an a semi-structured Extensible Markup Language (XML) file, where there is a unique element for each “event” (an event is a basketball action such as a dribble, pass, shot, foul, etc.). Each event element has attributes describing the type of event, the time of the event, and the player who completed the action. We use these files to uncover when a shot is attempted in a game, who attempted the shot, and the result of the shot attempt.</p></li>
 <li><p>Box Score Optical:</p>
-<p>We use this dataset to match the names and ids of players who were in the game. This is also an XML file, with elements corresponding to individual players. These elements contain attributes describing information about the player (e.g. team name, jersey number) and various statistics for the game (e.g. points, assists, distance run).</p></li>
+<p>We use this dataset to match the names and IDs of players who are in the game. This is also an XML file, with elements corresponding to individual players. These elements contain attributes describing information about the player (e.g. team name, jersey number) and various statistics for the game (e.g. points, assists, distance run).</p></li>
 <li><p>Final Sequence Optical:</p>
-<p>These XML files contain the locations of all ten players and the ball during precise time intervals within the game. Each timeunit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter’s location at the moment of a shot attempt.</p>
-&lt;!–</li>
-<li><p>Final Box Optical:</p></li>
+<p>These XML files contain the locations of all ten players and the ball during precise time intervals within the game. Each timeunit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter’s location at the moment of a shot attempt.</p></li>
+<li><p>Data Cleaning</p>
+<p>Steps taken to clean the merged shooter IDs with shot locations include standardizing the locations onto a half-court setting (the teams switch sides of the court halfway through every game, which means that we have to flip the coordinates across the middle of the court for half of the data in every game), converting the x-y coordinates to polar coordinates (in the units of feet and radians), and including an indicator for home games. The final dataset had 5467 observations from 31 shooters over 94 games. The cleaned dataset is summarized below:</p></li>
 </ul>
-<p>These file contain semi-structured data –&gt;</p>
 
 </div>
             </section>

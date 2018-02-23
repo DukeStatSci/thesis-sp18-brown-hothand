@@ -5,7 +5,7 @@
 
 #### TODO: uncomment these lines when finished multi-processing ####
 # rm(list=ls())
-# k0 <- 1 #between 1 and k, inclusive
+k0 <- 1 #between 1 and k, inclusive
 deltas <- c(seq(0.75, 0.95, 0.05),0.999)
 deltas_str <- as.character(deltas*1000)
 
@@ -46,7 +46,7 @@ library(gridExtra)
 
 set.seed(49301)
 
-load_chains <- FALSE
+load_chains <- TRUE
 season_2015 <- FALSE
 home_only <- FALSE
 k <- 5 #k-fold cross-validation
@@ -868,15 +868,6 @@ To evaluate these models, we use 5-fold cross validation. In each train-test spl
 ```{r preds, cache=TRUE}
 # posterior mean   --> minimize sq err
 # posterior median --> minimize abs err
-
-#TODO: delete these once multi processing is complete
-   eval(parse(
-     text=paste0("game.mcmc.list.",deltas_str," <- load_gamelist(",deltas_str,", get_rdatafiles(k0));\n")
-   ))
-
-  # eval(parse(
-  #   text=paste0("game.params.",deltas_str," <- get_game_params(dat=Xtrain, game.mcmc.list.",deltas_str,");\n      save(game.params.",deltas_str,", file='",rdatafiles,"gameparams",deltas_str,".RData');\n")
-  # ))
 
 # we want S predictions per shot. an N x S matrix. then we take MCMC average.
 pred_glm <- function(Xpred = NA, MCMC = NA){

@@ -32,20 +32,36 @@ This first appendix includes all of the R chunks of code that were hidden throug
 ## GLM:
 
 
-```{r, init, include=FALSE}
+```{r init2, include=FALSE}
+
+#### TODO: uncomment these lines when finished multi-processing ####
+# rm(list=ls())
+k0 <- 1 #between 1 and k, inclusive
+deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+deltas_str <- as.character(deltas*1000)
+
+# k0 <- as.numeric(strsplit(srv, "")[[1]][1])
+# ltr <- strsplit(srv, "")[[1]][2]
+# if(ltr == "A"){
+#   deltas <- c(0.750, 0.800)
+# }else if(ltr == "B"){
+#   deltas <- c(0.850, 0.900)
+# }else if(ltr == "C"){
+#   deltas <- c(0.950, 0.999)
+# }
 
 # TODO:
-  # I think the likelihood is all messed up because that should be used to compare nested models...right?
-  # time to settle on a "best" model!
+  # REPEAT ALL ANALYSIS ON ONLY HOME GAMES!!!
+  # make a 2015 folder, and a H folder, and a normal folder
+    #then 5 k's within each of those :)
   # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
   # put diagnostic plots in the Appendix...but not all of them!
   # don't forget a "future considerations" section in your conclusion or something
   # make a calibration plot for each game.
     # another thing that would be useful is to look at histogram of probs within a  calibration bin.
       # then you see if bins are biased
-  # also look at very low-usage players!
 
-rm(list=ls())
+# rm(list=ls())
 
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
@@ -59,11 +75,32 @@ library(png)       # for graphics
 library(grid)
 library(gridExtra)
 
-set.seed(493)
+set.seed(49301)
 
 load_chains <- TRUE
 season_2015 <- FALSE
+home_only <- FALSE
+k <- 5 #k-fold cross-validation
 
+get_rdatafiles <- function(k=NA, home_only=FALSE, season_2015=FALSE){
+
+  base <- "../rdatafiles/"
+  
+  if(home_only){
+    base <- "../rdatafilesH/"
+  }
+  
+  if(season_2015){
+    base <- "../rdatafiles2015/"
+  }
+  
+  if(k<1){
+    return(base)
+  }else{
+    #return(paste0(base,"k",k,"/")) #TODO
+    return(paste0("../rdatafiles",k,"/")) #in the meantime
+  }
+}
 
 id1 <- 887665 
 id2 <- 842301 
@@ -80,7 +117,7 @@ colnames(playerseasons) <- c("globalplayerid" ,"season")
 
 if(season_2015){
   
-  rdatafiles <- "../rdatafiles2015/"
+  rdatafiles <- get_rdatafiles(k0, season_2015 = TRUE)
   id1 <- 842297
   id3 <- 842298
   playerseasons <- matrix(
@@ -94,23 +131,27 @@ colnames(playerseasons) <- c("globalplayerid" ,"season")
 
 }
 
+if(home_only){
+  
+  rdatafiles <- get_rdatafiles(k0, home_only = TRUE)
+  load(file=paste0(rdatafiles,"Xtot.RData"))
 
-load(file=paste0(rdatafiles,"Xtot.RData"))
+}else{
+  
+  rdatafiles <- get_rdatafiles(k0)
+  load(file=paste0(rdatafiles,"Xtot.RData"))
+  
+}
+
 N <- nrow(Xtot)
-testrows <- sample(x=1:N, size=floor(0.2*N), replace=FALSE)
+kgroups <- rmultinom(n=N, size=1, prob = rep(1/k,k)) %>% '=='(1) %>% apply(2,which)
+testrows <- which(kgroups == k0)
 Xtrain <- Xtot[-testrows,] %>% arrange(time)
 Xtest <- Xtot[testrows,] %>% arrange(time)
 
-# XH <- Xtot[Xtot$home == 1,]
-# NH <- nrow(XH)
-# testrowsH <- sample(x=1:NH, size=floor(0.2*NH), replace=FALSE)
-# XtrainH <- Xtot[-testrowsH,] %>% arrange(time)
-# XtestH <- Xtot[testrowsH,] %>% arrange(time)
-
 
 #deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
-deltas <- c(seq(0.75, 0.95, 0.05),0.999)
-deltas_str <- as.character(deltas*1000)
+# deltas <- c(seq(0.75, 0.95, 0.05),0.999)
 
 playermap <- data.frame(
   factorid = as.integer(as.factor(Xtot$globalplayerid)),
@@ -210,13 +251,13 @@ discdiag4 <- diagnostic_plots(player.mcmc[paste0("beta_theta[",id1,"]")], "Angle
 
 ```
 
-```{r diagplots, fig.height=10}
+```{r diagplots, fig.height=5}
 
 grid.arrange(glmdiag1, glmdiag2, glmdiag3, glmdiag4, nrow=2, top="GLM")
 
 grid.arrange(mediag1, mediag2, mediag3, mediag4, nrow=2, top="Mixed Effects (Player 1)")
 
-grid.arrange(discdiag1, discdiag2, discdiag3, discdiag4, nrow=2, top="Discounted Weight Effects (Player 1)")
+grid.arrange(discdiag1, discdiag2, discdiag3, discdiag4, nrow=2, top="Discounted Weight Effects (Player 1, Game X)")
 
 
 ```

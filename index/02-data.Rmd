@@ -6,6 +6,17 @@ output:
 
 # Data {#data}
 
+```{r dat, include=FALSE}
+library(dplyr)
+
+load("../rdatafiles/Xtot.RData")
+kab <- Xtot %>%
+  '['(550:560,) %>%
+  mutate(gameid=as.character(gameid),
+         time = as.character(time)) %>%
+  select(season, gameid, time, globalplayerid, r, theta, home, result)
+```
+
 The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted us to use their SportVU data from the 2014 to 2017 basketball seasons for this project. Since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games.
 
 For our analysis, we use the following files for each game:
@@ -26,15 +37,8 @@ For our analysis, we use the following files for each game:
 
     Steps taken to clean the merged shooter IDs with shot locations include standardizing the locations onto a half-court setting (the teams switch sides of the court halfway through every game, which means that we have to flip the coordinates across the middle of the court for half of the data in every game), converting the x-y coordinates to polar coordinates (in the units of feet and radians), and including an indicator for home games. The final dataset had `r nrow(Xtot)` observations from `r n_distinct(Xtot$globalplayerid)` shooters over `r n_distinct(Xtot$gameid)` games. The cleaned dataset is summarized below:
     
-```{r dat, include=FALSE}
 
-load("../rdatafiles/Xtot.RData")
-kab <- Xtot %>%
-  '['(550:560,) %>%
-  mutate(gameid=as.character(gameid),
-         time = as.character(time)) %>%
-  select(season, gameid, time, globalplayerid, r, theta, home, result)
-
+```{r disp, include=FALSE}
 kable(kab)
 
 ```

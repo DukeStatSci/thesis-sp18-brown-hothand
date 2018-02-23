@@ -139,7 +139,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1><span class="header-section-number">Chapter 5</span> Exploratory Data Analysis</h1>
 <div id="exploratory-data-analysis" class="section level4">
 <h4><span class="header-section-number">5.0.0.1</span> Exploratory Data Analysis</h4>
-<p>The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University between the <em>season</em> and <em>season</em> seasons, and we leave the others in Appendix <em>number</em>. Each plot represents a single player’s ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome.</p>
+<p>The following exploratory plots examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University between the 2013-2014 and 2016-2017 seasons, and we leave the others in Appendix <em>number</em>. Each plot represents a single player’s ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="dt">file=</span><span class="st">&quot;../rdatafiles/Xtot.RData&quot;</span>)
 
 id1 &lt;-<span class="st"> </span><span class="dv">887665</span> 
@@ -170,15 +170,16 @@ playerseasons &lt;-<span class="st"> </span><span class="kw">matrix</span>(
   }
 }
 
-maxseason &lt;-<span class="st"> </span>Xtot %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid, season) %&gt;%<span class="st"> </span><span class="kw">summarize</span>(<span class="dt">num=</span><span class="kw">n</span>()) %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">m=</span><span class="kw">max</span>(num)) %&gt;%<span class="st"> </span><span class="kw">filter</span>(num==m) %&gt;%<span class="st"> </span><span class="kw">as.data.frame</span>()</code></pre></div>
-<pre><code>Warning: package &#39;bindrcpp&#39; was built under R version 3.3.3</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">for(i in <span class="dv">1</span>:<span class="kw">nrow</span>(playerseasons)){
+maxseason &lt;-<span class="st"> </span>Xtot %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid, season) %&gt;%<span class="st"> </span><span class="kw">summarize</span>(<span class="dt">num=</span><span class="kw">n</span>()) %&gt;%<span class="st"> </span><span class="kw">group_by</span>(globalplayerid) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">m=</span><span class="kw">max</span>(num)) %&gt;%<span class="st"> </span><span class="kw">filter</span>(num==m) %&gt;%<span class="st"> </span><span class="kw">as.data.frame</span>()
+
+
+for(i in <span class="dv">1</span>:<span class="kw">nrow</span>(playerseasons)){
   r &lt;-<span class="st"> </span>playerseasons[i,]
   <span class="kw">plotshottime</span>(r[[<span class="dv">1</span>]],r[[<span class="dv">2</span>]],i)
 }</code></pre></div>
 <p><img src="thesis_files/figure-html/plots-1.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/plots-2.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/plots-3.png" width="672" style="display: block; margin: auto;" /><img src="thesis_files/figure-html/plots-4.png" width="672" style="display: block; margin: auto;" /></p>
 <p>We can see that the plots vary in the consistency of their made shots, since they all contain spikes and trends. For example, the third plot initially has a very high success rate, which quickly falls to the middle after about thirty shot attempts, and the second plot has a noticeable upward trend in shot success beginning around shot number one hundred fifty.</p>
-<p>We investigate the shooting outcome using Bayesian models, and show the results in the next section.</p>
+<p>We investigate the shooting outcomes using Bayesian models, and show the results in the next section.</p>
 
 </div>
 </div>
