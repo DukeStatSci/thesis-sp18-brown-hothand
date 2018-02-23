@@ -1,12 +1,10 @@
 #Abstract {#abstract}
 
-The proposed study is an investigation of Bayesian statistical models and analyses for problems arising in shooting a basketball. The data comes from the Duke Men's Basketball team's player-tracking data from the SportVU cameras of STATS, LLC. Goals are to explore, develop, and apply Bayesian models to existing and new data on shooting outcomes. In addition, we want to understand and evaluate questions of inherent random variation, changes over time in shooting performance, and issues related to the "Hot Hand" concept in sports.
+This study is an investigation of Bayesian statistical models and analyses for problems arising in shooting a basketball. The dataset is from the Duke Men's Basketball team's player-tracking data, which is recorded on the SportVU cameras from STATS, LLC. Goals are to explore, develop, and apply Bayesian models to existing and new data on shooting outcomes. In addition, we want to understand and evaluate questions of inherent random variation, changes over time in shooting performance, and issues related to the "Hot Hand" concept in sports.
 
 \par
 
-The models we use to investigate this data are a Bayesian logistic generalized linear model, a hierarchical model, and a discounted likelihood model
-
-<!-- hidden Markov Model? -->
+The models we use to investigate this data are a Bayesian logistic generalized linear model, a hierarchical model with mixed effects on the shooter identity, and a discounted likelihood model that reduces the influence of shots as their time difference from the current shot increases.
 
 \par
 

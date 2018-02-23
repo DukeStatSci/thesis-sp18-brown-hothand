@@ -81,6 +81,7 @@ on chapters.
 
 # Introduction {.unnumbered}
 
-The purpose of this paper is to investigate if the shooting data is time-dependent.
+In the sport of basketball, points are awarded by the binary event of shooting the ball into the goal. Some factors we consider that may affect the success rate include the location of the shooter, the individual skill of the shooter, whether the shooter is playing on his home court or on an away court, and the shooting success in recent surrounding games. There have been previous studies on how much recent shooting success affects current shooting success, and the results vary. For example, *insert examples*.
 
-The dataset comes from the SportVU cameras from STATS, LLC.
+The purpose of this paper is to investigate Bayesian modelling techniques shooting data, and to learn more about time-dependency in shooting data.
+

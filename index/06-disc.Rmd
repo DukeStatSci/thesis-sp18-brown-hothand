@@ -1,5 +1,8 @@
 # Discussion {#disc}
 
-Our results so far suggest that some insights can be taken by predicting basketball shooting outcomes, but none of our results are more insightful than common intuition (i.e. the most frequent shooters are usually above average shooters, or the probability of making a shot decreases as distance from the basket increases). None of the models that we have built predict the out-of-sample data well. We could refine our models by including more predictors such as a proxy for fatigue (using information about total minutes played, or consecutive minutes played without a timeout), or shot difficulty (using information about the nearest defender).
+<!--
+Our results so far suggest that some insights can be taken by predicting basketball shooting outcomes, but none of our results are more insightful than common intuition (i.e. the most frequent shooters are usually above average shooters, or the probability of making a shot decreases as distance from the basket increases). None of the models that we have built predict the out-of-sample data well. We could refine our models by including more predictors such as a proxy for fatigue (using information about total minutes played, or consecutive minutes played without a timeout), or shot difficulty (using information about the nearest defender). -->
 
-Future goals for this research are to build a better-fitting model to predict basketball shots, and to thoroughly investigate the time-dependency of the predictive features.
+*Summarize and reflect upon results*
+
+Future goals for this research are to build a better-fitting model to predict basketball shots using more advanced factors that can be approximated from the dataset; possibilities for this include using the distance of the nearest defender as a proxy for defense quality, or using the amount of time a player has played without a substitution or timeout to approximate fatigue.

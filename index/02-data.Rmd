@@ -3,9 +3,10 @@ output:
   html_document: default
   pdf_document: default
 ---
+
 # Data {#data}
 
-The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted the use of their SportVU data from the 2014 to 2017 basketball seasons for this project. However, since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games.
+The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted us to use their SportVU data from the 2014 to 2017 basketball seasons for this project. Since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games.
 
 For our analysis, we use the following files for each game:
 
@@ -15,14 +16,25 @@ For our analysis, we use the following files for each game:
     
 * Box Score Optical:
 
-    We use this dataset to match the names and ids of players who were in the game. This is also an XML file, with elements corresponding to individual players. These elements contain attributes describing information about the player (e.g. team name, jersey number) and various statistics for the game (e.g. points, assists, distance run).
+    We use this dataset to match the names and IDs of players who are in the game. This is also an XML file, with elements corresponding to individual players. These elements contain attributes describing information about the player (e.g. team name, jersey number) and various statistics for the game (e.g. points, assists, distance run).
 
 * Final Sequence Optical:
 
     These XML files contain the locations of all ten players and the ball during precise time intervals within the game. Each timeunit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter's location at the moment of a shot attempt.
-    
-    <!--
-* Final Box Optical:
 
-  These file contain semi-structured data
--->    
+* Data Cleaning
+
+    Steps taken to clean the merged shooter IDs with shot locations include standardizing the locations onto a half-court setting (the teams switch sides of the court halfway through every game, which means that we have to flip the coordinates across the middle of the court for half of the data in every game), converting the x-y coordinates to polar coordinates (in the units of feet and radians), and including an indicator for home games. The final dataset had `r nrow(Xtot)` observations from `r n_distinct(Xtot$globalplayerid)` shooters over `r n_distinct(Xtot$gameid)` games. The cleaned dataset is summarized below:
+    
+```{r dat, include=FALSE}
+
+load("../rdatafiles/Xtot.RData")
+kab <- Xtot %>%
+  '['(550:560,) %>%
+  mutate(gameid=as.character(gameid),
+         time = as.character(time)) %>%
+  select(season, gameid, time, globalplayerid, r, theta, home, result)
+
+kable(kab)
+
+```
