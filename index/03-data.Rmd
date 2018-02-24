@@ -9,15 +9,59 @@ output:
 ```{r dat, include=FALSE}
 library(dplyr)
 library(knitr)
+library(ggplot2)
+library(grid)
+library(png)
 knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
 
 load("../rdatafiles/Xtot.RData")
 kab <- Xtot %>%
-  '['(550:560,) %>%
+  '['(700:704,) %>%
   mutate(gameid=as.character(gameid),
          time = as.character(time)) %>%
   select(season, gameid, time, globalplayerid, r, theta, home, result)
+
+kabsum <- matrix(nrow=3, ncol=ncol(kab))
+colnames(kabsum) <- colnames(kab)
+rownames(kabsum) <- c("Type", "Values", "Extra Details")
+kabsum[,"season"] <- c("categorical", "{2014, 2015, 2016, 2017}", "")
+kabsum[,"gameid"] <- c("categorical", "NA", "")
+kabsum[,"time"] <- c("continuous", "NA", "13-digit timestamp in milliseconds")
+kabsum[,"globalplayerid"] <- c("categorical", "NA", "")
+kabsum[,"r"] <- c("continuous", "[0, $\\infty$)", "Distance of shot from hoop (feet)")
+kabsum[,"theta"] <- c("continuous", "[-$\\pi$, $\\pi$]", "Angle of shot (radians)")
+kabsum[,"home"] <- c("categorical", "{0,1}", "1 if shot occured during a home game, 0 otherwise")
+kabsum[,"result"] <- c("categorical", "{0,1}", "1 if shot was made, 0 if shot was missed (Response)")
+
+img.path <- "./figure/ncaa_bball_court2.png"
+img <- readPNG(img.path)
+
+xrange <- c(-25,25)
+yrange <- c(0,94/2) - 4
+Xtotrange <- Xtot %>%
+  filter(yt > yrange[1] & yt < yrange[2] & xt > xrange[1] & xt < xrange[2])
+
+ggplot(Xtotrange, aes(x=xt, y=yt, color=theta)) + 
+  annotation_custom(rasterGrob(img,
+                               x=0.50, y=0.50,
+                               width = .92, height = .92),
+                    -Inf, Inf, -Inf, Inf) + 
+  scale_color_gradient2(low = rgb(0,0,0), # black
+                       mid = rgb(0,0,1), # blue 
+                       high= rgb(1,1,1), # white 
+                       midpoint=-0.15) +
+  geom_point() +
+  geom_vline(xintercept=0) +
+  labs(title = "Distribution of Shot Locations", y="", x="") +
+  theme_bw() + 
+  theme(panel.grid = element_blank(), panel.border = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
+
+  
+
 ```
+
+(This figure only contains shots that occur in front of the half-court line)
+
 
 ## Description of Dataset
 
@@ -39,11 +83,13 @@ We use this dataset to match the names and IDs of players who are in the game. T
 
 ## Data Cleaning
 
-  Steps taken to clean the merged shooter IDs with shot locations include standardizing the locations onto a half-court setting (the teams switch sides of the court halfway through every game, which means that we have to flip the coordinates across the middle of the court for half of the data in every game), converting the x-y coordinates to polar coordinates (in the units of feet and radians), and including an indicator for home games. The final dataset had `r nrow(Xtot)` observations from `r n_distinct(Xtot$globalplayerid)` shooters over `r n_distinct(Xtot$gameid)` games. The cleaned dataset is summarized below:
+  Steps taken to clean the merged shooter IDs with shot locations include standardizing the locations onto a half-court setting (the teams switch sides of the court halfway through every game, which means that we have to flip the coordinates across the middle of the court for half of the data in every game), converting the x-y coordinates to polar coordinates (in the units of feet and radians), and including an indicator for home games. The final dataset had `r nrow(Xtot)` observations from `r n_distinct(Xtot$globalplayerid)` shooters over `r n_distinct(Xtot$gameid)` games. A summary of the cleaned dataset, and an excerpt:
     
 
 ```{r disp, include=TRUE}
+kable(t(kabsum))
 kable(kab)
+# TODO: illustration of the court marking where is theta > 0, 
 ```
 
 

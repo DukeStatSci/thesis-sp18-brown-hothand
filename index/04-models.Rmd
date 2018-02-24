@@ -45,6 +45,7 @@ k0 <- 1 #between 1 and k, inclusive
 
 # TODO:
   # put some raw means and stuff  and shot distributions nad home/away splits on EDA section. simple things
+    # and don't forget to add illustrations of where is 0 feet, where is -3.14 degrees, and so on
   # REPEAT ALL ANALYSIS ON ONLY HOME GAMES!!!
   # make a 2015 folder, and a H folder, and a normal folder
     #then 5 k's within each of those :)
