@@ -1,4 +1,0 @@
-# Procedure {#proc}
-
-Using the time-stamped sequence of shot locations and binary outcomes, we fit Bayesian logistic generalized linear models, hierarchichal models, and discounted likelihood models. The discounted likelihood models allow us to observe how strongly shot success rate in the current game is affected by performance in recent games. We deal with the missing data by comparing the results over all games to the results on only home games, since no home games are missing in the dataset. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the players, and formal assessments of differences in patterns game-to-game.
-

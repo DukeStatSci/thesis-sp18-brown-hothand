@@ -1,0 +1,263 @@
+`r if(knitr:::is_latex_output()) '\\appendix'`
+
+`r if(!knitr:::is_latex_output()) '# (APPENDIX) Appendix {-}'` 
+
+<!--
+If you feel it necessary to include an appendix, it goes here.
+
+
+# The First Appendix
+
+This first appendix includes all of the R chunks of code that were hidden throughout the document (using the `include = FALSE` chunk tag) to help with readibility and/or setup.
+
+**In the main Rmd file**
+
+```{r ref.label='include_packages', results='hide', echo = TRUE}
+```
+
+**In Chapter \@ref(ref-labels):**
+
+```{r ref.label='include_packages_2', results='hide', echo = TRUE}
+```
+
+# The Second Appendix, for Fun
+-->
+
+# Appendix 1: Code
+
+
+# Appendix 2: Diagnostic Plots
+
+
+## GLM:
+
+
+```{r init2, include=FALSE}
+
+#### TODO: uncomment these lines when finished multi-processing ####
+# rm(list=ls())
+k0 <- 1 #between 1 and k, inclusive
+deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+deltas_str <- as.character(deltas*1000)
+
+# k0 <- as.numeric(strsplit(srv, "")[[1]][1])
+# ltr <- strsplit(srv, "")[[1]][2]
+# if(ltr == "A"){
+#   deltas <- c(0.750, 0.800)
+# }else if(ltr == "B"){
+#   deltas <- c(0.850, 0.900)
+# }else if(ltr == "C"){
+#   deltas <- c(0.950, 0.999)
+# }
+
+# TODO:
+  # REPEAT ALL ANALYSIS ON ONLY HOME GAMES!!!
+  # make a 2015 folder, and a H folder, and a normal folder
+    #then 5 k's within each of those :)
+  # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
+  # put diagnostic plots in the Appendix...but not all of them!
+  # don't forget a "future considerations" section in your conclusion or something
+  # make a calibration plot for each game.
+    # another thing that would be useful is to look at histogram of probs within a  calibration bin.
+      # then you see if bins are biased
+
+# rm(list=ls())
+
+knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
+
+library(knitr)     # for knitting
+library(dplyr)     # used throughout
+library(ggplot2)
+library(stringr)
+library(reshape2)
+library(R2jags)    # for MCMC
+library(png)       # for graphics
+library(grid)
+library(gridExtra)
+
+set.seed(49301)
+
+load_chains <- TRUE
+season_2015 <- FALSE
+home_only <- FALSE
+k <- 5 #k-fold cross-validation
+
+get_rdatafiles <- function(k=NA, home_only=FALSE, season_2015=FALSE){
+
+  base <- "../rdatafiles/"
+  
+  if(home_only){
+    base <- "../rdatafilesH/"
+  }
+  
+  if(season_2015){
+    base <- "../rdatafiles2015/"
+  }
+  
+  if(k<1){
+    return(base)
+  }else{
+    #return(paste0(base,"k",k,"/")) #TODO
+    return(paste0("../rdatafiles",k,"/")) #in the meantime
+  }
+}
+
+id1 <- 887665 
+id2 <- 842301 
+id3 <- 603106 
+id4 <- 601140 
+playerseasons <- matrix(
+  c(id1,   2016,
+    id2,   2015,
+    id3,   2014,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+if(season_2015){
+  
+  rdatafiles <- get_rdatafiles(k0, season_2015 = TRUE)
+  id1 <- 842297
+  id3 <- 842298
+  playerseasons <- matrix(
+  c(id1,   2015,
+    id2,   2015,
+    id3,   2015,
+    id4,   2015
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+}
+
+if(home_only){
+  
+  rdatafiles <- get_rdatafiles(k0, home_only = TRUE)
+  load(file=paste0(rdatafiles,"Xtot.RData"))
+
+}else{
+  
+  rdatafiles <- get_rdatafiles(k0)
+  load(file=paste0(rdatafiles,"Xtot.RData"))
+  
+}
+
+N <- nrow(Xtot)
+kgroups <- rmultinom(n=N, size=1, prob = rep(1/k,k)) %>% '=='(1) %>% apply(2,which)
+testrows <- which(kgroups == k0)
+Xtrain <- Xtot[-testrows,] %>% arrange(time)
+Xtest <- Xtot[testrows,] %>% arrange(time)
+
+
+#deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
+# deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+
+playermap <- data.frame(
+  factorid = as.integer(as.factor(Xtot$globalplayerid)),
+  globalplayerid = Xtot$globalplayerid
+) %>% unique()
+rownames(playermap) <- NULL
+
+gamemap <- data.frame(
+  factorid = as.integer(as.factor(Xtot$gameid)),
+  gameid   = Xtot$gameid
+) %>% unique()
+rownames(gamemap) <- NULL
+
+```
+
+
+```{r diagnostics, echo=FALSE, include=FALSE, cache=TRUE}
+
+diagnostic_plots <- function(chain=NA, chain_name = ""){
+  
+  chain_df <- as.data.frame(chain)
+  
+  density <- ggplot(data=chain_df, aes(x=chain)) + geom_density() + 
+    labs(title=paste("Posterior Density of", chain_name),
+         x=chain_name, 
+         y="Density") + 
+    theme_bw() +
+    theme(panel.grid = element_blank()) +
+    geom_vline(xintercept=0, linetype=1, color="red") 
+
+  trace <- ggplot(data=chain_df, aes(y=chain, x=1:length(chain))) + 
+    geom_line() + 
+    labs(title=paste("Trace Plot of", chain_name),
+         x="Iteration", 
+         y=chain_name) + 
+    theme_bw() +
+    theme(panel.grid = element_blank()) +
+    geom_abline(intercept=0, slope=0, linetype=1, color="red") 
+  lagautocorr <- ggplot(data=as.data.frame(1:50), aes(x=1:50, y=as.numeric(autocorr(as.mcmc(chain), lags = 1:50)))) + 
+    geom_col(fill="black") + 
+    labs(title=paste("Lag-t Autocorrelation of", chain_name),
+         x="t", 
+         y="Autocorrelation") + 
+    theme_bw() +
+    theme(panel.grid = element_blank()) +
+    coord_cartesian(ylim = c(-1, 1)) +
+    geom_abline(intercept=0, slope=0, linetype=1, color="red") 
+  return(grid.arrange(density, trace, lagautocorr, nrow=3))
+}
+
+load_gamelist <- function(delta_str=NA, dir = rdatafiles){
+  
+  # load(file=paste0(dir,"/gamemcmclist",delta_str,".RData"), envir = globalenv())
+  localenv <- new.env()
+  GL <- list()
+  filenames <- paste0(dir,"/",list.files(path=dir, pattern=paste0("gamemcmc", delta_str))) %>% '['(order(.))
+  
+  for(i in 1:length(filenames)){
+    load(filenames[i], envir=localenv)
+    GL[[i]] <- localenv$game
+    if(length(localenv$game) == 0){
+      eval(parse(
+        text=paste0("GL[[i]] <- localenv$game.mcmc.",delta_str,"_",formatC(i, digits=2, flag="0"))
+      ))
+    }
+
+  }
+  names(GL) <- as.character(gamemap$gameid)
+
+  return(GL)
+}
+
+load(file=paste0(rdatafiles,"glmtot.RData"))
+load(file=paste0(rdatafiles,"playermcmc.RData"))
+game.mcmc.list.750 <- load_gamelist(750)
+
+# glmdiag1 <- diagnostic_plots(glmtot[[1]], "Intercept (Away)")
+# glmdiag2 <- diagnostic_plots(glmtot[[2]], "Intercept (Home)")
+# glmdiag3 <- diagnostic_plots(glmtot[[3]], "Distance")
+# glmdiag4 <- diagnostic_plots(glmtot[[4]], "Angle")
+# 
+# # grid.arrange(glmdiag1, glmdiag2, glmdiag3, glmdiag4, nrow=2, top="GLM")
+# 
+# mediag1 <- diagnostic_plots(player.mcmc[paste0("beta_intA[",id1,"]")], "Intercept (Away)")
+# mediag2 <- diagnostic_plots(player.mcmc[paste0("beta_intH[",id1,"]")], "Intercept (Home)")
+# mediag3 <- diagnostic_plots(player.mcmc[paste0("beta_r[",id1,"]")], "Distance")
+# mediag4 <- diagnostic_plots(player.mcmc[paste0("beta_theta[",id1,"]")], "Angle")
+
+# grid.arrange(mediag1, mediag2, mediag3, mediag4, nrow=2, top="Mixed Effects (Player 1)")
+
+# discdiag1 <- diagnostic_plots(game.mcmc.list.750[[10]][paste0("beta_intA[",id1,"]")], "Intercept (Away)")
+# discdiag2 <- diagnostic_plots(player.mcmc[paste0("beta_intH[",id1,"]")], "Intercept (Home)")
+# discdiag3 <- diagnostic_plots(player.mcmc[paste0("beta_r[",id1,"]")], "Distance")
+# discdiag4 <- diagnostic_plots(player.mcmc[paste0("beta_theta[",id1,"]")], "Angle")
+
+# grid.arrange(discdiag1, discdiag2, discdiag3, discdiag4, nrow=2, top="Discounted Weight Effects (Player 1)")
+
+```
+
+```{r diagplots, fig.height=5}
+
+# grid.arrange(glmdiag1, glmdiag2, glmdiag3, glmdiag4, nrow=2, top="GLM")
+# 
+# grid.arrange(mediag1, mediag2, mediag3, mediag4, nrow=2, top="Mixed Effects (Player 1)")
+# 
+# grid.arrange(discdiag1, discdiag2, discdiag3, discdiag4, nrow=2, top="Discounted Weight Effects (Player 1, Game X)")
+
+
+```
