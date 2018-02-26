@@ -24,43 +24,19 @@ kab <- Xtot %>%
 kabsum <- matrix(nrow=3, ncol=ncol(kab))
 colnames(kabsum) <- colnames(kab)
 rownames(kabsum) <- c("Type", "Values", "Extra Details")
-kabsum[,"season"] <- c("categorical", "{2014, 2015, 2016, 2017}", "")
-kabsum[,"gameid"] <- c("categorical", "NA", "")
+kabsum[,"season"] <- c("categorical", "{2014, ..., 2017}", "")
+kabsum[,"gameid"] <- c("categorical", "NA", "94 unique values")
 kabsum[,"time"] <- c("continuous", "NA", "13-digit timestamp in milliseconds")
-kabsum[,"globalplayerid"] <- c("categorical", "NA", "")
+kabsum[,"globalplayerid"] <- c("categorical", "NA", "31 unique values")
 kabsum[,"r"] <- c("continuous", "[0, $\\infty$)", "Distance of shot from hoop (feet)")
 kabsum[,"theta"] <- c("continuous", "[-$\\pi$, $\\pi$]", "Angle of shot (radians)")
 kabsum[,"home"] <- c("categorical", "{0,1}", "1 if shot occured during a home game, 0 otherwise")
-kabsum[,"result"] <- c("categorical", "{0,1}", "1 if shot was made, 0 if shot was missed (Response)")
-
-img.path <- "./figure/ncaa_bball_court2.png"
-img <- readPNG(img.path)
-
-xrange <- c(-25,25)
-yrange <- c(0,94/2) - 4
-Xtotrange <- Xtot %>%
-  filter(yt > yrange[1] & yt < yrange[2] & xt > xrange[1] & xt < xrange[2])
-
-ggplot(Xtotrange, aes(x=xt, y=yt, color=theta)) + 
-  annotation_custom(rasterGrob(img,
-                               x=0.50, y=0.50,
-                               width = .92, height = .92),
-                    -Inf, Inf, -Inf, Inf) + 
-  scale_color_gradient2(low = rgb(0,0,0), # black
-                       mid = rgb(0,0,1), # blue 
-                       high= rgb(1,1,1), # white 
-                       midpoint=-0.15) +
-  geom_point() +
-  geom_vline(xintercept=0) +
-  labs(title = "Distribution of Shot Locations", y="", x="") +
-  theme_bw() + 
-  theme(panel.grid = element_blank(), panel.border = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-
-  
+kabsum[,"result"] <- c("categorical", "{0,1}", "1 if shot was made, 0 if shot was missed (response)")
 
 ```
 
-(This figure only contains shots that occur in front of the half-court line)
+(This figure only contains shots that occur in front of the half-court line).
+Theta has a range of $2\pi$ radians, but this plot shows that most of the attempts occured within the interval (-$\frac{\pi}{2}$, $\frac{\pi}{2}$). This figure also shows the bimodal distribution of shot distance over all players.
 
 
 ## Description of Dataset
@@ -87,9 +63,42 @@ We use this dataset to match the names and IDs of players who are in the game. T
     
 
 ```{r disp, include=TRUE}
+
 kable(t(kabsum))
 kable(kab)
-# TODO: illustration of the court marking where is theta > 0, 
+
+img.path <- "./figure/ncaa_bball_court2.png"
+img <- readPNG(img.path)
+
+xrange <- c(-25,25)
+yrange <- c(0,94/2) - 4
+Xtotrange <- Xtot %>%
+  filter(yt > yrange[1] & yt < yrange[2] & xt > xrange[1] & xt < xrange[2])
+
+plt <- ggplot(Xtotrange, aes(x=xt, y=yt, color=as.factor(result))) + 
+  annotation_custom(rasterGrob(img,
+                               x=0.50, y=0.50,
+                               width = .92, height = .92),
+                    -Inf, Inf, -Inf, Inf) + 
+  scale_color_manual(values=c("red", "blue")) +
+  geom_point(alpha=0.2) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0) +
+  geom_label(data = data.frame(c(NA, NA, NA)),
+           x=c(-13, 3, 13), 
+           y=c(-1, 40, -1), 
+           parse=TRUE,
+           label=c(as.character(expression(theta == frac(pi,2))),
+                   as.character(expression(theta == 0)),
+                   as.character(expression(theta == -frac(pi,2)))),
+           size=3,
+           color="black", 
+           fontface="bold") +
+  labs(title = "Distribution of Shot Locations", y="", x="", color = "result") +
+  theme_bw() + 
+  theme(panel.grid = element_blank(), panel.border = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
+
+plt
 ```
 
 
@@ -143,4 +152,4 @@ for(i in 1:nrow(playerseasons)){
 
 We can see that the plots vary in the consistency of their made shots, since they all contain spikes and trends. For example, the third plot initially has a very high success rate, which quickly falls to the middle after about thirty shot attempts, and the second plot has a noticeable upward trend in shot success beginning around shot number one hundred fifty.
 
-We investigate the shooting outcomes using Bayesian models, and show the results in the next section.
+We investigate the shooting outcomes using Bayesian models, and present the results in the next section.

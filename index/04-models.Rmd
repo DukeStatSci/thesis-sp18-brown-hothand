@@ -6,22 +6,103 @@ Using the time-stamped sequence of shot locations and binary outcomes, we fit Ba
 
 ### Generalized Linear Model
 
+First, we build a logistic regression model of the following form:
+
 $$
-p \sim Binom
+\text{log} \left( \frac{p}{1-p} \right) = 
+\beta_{\text{int}} +
+X_{\text{r}}\beta_{\text{r}} +
+X_{\theta}\beta_{\theta} +
+X_{\text{H}}\beta_{\text{H}} +
+\epsilon
 $$
+
+$$
+\epsilon \sim N(0, \sigma^2)
+$$
+
+In this model, $X$ refers to the data, $\beta$ is the estimated pareter from the model, and $\epsilon$ is random error. The subscripts $\text{int}$, $\text{r}$, $\theta$, and $\text{H}$ respectively refer to the intercept, the log distance of the shot, the angle of the shot, and whether shot was taken on Duke's home court or another gym.
 
 ### Hierarchical Generalized Linear Model
 
+Our second model is a hierarchical model, with random effects on the players.
+
+$$
+\text{log} \left( \frac{p}{1-p} \right) = 
+\beta_{\text{int, j}} +
+X_{\text{r}}\beta_{\text{r, j}} +
+X_{\theta}\beta_{\theta, j} +
+X_{\text{H}}\beta_{\text{H, j}} +
+\epsilon
+$$
+$$
+\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}})
+$$
+$$
+\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}})
 $$
 
 $$
+\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta})
+$$
 
+$$
+\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}})
+$$
+
+$$
+\epsilon \sim N(0, \sigma^2)
+$$
+
+This model contains random effects on each of the four parameters of interest---the intercept, the home effect, the distance effect, and the angle effect.
 
 ### Discounted Likelihood Hierarchical Model
 
+This model contains the same random effects as the above model. *a couple more sentences* 
+
+$$
+\text{log} \left( \frac{p}{1-p} \right) = 
+\beta_{\text{int, j}} +
+X_{\text{r}}\beta_{\text{r, j}} +
+X_{\theta}\beta_{\theta, j} +
+X_{\text{H}}\beta_{\text{H, j}} +
+\epsilon
 $$
 
 $$
+\phi = L(\text{p}) = \Pi_{\text{i=1}}^\text{n}(\text{p}_i)^{1-\text{y}_i} (1 - \text{p}_i)^{1-\text{y}_i}
+$$
+
+$$
+\delta = \Delta^{|g_i - g_0|}
+$$
+
+$$
+\pi = \phi^{\delta}
+$$
+
+$$
+\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}})
+$$
+
+$$
+\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}})
+$$
+
+$$
+\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta})
+$$
+
+$$
+\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}})
+$$
+
+$$
+\epsilon \sim N(0, \sigma^2)
+$$
+These equations show us that the contribution of an observed shot (in game $g_i$) to the likelihood of the current shot (in game $g_0$) decreases as the distance between the observations increases, and as $\Delta$ decreases.
+
+
 
 We deal with the missing data by comparing the results over all games to the results on only home games, since no home games are missing in the dataset. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the players, and formal assessments of differences in patterns game-to-game.
 
@@ -29,10 +110,8 @@ We deal with the missing data by comparing the results over all games to the res
 
 ```{r init, include=FALSE}
 
-#### TODO: uncomment these lines when finished multi-processing ####
-# rm(list=ls())
-k0 <- 1 #between 1 and k, inclusive
-
+k0 <- 1
+# srv <- ""
 # k0 <- as.numeric(strsplit(srv, "")[[1]][1])
 # ltr <- strsplit(srv, "")[[1]][2]
 # if(ltr == "A"){
@@ -44,6 +123,7 @@ k0 <- 1 #between 1 and k, inclusive
 # }
 
 # TODO:
+  # update comments about player4 since you updaated that id. update glm and contour but nothing else is necessary i don't think.
   # put some raw means and stuff  and shot distributions nad home/away splits on EDA section. simple things
     # and don't forget to add illustrations of where is 0 feet, where is -3.14 degrees, and so on
   # REPEAT ALL ANALYSIS ON ONLY HOME GAMES!!!
@@ -164,6 +244,7 @@ Diagnostic plots for these models can be found in Appendix *number*.
 
 In our logistic regression model, we only look at shot location and the home court indicator as predictors for the shot outcome. To look at these effects for particular players, we simply subset the dataset to shots attempted by that player before running the Markov chain. The results of the credible intervals are reported for the same four players, in the same order as they were previously presented in the Exploratory Data Analysis section.
 
+
 ```{r glm, cache=TRUE}
 
 priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
@@ -228,13 +309,14 @@ plot_params <- function(sim.mcmc = NA, main=""){
     coefs <- sim.mcmc %>%
       apply(2, quantile, c(0.025,0.5,0.975)) %>%
       as.data.frame() %>%
+      mutate(beta_theta = beta_theta) %>% 
       select(beta_intA, beta_intH, beta_r, beta_theta) %>% 
       t() %>%
       as.data.frame()
     
     colnames(coefs) <- c("lo", "mid", "hi")
     
-    xtext <- c("Intercept (Away)","Intercept (Home)","Distance","Angle")
+    xtext <- c("Intercept\n(Away)","Intercept\n(Home)","Distance","Angle")
     xfact <- factor(xtext, levels=xtext)
 
     ggplot(data = coefs, aes(x=xfact , y=mid)) + 
@@ -290,15 +372,17 @@ grid.arrange(glmplot1,glmplot2,glmplot3,glmplot4, nrow=2, top= "GLM Posterior Pa
 glmplot5
 ```
 
-From these plots, we see that the team-wide 95% credible interval of the angle effect contains zero, and it is therefore probably not predictive of a made shot. The average distance effect shows us that the log-odds of a made shot decrease by $\beta_r = $ `r x <- median(glmtot[["beta_r"]]); round(x,4)` as the log distance increases by one and the other predictors remain constant. In the probability scale, this means that the probability of a made shot dereases by 
+In the generalized linear model, the intercept corresponds to the log-odds of making a shot when angle is zero (the middle of the court) and the log distance is zero (one foot away from the hoop). 
+
+From these plots, we see that the team-wide 95% credible interval of the angle effect contains zero, and it is therefore probably not predictive of a made shot. The average distance effect shows us that the log-odds of a made shot decrease by $\beta_r =$ `r x <- median(glmtot[["beta_r"]]); round(x,4)` as the log distance increases by one unit and the other predictors remain constant. In the probability scale, this means that the probability of a made shot dereases by 
 
 $$
-\frac{e^{\beta_r}}{1 + e^{\beta_r}} 
+\frac{\text{e}^{\beta_r}}{1 + \text{e}^{\beta_r}} 
 $$
 
 which is equal to `r round(exp(x)/(1+exp(x)), 4)`.
 
-We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot significantly decreases as distance from the basket increases. 
+We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot significantly decreases as distance from the basket increases. The intercepts show us that there is not a substantial diference in baseline shooting performance between home games and away games.
 
 ### Hierarchical Generalized Linear Model
 
@@ -322,7 +406,6 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
         beta_r[player[i]]*logr[i] + 
         beta_theta[player[i]]*theta[i]
       
-      
       result[i] ~ dbern(prob[i])
     }
     # priors on random player effects
@@ -332,13 +415,12 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
         beta_r[j] ~ dnorm(beta_r0,tau_r)
         beta_theta[j] ~ dnorm(beta_theta0,tau_theta)
     }
-    # Priors
+    # Hyperpriors
     beta_int0   ~ dnorm(0, 0.1)
     beta_home0  ~ dnorm(0, 0.1)
     beta_r0     ~ dnorm(mu0r, 0.01) #would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance increases.
     beta_theta0 ~ dnorm(mu0theta, 0.1)
 
-    # Hyperpriors
     tau_int ~ dgamma(10, 100)
     tau_r ~ dgamma(10, 0.2)
     tau_theta ~ dgamma(10, 10)
@@ -395,7 +477,7 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
     arrange(order)
   
   names(sim.mcmc.player) <- str_replace_all(names(sim.mcmc.player), "[[:digit:]]+", as.character(gameids$globalplayerid))
-  
+  -
   return(sim.mcmc.player)
   
 }
@@ -472,9 +554,9 @@ mainlab <- "Posterior Densities with Four Players"
 grid.arrange(meplotA, meplotH, meplotr, meplottheta, nrow=2, top = mainlab)
 ```
 
-The hierarchical model shows us that our four high-usage players of interest do not appear to be randomly spread across the population of players. The intercept plot shows that all four are in or close to the top half of values, and the radius plot shows the opposite with the four players trending towards lower parameter values. The high intercepts make intuitive sense, because the players who take a lot of shots are generally more capable of making them under baseline conditions than their teammates are. However, the observation that these players would have a more drastic drop in field goal percentage than an average Duke player as they move farther from the basket is surprising.
+The hierarchical model shows us characteristics of our four high-usage players of interest compared to the rest of the players in the dataset. For example, the intercept plots show us that Player 2 is excellent at finishing under baseline conditions, but he also has a steeper-than-averge drop-off in his odds of scoring as his distance from the basket increases. We can also see that Player 1 strongly increases his odds of scoring when his angle is negative, which corresponds to the left side of the basket.
 
-In the plots below, we have contour plots showing players' expected field goal percentages at different locations on the court. Between our four players of interest, we can observe how player *1* is more effective on the ____ side of the basket than the others, and how player ____ is the ___ long-range shooter.
+In the figures below, we have contour plots showing players' expected field goal percentages at different locations on the court. Between our four players of interest, we can observe how player 1 is more effective on the left side of the basket than the others, and how *maybe something else?*.
 
 ```{r contours, cache=TRUE}
 
@@ -521,6 +603,7 @@ mcmc_avg <- function(sim.mcmc = player.mcmc, globalplayerid = NA, MLE=FALSE, hom
           t <- t + pi
         }
         t <- t - pi/2
+        t <- -t
 
         eBx <- exp(-t(BETA[s,]) %*% c(1, r, t))
         #eBx <- exp(-t(colMeans(BETA)) %*% c(1, r, t))
@@ -591,10 +674,10 @@ if(!load_chains){
 
 }
 
-contplot1 <- plot_contours(avg1)
-contplot2 <- plot_contours(avg2)
-contplot3 <- plot_contours(avg3)
-contplot4 <- plot_contours(avg4)
+contplot1 <- plot_contours(avg1, "Player 1")
+contplot2 <- plot_contours(avg2, "Player 2")
+contplot3 <- plot_contours(avg3, "Player 3")
+contplot4 <- plot_contours(avg4, "Player 4")
 contplotteam <- plot_contours(avgtot, "Team Effect")
 
 grid.arrange(contplot1, contplot2, contplot3, contplot4, nrow=2)
@@ -605,9 +688,9 @@ contplotteam
 
 ### Discounted Likelihood Hierarchical Model
 
-In the discounted likelihood models, the likelihood of a single observation is more heavily influenced by the observations close to it than the observations far away from it. We measure the "distance" between observations by the number of games between them; a shot attempt that occurs in the next or the preceding game will influence the likelihood of the observation more than a shot that occurs two games away.
+In the discounted likelihood models, the likelihood of a single observation is more heavily influenced by the observations close to it than the observations far away from it. We measure the "distance" between observations by the number of games between them; a shot attempt that occurs in the next or the preceding game will influence the likelihood of the observation more than a shot that occurs two games away. I used the "ones trick" in JAGS. See Appendix *1* for more details. 
 
-The effect of an observed shot on the likelihood of another shot decreases as the distance between the observations increases, and as $\delta$ decreases. If larger values of $\delta$ fit the data better, this suggests that shooting success is consistent, throughout a career. If smaller values of $\delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation in the data on the game level. The values of delta that we fit the discounted likelihood model on are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999.
+If models with larger values of $\delta$ fit the data better, this suggests that shooting success is consistent throughout a career. If smaller values of $\delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation in the data on the game level. The values of delta that we fit the discounted likelihood model on are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999.
 
 *discuss discounted likelihood and implications of time-variation for different values of delta*
 
@@ -665,7 +748,6 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = NA, S = 10000, B = 500
   model.game <- function(){
 
     for(i in 1:N){
-      #g <- games[i]             # index of current game
       delta[i] <- del^abs(games[i]-g0)  # discount rate for game g relative to anchor game g0
       
       # player-level raneffs
@@ -685,8 +767,7 @@ fit_game <- function(dat = NA, anchor = NA, discount_wt = NA, S = 10000, B = 500
       # delta=1 --> all shots contribute to the likelihood like a normal independent binomial model.
       # delta=0 --> only the shots taken in the same game contribute to the likelihood
       
-      #result[i] ~ dbern(prob[i])
-      #y[i] <- 1 # "ones trick" dummy outcomes THIS LINE CAUSES PROBLEMS
+      #y[i] <- 1 # "ones trick" dummy outcomes
       y[i] ~ dbern(p[i]) # defines correct discounted likelihood function
     }
     
@@ -815,7 +896,7 @@ get_game_params <- function(sim.mcmc.list=NA, dat=NA){
   return(params.season)
 }
 
-plot_time_effect <- function(game.params = NA, id = NA, parameter = NA, main=NA, only_fga_games = TRUE){
+plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA, only_fga_games = TRUE){
   
   if(id != 0 & only_fga_games){
     #only consider this argument if we are looking at individual effects
@@ -824,17 +905,24 @@ plot_time_effect <- function(game.params = NA, id = NA, parameter = NA, main=NA,
   plotdat <- game.params %>% 
     filter(globalplayerid == id) %>% 
     select(gameid, 
-           lo  = paste0(parameter,"_lo"),
-           mid = paste0(parameter),
-           hi  = paste0(parameter,"_hi")) %>%
+           lo  = paste0(parameters,"_lo"),
+           mid = paste0(parameters),
+           hi  = paste0(parameters,"_hi")) %>%
     melt(id = "gameid") %>%
     select(gameid, type = variable, y = value) %>%
-    arrange(gameid, type)
+    arrange(gameid, type) %>%
+    mutate(param = str_extract(type, "[[:digit:]]+"),
+           param = parameters[as.numeric(param)],
+           param = ifelse(is.na(param), "black", param))
   
     ggplot(data = plotdat, 
-         aes(x=as.integer(as.factor(gameid)), y=y, z=type, linetype=(type!="mid"))) + 
+         aes(x=as.integer(as.factor(gameid)), 
+             y=y, 
+             z=type, 
+             linetype=(!type %in% c("mid", "mid1","mid2")),
+             color=param)) + 
     guides(linetype=FALSE) + 
-    geom_line() +   
+    geom_line(size=1.5) +   
     theme_bw() +
     labs(title=main, y="Estimate", x="Game") + 
     theme(panel.grid = element_blank())
@@ -865,12 +953,12 @@ if(!load_chains){
 
 }
 
-game.params <- game.params.750
-discplot1 <- plot_time_effect(game.params, id=id1, parameter="intH", main="Intercept (Home) Player 1")
-discplot2 <- plot_time_effect(game.params, id=id2, parameter="intH", main="Intercept (Home) Player 2")
-discplot3 <- plot_time_effect(game.params, id=id3, parameter="intH", main="Intercept (Home) Player 3")
-discplot4 <- plot_time_effect(game.params, id=id4, parameter="intH", main="Intercept (Home) Player 4")
-discplot5 <- plot_time_effect(game.params, id=0, parameter="intH", main="Intercept (Home) Team")
+game.params <- game.params.850
+discplot1 <- plot_time_effect(game.params, id=id1, parameter=c("intH", "intA"), main="Player 1 Intercepts")
+discplot2 <- plot_time_effect(game.params, id=id2, parameters=c("intH", "intA"), main="Player 2 Intercepts")
+discplot3 <- plot_time_effect(game.params, id=id3, parameters=c("intH", "intA"), main="Player 3 Intercepts")
+discplot4 <- plot_time_effect(game.params, id=id4, parameters=c("intH", "intA"), main="Player 4 Intercepts")
+discplot5 <- plot_time_effect(game.params, id=0, parameters=c("intH", "intA"), main="Team Intercepts")
 
 grid.arrange(discplot1,discplot2,discplot3,discplot4, nrow=2)
 discplot5
@@ -882,7 +970,7 @@ The plots above illustrate...
 
 ## Evaluation of Models
 
-To evaluate these models, we use 5-fold cross validation. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages over ___. The results are plotted below:
+To evaluate these models, we use 5-fold cross validation. This process used 15 RStudio Pro servers. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages over ___. The results are plotted below:
 
 ```{r preds, cache=TRUE}
 # posterior mean   --> minimize sq err
@@ -989,8 +1077,6 @@ if(!load_chains){
 
 ```
 
-
-## Evaluation of Models
 
 ```{r model-eval, cache=TRUE}
 
@@ -1182,13 +1268,16 @@ if(!load_chains){
   
   tempenv <- new.env()
   eval.df <- NULL
+  
   for(i in 1:k){
     
     load(file = paste0(get_rdatafiles(i), "evaldf.RData"), tempenv)
     eval.df <- rbind(eval.df, tempenv$eval.df)
-    eval.df$k <- as.factor(eval.df$k)
     
   }
+    
+  eval.df$k <- as.factor(eval.df$k)
+
 }
 
 df_delta <- eval.df %>% filter(!is.na(delta))

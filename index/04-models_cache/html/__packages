@@ -1,0 +1,12 @@
+base
+knitr
+dplyr
+ggplot2
+stringr
+reshape2
+coda
+rjags
+R2jags
+png
+gridExtra
+bindrcpp
