@@ -29,37 +29,42 @@ This first appendix includes all of the R chunks of code that were hidden throug
 # Appendix 2: Diagnostic Plots
 
 
-## GLM:
-
+## Generalized Linear Model:
 
 ```{r init2, include=FALSE}
 
-#### TODO: uncomment these lines when finished multi-processing ####
-# rm(list=ls())
-k0 <- 1 #between 1 and k, inclusive
-deltas <- c(seq(0.75, 0.95, 0.05),0.999)
-deltas_str <- as.character(deltas*1000)
-
+# srv <- ""
 # k0 <- as.numeric(strsplit(srv, "")[[1]][1])
 # ltr <- strsplit(srv, "")[[1]][2]
+# fldr <- strsplit(srv, "")[[1]][3]
 # if(ltr == "A"){
-#   deltas <- c(0.750, 0.800)
+#   deltas <- c(0.750, 0.800, 0.850)
 # }else if(ltr == "B"){
-#   deltas <- c(0.850, 0.900)
-# }else if(ltr == "C"){
-#   deltas <- c(0.950, 0.999)
+#   deltas <- c(0.900, 0.950, 0.999)
+# }
+# if(fldr == "H"){
+#   home_only <- TRUE
+#   season_2015 <- FALSE
+# }else if(fldr == "2"){
+#   home_only <- FALSE
+#   season_2015 <- TRUE
 # }
 
 # TODO:
-  # REPEAT ALL ANALYSIS ON ONLY HOME GAMES!!!
-  # make a 2015 folder, and a H folder, and a normal folder
-    #then 5 k's within each of those :)
+  # update comments about player4 since you updaated that id. update glm and contour but nothing else is necessary i don't think.
+  # put some raw means and stuff  and shot distributions nad home/away splits on EDA section. simple things
+    # and don't forget to add illustrations of where is 0 feet, where is -3.14 degrees, and so on
   # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
   # put diagnostic plots in the Appendix...but not all of them!
   # don't forget a "future considerations" section in your conclusion or something
   # make a calibration plot for each game.
     # another thing that would be useful is to look at histogram of probs within a  calibration bin.
       # then you see if bins are biased
+  # put EDA in Data
+# put Procedure in Models & Analysis
+  # highlight ones trick and MCMC things and math notation.
+  # show them you used 15 servers for cross validation. brag a little. 
+# you do not need to show diagnostic plots. just state that they mostly looked fine.
 
 # rm(list=ls())
 
@@ -77,10 +82,15 @@ library(gridExtra)
 
 set.seed(49301)
 
+k <- 5 #k-fold cross-validation
+k0 <- 1
+
 load_chains <- TRUE
 season_2015 <- FALSE
 home_only <- FALSE
-k <- 5 #k-fold cross-validation
+
+deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+deltas_str <- as.character(deltas*1000)
 
 get_rdatafiles <- function(k=NA, home_only=FALSE, season_2015=FALSE){
 
@@ -94,64 +104,35 @@ get_rdatafiles <- function(k=NA, home_only=FALSE, season_2015=FALSE){
     base <- "../rdatafiles2015/"
   }
   
+  load(file=paste0(base, "Xtot.RData"), envir= globalenv())
+  
   if(k<1){
     return(base)
   }else{
-    #return(paste0(base,"k",k,"/")) #TODO
-    return(paste0("../rdatafiles",k,"/")) #in the meantime
+    return(paste0(base,"k",k,"/"))
   }
 }
 
 id1 <- 887665 
 id2 <- 842301 
 id3 <- 603106 
-id4 <- 601140 
+id4 <- 842296 
 playerseasons <- matrix(
   c(id1,   2016,
     id2,   2015,
     id3,   2014,
-    id4,   2015
+    id4,   2016
   ),ncol=2,byrow = TRUE
 )
 colnames(playerseasons) <- c("globalplayerid" ,"season")
 
-if(season_2015){
-  
-  rdatafiles <- get_rdatafiles(k0, season_2015 = TRUE)
-  id1 <- 842297
-  id3 <- 842298
-  playerseasons <- matrix(
-  c(id1,   2015,
-    id2,   2015,
-    id3,   2015,
-    id4,   2015
-  ),ncol=2,byrow = TRUE
-)
-colnames(playerseasons) <- c("globalplayerid" ,"season")
-
-}
-
-if(home_only){
-  
-  rdatafiles <- get_rdatafiles(k0, home_only = TRUE)
-  load(file=paste0(rdatafiles,"Xtot.RData"))
-
-}else{
-  
-  rdatafiles <- get_rdatafiles(k0)
-  load(file=paste0(rdatafiles,"Xtot.RData"))
-  
-}
+rdatafiles <- get_rdatafiles(k0, home_only = home_only, season_2015 = season_2015)
 
 N <- nrow(Xtot)
 kgroups <- rmultinom(n=N, size=1, prob = rep(1/k,k)) %>% '=='(1) %>% apply(2,which)
 testrows <- which(kgroups == k0)
 Xtrain <- Xtot[-testrows,] %>% arrange(time)
 Xtest <- Xtot[testrows,] %>% arrange(time)
-
-
-#deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
-# deltas <- c(seq(0.75, 0.95, 0.05),0.999)
 
 playermap <- data.frame(
   factorid = as.integer(as.factor(Xtot$globalplayerid)),
@@ -224,9 +205,9 @@ load_gamelist <- function(delta_str=NA, dir = rdatafiles){
   return(GL)
 }
 
-load(file=paste0(rdatafiles,"glmtot.RData"))
-load(file=paste0(rdatafiles,"playermcmc.RData"))
-game.mcmc.list.750 <- load_gamelist(750)
+# load(file=paste0(rdatafiles,"glmtot.RData"))
+# load(file=paste0(rdatafiles,"playermcmc.RData"))
+# game.mcmc.list.750 <- load_gamelist(750)
 
 # glmdiag1 <- diagnostic_plots(glmtot[[1]], "Intercept (Away)")
 # glmdiag2 <- diagnostic_plots(glmtot[[2]], "Intercept (Home)")
@@ -259,5 +240,87 @@ game.mcmc.list.750 <- load_gamelist(750)
 # 
 # grid.arrange(discdiag1, discdiag2, discdiag3, discdiag4, nrow=2, top="Discounted Weight Effects (Player 1, Game X)")
 
+
+```
+
+# Appendix 3: 
+
+## Home Games Only
+
+```{r home}
+
+tempenv <- new.env()
+eval.df <- NULL
+  
+for(i in 1:k){
+    
+  load(file = paste0(get_rdatafiles(i, home_only=TRUE), "evaldf.RData"), tempenv)
+  eval.df <- rbind(eval.df, tempenv$eval.df)
+    
+}
+    
+eval.df$k <- as.factor(eval.df$k)
+
+df_delta <- eval.df %>% filter(!is.na(delta))
+df <- eval.df %>% filter(is.na(delta))
+g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
+   geom_point() + 
+   geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
+   theme_bw() + 
+   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "", col = "")
+
+g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
+  theme_bw() +
+  labs(y="Log Likelihood", x="delta", linetype = "")
+
+g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
+  theme_bw() +
+  labs(y="Brier Score (MSE)", x="delta", linetype = "")
+
+grid.arrange(g1, g2, g3, nrow=2)
+
+```
+
+## 2015 Season Only
+
+```{r 2015}
+
+tempenv <- new.env()
+eval.df <- NULL
+  
+for(i in 1:k){
+    
+  load(file = paste0(get_rdatafiles(i, season_2015=TRUE), "evaldf.RData"), tempenv)
+  eval.df <- rbind(eval.df, tempenv$eval.df)
+    
+}
+    
+eval.df$k <- as.factor(eval.df$k)
+
+df_delta <- eval.df %>% filter(!is.na(delta))
+df <- eval.df %>% filter(is.na(delta))
+g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
+   geom_point() + 
+   geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
+   theme_bw() + 
+   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "", col = "")
+
+g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
+  theme_bw() +
+  labs(y="Log Likelihood", x="delta", linetype = "")
+
+g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
+  theme_bw() +
+  labs(y="Brier Score (MSE)", x="delta", linetype = "")
+
+grid.arrange(g1, g2, g3, nrow=2)
 
 ```

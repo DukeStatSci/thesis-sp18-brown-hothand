@@ -2,7 +2,10 @@
 
 ## Description of Models
 
-Using the time-stamped sequence of shot locations and binary outcomes, we fit Bayesian logistic generalized linear models, hierarchichal models, and discounted likelihood models. The discounted likelihood models allow us to observe how strongly shot success rate in the current game is affected by performance in games that are close to it. 
+For our models, we consider the shot location, the shooter identity, a home court indicator, and the shooting outcomes of nearby games as factors that can affect a shot outcome. In every model, we use Gibbs sampling in the JAGS library to build a logistic regression model that provides the posterior distribution of the shot location parameters (distance and angle). The model does not account for covariance between these predictors. In addition, we build mixed effects and discounted likelihood models to control for shooter identity and game identity, respectively. These models will show us how consistent the show location parameters are between shooters and between games. In our sampling method, we set priors using the Maximum Likelihood Estimates for the first four games in the dataset, and we initialize our chains using values of 0 for all means, and 1 for all variances.
+
+The JAGS code used to build these models, as well as some diagnostic plots, can be found in Appendices *number* and *number*, respectively.
+
 
 ### Generalized Linear Model
 
@@ -100,41 +103,35 @@ $$
 $$
 \epsilon \sim N(0, \sigma^2)
 $$
-These equations show us that the contribution of an observed shot (in game $g_i$) to the likelihood of the current shot (in game $g_0$) decreases as the distance between the observations increases, and as $\Delta$ decreases.
+These equations show us that the contribution of an observed shot (in game $g_i$) to the likelihood of the current shot (in game $g_0$) decreases as the distance between the observations increases, and as $\Delta$ decreases. The code for each otf these models is 
 
-
-
-We deal with the missing data by comparing the results over all games to the results on only home games, since no home games are missing in the dataset. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the players, and formal assessments of differences in patterns game-to-game.
+We deal with the missing data by comparing the results over all games to the results on only home games, since no home games are missing in the dataset. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the players, and formal assessments of differences in patterns game-to-game. These results are illustrated in Appendix *number*.
 
 ## Analysis
 
 ```{r init, include=FALSE}
 
 # srv <- ""
-k0 <- as.numeric(strsplit(srv, "")[[1]][1])
-ltr <- strsplit(srv, "")[[1]][2]
-fldr <- strsplit(srv, "")[[1]][3]
-if(ltr == "A"){
-  deltas <- c(0.750, 0.800, 0.850)
-}else if(ltr == "B"){
-  deltas <- c(0.900, 0.950, 0.999)
-}
-if(fldr == "H"){
-  home_only <- TRUE
-  season_2015 <- FALSE
-}else if(fldr == "2"){
-  home_only <- FALSE
-  season_2015 <- TRUE
-}
-load_chains <- FALSE
+# k0 <- as.numeric(strsplit(srv, "")[[1]][1])
+# ltr <- strsplit(srv, "")[[1]][2]
+# fldr <- strsplit(srv, "")[[1]][3]
+# if(ltr == "A"){
+#   deltas <- c(0.750, 0.800, 0.850)
+# }else if(ltr == "B"){
+#   deltas <- c(0.900, 0.950, 0.999)
+# }
+# if(fldr == "H"){
+#   home_only <- TRUE
+#   season_2015 <- FALSE
+# }else if(fldr == "2"){
+#   home_only <- FALSE
+#   season_2015 <- TRUE
+# }
 
 # TODO:
   # update comments about player4 since you updaated that id. update glm and contour but nothing else is necessary i don't think.
   # put some raw means and stuff  and shot distributions nad home/away splits on EDA section. simple things
     # and don't forget to add illustrations of where is 0 feet, where is -3.14 degrees, and so on
-  # REPEAT ALL ANALYSIS ON ONLY HOME GAMES!!!
-  # make a 2015 folder, and a H folder, and a normal folder
-    #then 5 k's within each of those :)
   # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
   # put diagnostic plots in the Appendix...but not all of them!
   # don't forget a "future considerations" section in your conclusion or something
@@ -165,10 +162,11 @@ set.seed(49301)
 
 k <- 5 #k-fold cross-validation
 
-# load_chains <- TRUE
-# season_2015 <- FALSE
-# home_only <- FALSE
-# deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+load_chains <- TRUE
+season_2015 <- FALSE
+home_only <- FALSE
+
+deltas <- c(seq(0.75, 0.95, 0.05),0.999)
 deltas_str <- as.character(deltas*1000)
 
 get_rdatafiles <- function(k=NA, home_only=FALSE, season_2015=FALSE){
@@ -213,10 +211,6 @@ testrows <- which(kgroups == k0)
 Xtrain <- Xtot[-testrows,] %>% arrange(time)
 Xtest <- Xtot[testrows,] %>% arrange(time)
 
-
-#deltas <- c(0.100, 0.250, 0.375, 0.500, 0.625, 0.750, 0.850, 0.900, 0.950, 0.975, 0.999)
-# deltas <- c(seq(0.75, 0.95, 0.05),0.999)
-
 playermap <- data.frame(
   factorid = as.integer(as.factor(Xtot$globalplayerid)),
   globalplayerid = Xtot$globalplayerid
@@ -231,9 +225,6 @@ rownames(gamemap) <- NULL
 
 ```
 
-For our models, we consider the shot location, the shooter identity, a home court indicator, and the shooting outcomes of nearby games as factors that can affect a shot outcome. In every model, we use Gibbs sampling in the JAGS library to build a logistic regression model that provides the posterior distribution of the shot location parameters (distance and angle). The model does not account for covariance between these predictors. In addition, we build mixed effects and discounted likelihood models to control for shooter identity and game identity, respectively. These models will show us how consistent the show location parameters are between shooters and between games. In our sampling method, we set priors using the Maximum Likelihood Estimates for the first four games in the dataset, and we initialize our chains using values of 0 for all means, and 1 for all variances.
-
-Diagnostic plots for these models can be found in Appendix *number*.
 
 ### Generalized Linear Model
 
@@ -689,7 +680,7 @@ contplotteam
 
 In the discounted likelihood models, the likelihood of a single observation is more heavily influenced by the observations close to it than the observations far away from it. We measure the "distance" between observations by the number of games between them; a shot attempt that occurs in the next or the preceding game will influence the likelihood of the observation more than a shot that occurs two games away. I used the "ones trick" in JAGS. See Appendix *1* for more details. 
 
-If models with larger values of $\delta$ fit the data better, this suggests that shooting success is consistent throughout a career. If smaller values of $\delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation in the data on the game level. The values of delta that we fit the discounted likelihood model on are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999.
+If models with larger values of $\delta$ fit the data better, this suggests that shooting success is consistent throughout a career. If smaller values of $\delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation in the data on the game level. The values of $\Delta$ that we use to fit the discounted likelihood model are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999.
 
 *discuss discounted likelihood and implications of time-variation for different values of delta*
 
@@ -969,7 +960,7 @@ The plots above illustrate...
 
 ## Evaluation of Models
 
-To evaluate these models, we use 5-fold cross validation. This process used 15 RStudio Pro servers. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages over ___. The results are plotted below:
+To evaluate these models, we use 5-fold cross-validation. This process used as many as 20 simultaneous RStudio Pro servers from the Duke University Statistical Science Department. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages over ___. The results are plotted below:
 
 ```{r preds, cache=TRUE}
 # posterior mean   --> minimize sq err
