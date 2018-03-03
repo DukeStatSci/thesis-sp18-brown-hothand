@@ -41,7 +41,7 @@ Theta has a range of $2\pi$ radians, but this plot shows that most of the attemp
 
 ## Description of Dataset
 
-The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted us to use their SportVU data from the 2014 to 2017 basketball seasons for this project. Since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games.
+The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted us to use their SportVU data from the 2014 to 2017 basketball seasons for this project. Since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the techology installed. Therefore, there is a substantial amount of missing data between games. More specifically, between the 2014 and 2017 seasons, the Duke Men's Basketball team played 147 games; this dataset contains `r n_distinct(Xtot$gameid)` games, with `r n_distinct(Xtot$gameid[which(Xtot$home==1)])` at Duke and `r n_distinct(Xtot$gameid[which(Xtot$home==0)])` on another court.
 
 For our analysis, we use the following files for each game:
 

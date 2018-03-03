@@ -5,4 +5,356 @@ Our results so far suggest that some insights can be taken by predicting basketb
 
 *Summarize and reflect upon results*
 
+## Evaluation of Models
+
+To evaluate these models, we use 5-fold cross-validation. This process used as many as 20 simultaneous RStudio Pro servers from the Duke University Statistical Science Department. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages over ___. The results are plotted below:
+
+```{r preds, cache=TRUE}
+# posterior mean   --> minimize sq err
+# posterior median --> minimize abs err
+
+# we want S predictions per shot. an N x S matrix. then we take MCMC average.
+pred_glm <- function(Xpred = NA, MCMC = NA){
+  
+  Xmat <- Xpred %>% 
+    mutate(logr = log(r),
+           away = 1-home) %>%
+    arrange(time) %>%
+    select(away, home, logr, theta) %>% 
+    as.matrix()
+
+  # the baseline 1 intercept = "away"
+  # we should only multiply by that one if home = 0
+  #params.glm <- t(MCMC)
+  A <- Xmat
+  B <- t(MCMC)
+  pred.glm <-  arm::invlogit(A %*% B) %>% apply(., 1, median) #MCMC median
+  
+  return(as.matrix(pred.glm))
+}
+
+pred_me <- function(Xpred = NA, MCMC = NA){
+
+  Xmat <- Xpred %>% 
+    mutate(logr = log(r),
+           away = 1-home) %>%
+    arrange(time) %>%
+    select(away, home, logr, theta, globalplayerid) %>% 
+    as.matrix()
+
+  pred.me <- array(NA, c(nrow(Xmat), 1))
+  for(r in 1:nrow(Xmat)){
+    gpid <- Xmat[r,"globalplayerid"]
+    Asub <- Xmat[r,1:4] # 1 x p
+    playerinds <- grep(gpid, colnames(MCMC))
+    Bsub <- t(MCMC[,playerinds]) # p x S
+    if(length(playerinds) == 0){
+      Bsub <- t(MCMC[,which(!grepl("\\]", colnames(MCMC)))])
+    }
+    pred.me[r,] <- median(arm::invlogit(Asub %*% Bsub)) #MCMC avg
+  }
+
+  return(pred.me)
+}
+
+pred_disc <- function(Xpred = NA, MCMC.LIST=NA){
+  
+  pred.disc.large <- lapply(X=MCMC.LIST, FUN=pred_me, Xpred=Xpred) %>% 
+    as.data.frame() %>%
+    as.matrix()
+  
+  rownames(pred.disc.large) <- Xpred$gameid   #N
+  colnames(pred.disc.large) <- gamemap$gameid #G, from the list
+  
+  pred.disc <- array(NA, c(nrow(Xpred), 1))
+
+  for(i in 1:nrow(Xpred)){
+    keepcol <- colnames(pred.disc.large) == Xpred[i,"gameid"]
+    pred.disc[i,] <- pred.disc.large[i, keepcol]
+  }
+
+  return(pred.disc)
+  
+}
+
+
+if(!load_chains){
+  
+  pred.team     <- pred_glm(Xtest, glmtot)
+  pred.player   <- pred_me(Xtest, player.mcmc)
+  eval(parse(
+    text=paste0("pred.game.",deltas_str," <- pred_disc(Xtest, game.mcmc.list.", deltas_str, ");\nprint(",deltas_str,");")
+  ))
+  savepreds <- ls() %>% grep(pattern="pred.",fixed=TRUE,value=TRUE)
+  temp <- lapply(as.list(savepreds), function(x){
+    save(list=x, 
+         file=paste0(rdatafiles,gsub(patt=".",rep="",x=x,fixed=TRUE),".RData"))
+    })
+  
+  fitted.team     <- pred_glm(Xtrain, glmtot)
+  fitted.player   <- pred_me(Xtrain, player.mcmc)
+  eval(parse(
+    text=paste0("fitted.game.", deltas_str," <- pred_disc(Xtrain, game.mcmc.list.", deltas_str, ");\nprint(",deltas_str,");")
+  ))
+  savefitteds <- ls() %>% grep(pattern="fitted.",fixed=TRUE,value=TRUE)
+  temp <- lapply(as.list(savefitteds), function(x){
+    save(list=x, 
+         file=paste0(rdatafiles,gsub(patt=".",rep="",x=x,fixed=TRUE),".RData"))
+  })
+  
+
+}else{
+  
+  prefixes <- c("pred", "fitted")
+  suffixes <- paste0(c("team", "player", paste0("game",deltas_str)),".RData")
+  loadfiles <- merge(prefixes, suffixes) %>% apply(1, paste0, collapse="") %>% paste0(rdatafiles, .)
+  temp <- lapply(as.list(loadfiles), load, envir=globalenv())
+
+}
+
+```
+
+
+```{r model-eval, cache=TRUE}
+
+#confusion matrix, classification rate, and brier score
+classify <- function(observed = NA, predicted = NA, cutoff = 0.5, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+    
+    tab <- array(NA, c(2,2))
+    rownames(tab) <- c("predicted miss", "predicted make")
+    colnames(tab) <- c("observed miss", "observed make")
+    pred01 <- ifelse(pred < cutoff, 0, 1)
+    
+    tab[1,1] <- sum(obs==0 & pred01==0)
+    tab[1,2] <- sum(obs==1 & pred01==0)
+    tab[2,1] <- sum(obs==0 & pred01==1)
+    tab[2,2] <- sum(obs==1 & pred01==1)
+    
+    rate <- (tab[1,1]+tab[2,2])/length(obs)
+    
+    eval.list[[as.character(g)]] <-  rate
+  }
+    
+  if(gameids == 1){
+    return(rate)
+  }else{
+    return(eval.list)
+  }
+}
+
+meansquare <- function(observed = NA, predicted = NA, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+    
+    MSE <- mean((obs - pred)^2)
+    
+    eval.list[[as.character(g)]] <-  MSE
+  }
+    
+  if(gameids == 1){
+    return(MSE)
+  }else{
+    return(eval.list)
+  }
+}
+
+loglikelify <- function(observed = NA, predicted = NA, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+    
+    #deviance
+    loglik <- sum(
+      obs*log(pred) + (1-obs)*log((1-pred))
+    )
+    eval.list[[as.character(g)]] <-  loglik
+  }
+  
+  if(gameids == 1){
+    return(loglik)
+  }else{
+    return(eval.list)
+  }
+}
+
+#data for calibration plots
+calibrate <- function(observed = NA, predicted = NA, nbins = 20, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+
+    if(n_distinct(pred) < nbins){
+      calib <- NA
+    }else{
+      
+      predquants <- c(0, quantile(pred, (1:nbins)/nbins))
+      predmidpts <- ((predquants + c(0,predquants[-length(predquants)]))/2) %>% '['(-1)
+    
+      pred1N <- sapply(pred, findInterval, vec=predquants, all.inside=TRUE, rightmost.closed=TRUE, left.open=TRUE)
+  
+      calibtab <- table(pred1N, obs)
+      rownames(calibtab) <- predmidpts
+      calib <- calibtab %>% 
+        as.data.frame() %>%
+        dcast(pred1N ~ obs, value.var = "Freq") %>%
+        mutate(p  = `1`/(`0`+`1`),
+               pl = p - 2*sqrt(p*(1-p)/(`0` + `1`)),
+               pu = p + 2*sqrt(p*(1-p)/(`0` + `1`)),
+               binl = predquants[-(nrow(.)+1)],
+               binu = predquants[-1])
+      colnames(calib) <- c("bin", "obs0", "obs1", "p", "pl", "pu", "binl", "binu")
+
+    }
+    
+    eval.list[[as.character(g)]] <- calib
+  }
+  
+  if(gameids == 1){
+    return(calib)
+  }else{
+    return(eval.list)
+  }
+}
+
+plot_calibration <- function(dat, title="Calibration Plot"){
+  ggplot(data = dat, aes(x=as.numeric(as.character(bin)), y=p, group=0)) + 
+    geom_errorbar(aes(ymin=pl, ymax=pu), width=0) + 
+    geom_errorbarh(aes(xmin=binl, xmax=binu), height=0) + 
+    geom_abline(slope=1, color="red") +
+    coord_cartesian(xlim=c(0,1), ylim=c(0,1)) + 
+    theme(panel.grid = element_blank()
+          #,panel.border = element_blank(), axis.text = element_blank(), axis.ticks =   element_blank()
+          ) + 
+    theme_bw() + 
+    labs(x="bin", title=title)
+}
+
+if(!load_chains){
+  
+  class.team  <- classify(Xtest$result, pred.team)
+  class.player <- classify(Xtest$result, pred.player)
+  eval(parse(
+    text=paste0("class.games <- c(",
+           paste0("classify(Xtest$result,pred.game.",deltas_str,collapse="),"),"))"
+         )
+  ))
+
+  mse.team  <- meansquare(Xtest$result, pred.team)
+  mse.player <- meansquare(Xtest$result, pred.player)
+  eval(parse(
+    text=paste0("mse.games <- c(",
+           paste0("meansquare(Xtest$result, pred.game.",deltas_str,collapse="),"),"))"
+          )
+    ))
+  
+  lik.team  <- loglikelify(Xtrain$result, fitted.team)
+  lik.player <- loglikelify(Xtrain$result, fitted.player)
+  eval(parse(
+    text=paste0("lik.games <- c(",
+           paste0("loglikelify(Xtrain$result, fitted.game.",deltas_str,collapse="),"),"))"
+          )
+    ))
+  eval.df <- data.frame(
+    class = c(class.team, class.player, class.games),
+    mse = c(mse.team, mse.player, mse.games),
+    lik = c(lik.team, lik.player, lik.games),
+    type = c("GLM", "Mixed Effects",rep("Discount Likelihood", length(deltas))),
+    delta = c(NA, NA, deltas_str),
+    k = k0
+  )
+
+  save(eval.df, file=paste0(rdatafiles, "evaldf.RData"))
+  
+}else{
+  
+  tempenv <- new.env()
+  eval.df <- NULL
+  
+  for(i in 1:k){
+    
+    load(file = paste0(get_rdatafiles(i), "evaldf.RData"), tempenv)
+    eval.df <- rbind(eval.df, tempenv$eval.df)
+    
+  }
+    
+  eval.df$k <- as.factor(eval.df$k)
+  eval.df$delta <- factor(eval.df$delta,sort(as.character(levels(eval.df$delta)))) #making sure that the deltas are in order
+
+}
+
+df_delta <- eval.df %>% filter(!is.na(delta))
+df <- eval.df %>% filter(is.na(delta))
+g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
+   geom_point() + 
+   geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
+   theme_bw() + 
+   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "")
+
+g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
+  theme_bw() +
+  labs(y="Log Likelihood", x="delta", linetype = "")
+
+g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
+  theme_bw() +
+  labs(y="Brier Score (MSE)", x="delta", linetype = "")
+
+grid.arrange(g1, g2, g3, nrow=2)
+
+```
+
+
+From these plots, we can observe that all of the models have different strengths. The discounted likelihood model with the smallest $\delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that a smaller value of $\delta$ leads to overfitting the model to the training data, since the likelihood of a particular shot is only influenced by shots close to it.
+
+*talk about how they are similar though. like ranges of classification rates*
+
+To account for possible unexplained variation between seasons, and variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in the 2015 season (25 games), and shots from home games (82 games). *results!* (show these results in Appendix?)
+
+For the remainder of this paper, we will focus on the model with delta = 0.850.
+
+## Conclusion
+
+The results of this paper show that there is not a lot of time-dependency in shooting success rate in this dataset of player-tracking data from the Duke Men's Basketball team. The fact that the models with higher values of 
+
+## Future Goals
+
 Future goals for this research are to build a better-fitting model to predict basketball shots using more advanced factors that can be approximated from the dataset; possibilities for this include using the distance of the nearest defender as a proxy for defense quality, or using the amount of time a player has played without a substitution or timeout to approximate fatigue.

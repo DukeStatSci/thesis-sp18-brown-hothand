@@ -25,129 +25,231 @@ This first appendix includes all of the R chunks of code that were hidden throug
 
 # Appendix 1: Code
 
+## Generalized Linear Model
+
+```{r eval=FALSE}
+
+Xtrainsub <- 
+  Xtrain %>% 
+  filter(as.integer(as.factor(gameid)) < 5)
+
+priormod <- glm(result ~ log(r) + theta, data=Xtrainsub, family="binomial")
+
+mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+
+fit_glm <- function(dat, S = 10000, B = 500){
+
+  model.glm <- function(){
+  
+    # Liklihood function (for N observations)
+    for(i in 1:N){
+      
+      logit(prob[i]) <- beta_int*int[i] + 
+        beta_home*home[i] +
+        beta_r*logr[i] + 
+        beta_theta*theta[i]
+      
+      result[i] ~ dbern(prob[i])
+    }
+
+    # Priors
+    # we expect less variation in the distance parameter, 
+    # because shot success rate should get worse as distance increases under baseline circumstances.
+    beta_int   ~ dnorm(0, 0.1)
+    beta_home  ~ dnorm(0, 0.1)
+    beta_r     ~ dnorm(mu0r, 0.01) 
+    beta_theta ~ dnorm(mu0theta, 0.1)
+  }
+
+  datlist.glm <-  
+    list(
+      int = rep(1, nrow(dat)),
+      logr = log(dat$r), 
+      theta = dat$theta, 
+      result = dat$result,
+      home = dat$home,
+      N = nrow(dat), 
+      mu0r = mu0r,
+      mu0theta = mu0theta
+    )
+  
+  params.glm <- c("beta_int","beta_home","beta_r", "beta_theta")
+
+  initslist <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0, "beta_home"=0))
+                    
+  sim <- 
+    jags(data = datlist.glm, 
+         n.chains = 1, n.iter = S, n.burnin = B, n.thin = 1,
+         inits=initslist,
+         parameters.to.save = params.glm,
+         model.file=model.glm
+    )
+  
+  sim.mcmc <- as.data.frame(as.mcmc(sim)[[1]])
+  
+  # Changing from a baseline mean + a shift amount
+  # to two different means based on the type of game.
+  sim.mcmc <- 
+    sim.mcmc %>% 
+    mutate(beta_intA = beta_int,
+           beta_intH = beta_int + beta_home) %>%
+    select(beta_intA, beta_intH, beta_r, beta_theta)
+  
+  return(sim.mcmc)
+}
+
+```
+
+## Hierarchical Generalized Linear Model
+
+```{r eval = FALSE}
+
+Xtrainsub <- 
+  Xtrain %>% 
+  filter(as.integer(as.factor(gameid)) < 5)
+
+priormod <- glm(result ~ log(r) + theta, data=Xtrainsub, family="binomial")
+
+mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+
+fit_players <- function(dat = NA, S = 10000, B = 500){
+  
+  model.player <- function(){
+    
+    # Likelihood function for N observations
+    for(i in 1:N){
+      
+      # the parameters now vary by player id.
+      logit(prob[i]) <- beta_int[player[i]]*int[i] + 
+        beta_home[player[i]]*home[i] + 
+        beta_r[player[i]]*logr[i] + 
+        beta_theta[player[i]]*theta[i]
+      
+      result[i] ~ dbern(prob[i])
+    }
+    
+    # priors on random player effects
+    for(j in 1:M){
+        beta_int[j] ~ dnorm(beta_int0,tau_int)
+        beta_home[j]  ~ dnorm(beta_home0, tau_int)
+        beta_r[j] ~ dnorm(beta_r0,tau_r)
+        beta_theta[j] ~ dnorm(beta_theta0,tau_theta)
+    }
+    
+    # Hyperpriors
+    beta_int0   ~ dnorm(0, 0.1)
+    beta_home0  ~ dnorm(0, 0.1)
+    beta_r0     ~ dnorm(mu0r, 0.01)
+    beta_theta0 ~ dnorm(mu0theta, 0.1)
+    tau_int ~ dgamma(10, 100)
+    tau_r ~ dgamma(10, 0.2)
+    tau_theta ~ dgamma(10, 10)
+  }
+
+  datlist.player <- 
+    list(
+      logr = log(dat$r), 
+      theta = dat$theta, 
+      home = dat$home,
+      result = dat$result, 
+      player = as.integer(as.factor(dat$globalplayerid)),
+      N = nrow(dat), 
+      int = rep(1, nrow(dat)), 
+      M = n_distinct(dat$globalplayerid),
+      mu0r = mu0r,
+      mu0theta = mu0theta
+    )
+  
+  # we want posteriors for the overall effects and the individual player effects
+  params <- c("beta_int", 
+              "beta_home", 
+              "beta_r", 
+              "beta_theta",
+              "beta_int0",
+              "beta_home0",
+              "beta_r0", 
+              "beta_theta0")
+
+  M <- datlist.player$M
+  
+  initslist <- list(
+    list("beta_int"=rep(0,M), 
+         "beta_home"=rep(0,M), 
+         "beta_r"=rep(0,M), 
+         "beta_theta"=rep(0,M),
+         "beta_int0"=0,
+         "beta_home0"=0,
+         "beta_r0"=0, 
+         "beta_theta0"=0, 
+         "tau_int"=1, 
+         "tau_r"=1, 
+         "tau_theta"=1
+  ))
+
+  sim.player <- 
+    jags(data = datlist.player, 
+         n.iter = S, n.chains = 1, n.burnin = B, n.thin = 1,
+         inits=initslist,
+         parameters.to.save = params,
+         model.file=model.player
+  )
+  
+  sim.mcmc.player <- as.data.frame(as.mcmc(sim.player)[[1]])
+  
+  
+  # Changing from a baseline mean + a shift amount
+  # to two different means based on the type of game.
+  hometext <- paste0("`beta_intH[",1:M,"]` = `beta_int[",1:M,"]` + `beta_home[",1:M,"]`",
+                     collapse=",\n")
+  
+  awaytext <- paste0("`beta_intA[",1:M,"]` = `beta_int[",1:M,"]`", 
+                     collapse=",\n")
+  
+  sim.mcmc.player <- eval(parse(text=
+    paste0("sim.mcmc.player %>%
+            mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)", 
+           " %>% rename(",awaytext,", beta_intA0 = beta_int0)"
+           ))) %>%
+    select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
+  
+  sim.mcmc.player <- sim.mcmc.player[ , order(colnames(sim.mcmc.player))]
+  
+  
+  # Renaming mixed effects columns from default factor levels (integers) to the corresponding player ids
+  
+  factorids <- str_extract_all(names(sim.mcmc.player), "[[:digit:]]+") %>% as.numeric()
+  fids <- data.frame(factorid = factorids, order = 1:length(factorids))
+  
+  datmap <- dat %>% 
+    mutate(factorid = as.integer(as.factor(globalplayerid))) %>%
+    select(globalplayerid, factorid)
+  
+  gameids <- merge(datmap, fids, all.x=FALSE,all.y=TRUE) %>% 
+    unique() %>% 
+    mutate(globalplayerid = ifelse(is.na(globalplayerid),0,globalplayerid)) %>% 
+    arrange(order)
+  
+  names(sim.mcmc.player) <- str_replace_all(names(sim.mcmc.player), "[[:digit:]]+", as.character(gameids$globalplayerid))
+  -
+  return(sim.mcmc.player)
+  
+}
+
+
+```
+
+## Discounted Likelihood Hierarchical Model
+
+```{r eval=FALSE}
+
+```
 
 # Appendix 2: Diagnostic Plots
 
 
 ## Generalized Linear Model:
-
-```{r init2, include=FALSE}
-
-# srv <- ""
-# k0 <- as.numeric(strsplit(srv, "")[[1]][1])
-# ltr <- strsplit(srv, "")[[1]][2]
-# fldr <- strsplit(srv, "")[[1]][3]
-# if(ltr == "A"){
-#   deltas <- c(0.750, 0.800, 0.850)
-# }else if(ltr == "B"){
-#   deltas <- c(0.900, 0.950, 0.999)
-# }
-# if(fldr == "H"){
-#   home_only <- TRUE
-#   season_2015 <- FALSE
-# }else if(fldr == "2"){
-#   home_only <- FALSE
-#   season_2015 <- TRUE
-# }
-
-# TODO:
-  # update comments about player4 since you updaated that id. update glm and contour but nothing else is necessary i don't think.
-  # put some raw means and stuff  and shot distributions nad home/away splits on EDA section. simple things
-    # and don't forget to add illustrations of where is 0 feet, where is -3.14 degrees, and so on
-  # communicate posteriors in terms of probability scale (p(make|average distance, etc.)) (standardize and log troubles...)
-  # put diagnostic plots in the Appendix...but not all of them!
-  # don't forget a "future considerations" section in your conclusion or something
-  # make a calibration plot for each game.
-    # another thing that would be useful is to look at histogram of probs within a  calibration bin.
-      # then you see if bins are biased
-  # put EDA in Data
-# put Procedure in Models & Analysis
-  # highlight ones trick and MCMC things and math notation.
-  # show them you used 15 servers for cross validation. brag a little. 
-# you do not need to show diagnostic plots. just state that they mostly looked fine.
-
-# rm(list=ls())
-
-knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
-
-library(knitr)     # for knitting
-library(dplyr)     # used throughout
-library(ggplot2)
-library(stringr)
-library(reshape2)
-library(R2jags)    # for MCMC
-library(png)       # for graphics
-library(grid)
-library(gridExtra)
-
-set.seed(49301)
-
-k <- 5 #k-fold cross-validation
-k0 <- 1
-
-load_chains <- TRUE
-season_2015 <- FALSE
-home_only <- FALSE
-
-deltas <- c(seq(0.75, 0.95, 0.05),0.999)
-deltas_str <- as.character(deltas*1000)
-
-get_rdatafiles <- function(k=NA, home_only=FALSE, season_2015=FALSE){
-
-  base <- "../rdatafiles/"
-  
-  if(home_only){
-    base <- "../rdatafilesH/"
-  }
-  
-  if(season_2015){
-    base <- "../rdatafiles2015/"
-  }
-  
-  load(file=paste0(base, "Xtot.RData"), envir= globalenv())
-  
-  if(k<1){
-    return(base)
-  }else{
-    return(paste0(base,"k",k,"/"))
-  }
-}
-
-id1 <- 887665 
-id2 <- 842301 
-id3 <- 603106 
-id4 <- 842296 
-playerseasons <- matrix(
-  c(id1,   2016,
-    id2,   2015,
-    id3,   2014,
-    id4,   2016
-  ),ncol=2,byrow = TRUE
-)
-colnames(playerseasons) <- c("globalplayerid" ,"season")
-
-rdatafiles <- get_rdatafiles(k0, home_only = home_only, season_2015 = season_2015)
-
-N <- nrow(Xtot)
-kgroups <- rmultinom(n=N, size=1, prob = rep(1/k,k)) %>% '=='(1) %>% apply(2,which)
-testrows <- which(kgroups == k0)
-Xtrain <- Xtot[-testrows,] %>% arrange(time)
-Xtest <- Xtot[testrows,] %>% arrange(time)
-
-playermap <- data.frame(
-  factorid = as.integer(as.factor(Xtot$globalplayerid)),
-  globalplayerid = Xtot$globalplayerid
-) %>% unique()
-rownames(playermap) <- NULL
-
-gamemap <- data.frame(
-  factorid = as.integer(as.factor(Xtot$gameid)),
-  gameid   = Xtot$gameid
-) %>% unique()
-rownames(gamemap) <- NULL
-
-```
-
 
 ```{r diagnostics, echo=FALSE, include=FALSE, cache=TRUE}
 
@@ -260,6 +362,7 @@ for(i in 1:k){
 }
     
 eval.df$k <- as.factor(eval.df$k)
+eval.df$delta <- factor(eval.df$delta,sort(as.character(levels(eval.df$delta)))) #making sure that the deltas are in order
 
 df_delta <- eval.df %>% filter(!is.na(delta))
 df <- eval.df %>% filter(is.na(delta))
@@ -267,7 +370,7 @@ g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
    geom_point() + 
    geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
    theme_bw() + 
-   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "", col = "")
+   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "")
 
 g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_point() +
@@ -300,6 +403,7 @@ for(i in 1:k){
 }
     
 eval.df$k <- as.factor(eval.df$k)
+eval.df$delta <- factor(eval.df$delta,sort(as.character(levels(eval.df$delta)))) #making sure that the deltas are in order
 
 df_delta <- eval.df %>% filter(!is.na(delta))
 df <- eval.df %>% filter(is.na(delta))
@@ -307,7 +411,7 @@ g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
    geom_point() + 
    geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
    theme_bw() + 
-   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "", col = "")
+   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "")
 
 g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_point() +
