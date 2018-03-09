@@ -3,34 +3,34 @@ author: 'Nathaniel Brown'
 date: 'May 2018'
 institution: 'Duke University'
 division: 'Trinity College of Arts and Sciences'
-advisor: 'Advisor F. Name'
+advisor: 'Mike West'
 #altadvisor: 'Your Other Advisor'
 # Delete line 7 if you only have one advisor
-committeememberone: 'Committeemember O. Name'
-committeemembertwo: 'Committeemember T. Name'
-dus: 'Dus X. Name'
+committeememberone: 'Merlise Clyde'
+committeemembertwo: 'Cliburn Chan'
+dus: 'Mine Cetinkaya-Rundel'
 department: 'Department of Statistical Science'
 degree: 'Bachelor of Science in Statistical Science'
-title: 'My Final College Paper'
+title: 'Insert Real Title'
 knit: "bookdown::render_book"
 site: bookdown::bookdown_site
 output: 
-#  thesisdowndss::thesis_pdf: default
-  thesisdowndss::thesis_gitbook: default
+  thesisdowndss::thesis_pdf: default
+#  thesisdowndss::thesis_gitbook: default
 #  thesisdowndss::thesis_word: default
 #  thesisdowndss::thesis_epub: default
 # If you are creating a PDF you'll need to write your preliminary content here or
 # use code similar to line 20 for the files.  If you are producing in a different
 # format than PDF, you can delete or ignore lines 20-31 in this YAML header.
 abstract: |
-  `r if(knitr:::is_latex_output()) paste(readLines("00-abstract.Rmd"), collapse = '\n  ')`
+  `r if(knitr:::is_latex_output()) paste(readLines("01-abstract.Rmd"), collapse = '\n  ')`
 # If you'd rather include the preliminary content in files instead of inline
 # like below, use a command like that for the abstract above.  Note that a tab is 
 # needed on the line after the |.
 acknowledgements: |
-  I want to thank a few people.
+  Thank you to Kevin Cullen, Basketball Director of Information Technology for the Duke Men's Basketball team, for providing data for this research.
 dedication: |
-  You can have a dedication here if you wish. 
+  Insert a real dedication. (optional) 
 preface: |
   This is an example of a thesis setup to use the reed thesis document class
   (for LaTeX) and the R bookdown package, in general.
@@ -40,11 +40,10 @@ csl: csl/apa.csl
 # Download your specific csl file and refer to it in the line above.
 lot: true
 lof: true
-#space_between_paragraphs: true
-# Delete the # at the beginning of the previous line if you'd like
-# to have a blank new line between each paragraph
-#header-includes:
-#- \usepackage{tikz}
+space_between_paragraphs: true
+# header-includes:
+# - \usepackage{tikz}
+# - \usepackage{float}
 ---
 
 <!--
@@ -81,7 +80,7 @@ on chapters.
 
 # Introduction {.unnumbered}
 
-In the sport of basketball, points are awarded by the binary event of shooting the ball into the goal. Some factors we consider that may affect the success rate include the location of the shooter, the individual skill of the shooter, whether the shooter is playing on his home court or on an away court, and the shooting success in recent surrounding games. There have been previous studies on how much recent shooting success affects current shooting success, and the results vary. For example, *insert examples*.
+In the sport of basketball, points are awarded by the binary event of shooting the ball into the goal. Some factors we consider that may affect the success rate include the location of the shooter, the individual skill of the shooter, whether the shooter is playing on his home court or on an away court, and the shooting success in recent surrounding games. There have been previous studies on how much recent shooting success affects current shooting success, and the results vary. For example, *insert examples from literature review*.
 
 The purpose of this paper is to investigate Bayesian modelling techniques shooting data, and to learn more about time-dependency in shooting data.
-
+ 

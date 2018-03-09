@@ -13,3 +13,7 @@ coda
 rjags
 R2jags
 pROC
+png
+stringr
+gridExtra
+kableExtra

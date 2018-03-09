@@ -3,13 +3,13 @@
 <!--
 Our results so far suggest that some insights can be taken by predicting basketball shooting outcomes, but none of our results are more insightful than common intuition (i.e. the most frequent shooters are usually above average shooters, or the probability of making a shot decreases as distance from the basket increases). None of the models that we have built predict the out-of-sample data well. We could refine our models by including more predictors such as a proxy for fatigue (using information about total minutes played, or consecutive minutes played without a timeout), or shot difficulty (using information about the nearest defender). -->
 
-*Summarize and reflect upon results*
+**Summarize and reflect upon results**
 
 ## Evaluation of Models
 
 To evaluate these models, we use 5-fold cross-validation. This process used as many as 20 simultaneous RStudio Pro servers from the Duke University Statistical Science Department. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages over ___. The results are plotted below:
 
-```{r preds, cache=TRUE}
+```{r predfxns, cache=TRUE}
 # posterior mean   --> minimize sq err
 # posterior median --> minimize abs err
 
@@ -115,7 +115,7 @@ if(!load_chains){
 ```
 
 
-```{r model-eval, cache=TRUE}
+```{r evalfxns, cache=TRUE}
 
 #confusion matrix, classification rate, and brier score
 classify <- function(observed = NA, predicted = NA, cutoff = 0.5, gameids = NA){
@@ -337,19 +337,30 @@ g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
   theme_bw() +
   labs(y="Brier Score (MSE)", x="delta", linetype = "")
+```
 
+```{r evalplot, fig.cap="Model Evaluation"}
 grid.arrange(g1, g2, g3, nrow=2)
+```
+
+From Figure \@ref(fig:evalplot), we can observe that all of the models have different strengths. The discounted likelihood model with the smallest $\delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of $\Delta$, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may lead to overfitting the model to the training data, since they perform better on the in-sample evaluations and worse in the out-of-sample evaluations. A value for $\Delta$ that balances the trade-off between predictive accuracy and **fill in later** is 0.850.
+
+For the Discounted Likelihood Model with $\Delta$ = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. In Figure \@ref(fig:caliplot), we present these plots for the training set, the testing set, and for two random games.
+
+```{r caliplot, fig.cap="Calibration Plots for Discounted Likelihood Model, $\\Delta$ = 0.850"}
+twogames <- c(
+  sample(Xtrain$gameid, 1),
+  sample(Xtest$gameid, 1)
+)
+
+# c1 <- Xtrain %>% filter(gameid == twogames[1]) %>% calibrate(., fitted.game.850[Xtrain$gameid == twogames[1]])
 
 ```
 
 
-From these plots, we can observe that all of the models have different strengths. The discounted likelihood model with the smallest $\delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that a smaller value of $\delta$ leads to overfitting the model to the training data, since the likelihood of a particular shot is only influenced by shots close to it.
+**in prev paragrpah, also include a point about how all the models are fairly similar. like ranges of classification rates, and expected standard deviations (MLEs)**
 
-*talk about how they are similar though. like ranges of classification rates*
-
-To account for possible unexplained variation between seasons, and variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in the 2015 season (25 games), and shots from home games (82 games). *results!* (show these results in Appendix?)
-
-For the remainder of this paper, we will focus on the model with delta = 0.850.
+To account for possible unexplained variation between seasons, and variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in the 2015 season (25 games), and shots from home games (82 games). **results!** (show these results in Appendix?)
 
 ## Conclusion
 
