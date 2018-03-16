@@ -6,11 +6,16 @@ output:
 
 # Models & Analysis {#models}
 
+<!--
+
+
+-->
+
 ## Description of Models
 
-For our models, we consider the shot location, the shooter identity, a home court indicator, and a player's shooting success rate in nearby games as factors that can affect a shot outcome. In every model, we use the Just Another Gibbs Sampler library in R (R2jags). Each model is based off of a logistic regression model that provides the posterior distribution of the shot location parameters (distance and angle). The models do not account for covariance between these predictors. We expand upon this model by adding mixed effects and discounted likelihood models to control for shooter identity and game identity, respectively. These models will show us how consistent the shot location parameters are between shooters and between games. In our Gibbs Samplers, our priors are set using the corresponding Maximum Likelihood Estimates for the first four games in the dataset, and we initialize our Monte Carlo Markov Chains using values of 0 for all means, and 1 for all variances.
+For our models, we consider the shot location, the shooter identity, a home court indicator, and a player's shooting success rate in nearby games as factors that can affect a shot outcome. In every model, we use the Just Another Gibbs Sampler library in R (`R2jags`). Each model is based off of a logistic regression model that provides the posterior distribution of the shot location parameters (distance and angle). The models do not account for covariance between these predictors. We expand upon this model by adding mixed effects and discounted likelihood models to control for shooter identity and game identity, respectively. These models will show us how consistent the shot location parameters are between shooters and between games. In our Gibbs Samplers, we  estimate the posterior distributions using 10,000 simulations and a burn-in of 500. Our priors are made from the corresponding Maximum Likelihood Estimates for the first four games in the dataset, and we initialize our Monte Carlo Markov Chains using values of 0 for all means, and 1 for all variances. 
 
-The R2jags code used to build these models, as well as some diagnostic plots, can be found in Appendices **number** and **number**, respectively.
+The `R2jags` code used to build these models, as well as some diagnostic plots, can be found in Appendices **number** and **number**, respectively.
 
 
 ### Generalized Linear Model
@@ -20,63 +25,113 @@ First, we build a logistic regression model of the following form:
 $$
 \text{log} \left( \frac{p}{1-p} \right) = 
 \beta_{\text{int}} +
-X_{\text{r}}\beta_{\text{r}} +
-X_{\theta}\beta_{\theta} +
-X_{\text{H}}\beta_{\text{H}} +
-\epsilon
-$$
-$$
-\epsilon \sim N(0, \sigma^2)
+x_{\text{r}}\beta_{\text{r}} +
+x_{\theta}\beta_{\theta} +
+x_{\text{H}}\beta_{\text{H}}.
 $$
 
-In this model, $X$ refers to the data, $\beta$ is the estimated pareter from the model, and $\epsilon$ is random error. The subscripts $\textit{int}$, $\textit{r}$, $\theta$, and $\textit{H}$ respectively refer to the intercept, the log-distance of the shot, the angle of the shot, and whether shot was taken on Duke's home court or another gym.
+In this model, the $x$ refers to the data, and the $\beta$s are the pareters from the model. The subscripts $\textit{int}$, $\textit{r}$, $\theta$, and $\textit{H}$ respectively refer to the intercept, the log-distance of the shot, the angle of the shot, and whether shot was taken on Duke's home court or another gym.
 
 ### Hierarchical Generalized Linear Model
 
-Our second model is a hierarchical model, with random effects on the players. These random effects occur for each of the four parameters of interest---the intercept, the home effect, the distance effect, and the angle effect. Each indivual player's parameter values are sampled from a Normal distribution cntered at the population values. The parameters for players without a lot of shot attemps are shrunk towards the population means.
+Our second model is a hierarchical model, with random effects on the $\textit{j}$ players in the dataset. These random effects occur for each of the four parameters of interest---the intercept, the home effect, the distance effect, and the angle effect. Each individual player's parameter values are sampled from a Normal distribution centered at the population values. The parameters for players without a lot of shot attemps are shrunk towards the population means.
 
 
 $$
 \text{log} \left( \frac{p}{1-p} \right) = 
 \beta_{\text{int, j}} +
-X_{\text{r}}\beta_{\text{r, j}} +
-X_{\theta}\beta_{\theta, j} +
-X_{\text{H}}\beta_{\text{H, j}} +
-\epsilon
+x_{\text{r}}\beta_{\text{r, j}} +
+x_{\theta}\beta_{\theta, j} +
+x_{\text{H}}\beta_{\text{H, j}},
 $$
 $$
-\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}})
+\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
 $$
 $$
-\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}})
+\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}}),
 $$
 $$
-\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta})
+\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta}),
 $$
 $$
-\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}})
-$$
-$$
-\epsilon \sim N(0, \sigma^2)
+\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
 $$
 
 ### Discounted Likelihood Hierarchical Model
 
-In the discounted likelihood models, the likelihood of a single observation is more heavily influenced by the observations close to it than the observations far away from it. We measure the "distance" between observations by the number of games between them; a shot attempt that occurs in the next or the preceding game will influence the likelihood of the observation more than a shot that occurs two games away. To build these models, we applied the "ones trick" in the R2jags library. See Appendix **number** for more details. This model also contains the same random effects as the above model.
+In the discounted likelihood models, the likelihood of a single observation at time $\textit{t}$ is more heavily influenced by the observations close to it than the observations far away from it. We measure the "distance" between observations by the number of games between them; a shot attempt that occurs in the next or the preceding game will influence the likelihood of the observation more than a shot that occurs two games away. To conceptualize this model, we first start with a Forward Filtering model that uses a discounted Bayes Theorem. The discounted Bayes Theorem, like the traditional Bayes Theorem, states that the posterior is proportional to the product of the likelihood and the prior, but it weights the most recent data higher than the earlier data, which is weighted higher than the prior. 
 
-\clearpage
-
+In other words, given the parameters:
+$$
+\Theta = (\beta_{\text{int}}, \beta_{\text{r}}, \beta_{\theta}, \beta_\text{H}, \tau^2_{\text{int}}, \tau^2_{\text{r}}, \tau^2_{\theta})
+$$
+the joint posterior distribution of the parameters given the data up to time unit $\textit{t}$, $X_t$, is:
+$$
+P_{g_t}(\Theta | X_t) \propto 
+P(\Theta)^{\delta^t}
+P(X_1|\Theta)^{\delta^{t-1}}
+P(X_2|\Theta)^{\delta^{t-2}}...
+P(X_{t-2}|\Theta)^{\delta^2}
+P(X_{t-1}|\Theta)^{\delta}
+P(X_t|\Theta)
+$$
+$$
+0 < \delta < 1
+$$
+This equation shows that as distance from time $\textit{t}$ increases, the effect on the posterior distribution decreases. The Reverse Updating extension of this concept allows the effect to take place as the distance from $\textit{t}$ increases in either the positive or negative direction.
+$$
+P_{g_t}(\Theta | X_t) \propto 
+P(\Theta)^{\delta^t}...
+P(X_{t-2}|\Theta)^{\delta^2}
+P(X_{t-1}|\Theta)^{\delta}
+P(X_t|\Theta)
+P(X_{t+1}|\Theta)^{\delta}
+P(X_{t+2}|\Theta)^{\delta^2}...
+$$
+Specifically for our model, given an observed shot $\textit{i}$ in game $g_i$, attempted by player $\textit{j}$, we use the above concept to discount the probability of a made shot in the hierarchical model.
 $$
 \text{log} \left( \frac{p}{1-p} \right) = 
 \beta_{\text{int, j}} +
-X_{\text{r}}\beta_{\text{r, j}} +
-X_{\theta}\beta_{\theta, j} +
-X_{\text{H}}\beta_{\text{H, j}} +
-\epsilon
+x_{\text{r}}\beta_{\text{r, j}} +
+x_{\theta}\beta_{\theta, j} +
+x_{\text{H}}\beta_{\text{H, j}},
 $$
 $$
-L(\text{p}) = 
-\Pi_{\text{i=1}}^\text{n}(\text{p}_i)^{1-\text{y}_i} (1 - \text{p}_i)^{1-\text{y}_i} = 
+L(p) = 
+\Pi_{\text{i=1}}^\text{n}p^{\text{y}_i} (1 - p)^{1-\text{y}_i},
+$$
+$$
+\delta_i = \Delta^{|g_i - g_t|},
+$$
+
+$$
+\pi = L(p)^{\delta_i},
+$$
+$$
+\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
+$$
+$$
+\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}}),
+$$
+$$
+\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta}),
+$$
+$$
+\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
+$$
+In this model, $p$ represents the binomial likelihood, and $\pi$ is the discounted likelihood. Both of these quantities are probabilities that are bounded in the interval [0,1]. The contribution of shot outcomes (in the "anchor game" $g_t$) to the likelihood of the current shot outcome (in game $g_i$) decreases as the distance between the observations increases, and as $\Delta$ decreases. In a model with $\Delta$ = 0, only shots taken in the same game as $g_i$ can contribute to the likelihood, while $\Delta$ = 1 is equivalent to a model with no discounting. If models with larger values of $\Delta$ best fit the data, this suggests that shooting success is consistent throughout a career. If smaller values of $\Delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation, or "streakinss" in the data on the game level. This model specification results in an MCMC chain for each combination of $g_t$ and $\Delta$. Figure \@ref(fig:discplot) illustrates how the likelihood weight of $\delta$ depends on the selected value of $\Delta$ and the distance from the anchor game ($|g_i - g_t|$).
+
+<!--
+$$
+\text{log} \left( \frac{p}{1-p} \right) = 
+\beta_{\text{int, j}} +
+x_{\text{r}}\beta_{\text{r, j}} +
+x_{\theta}\beta_{\theta, j} +
+x_{\text{H}}\beta_{\text{H, j}} 
+$$
+$$
+L(p) = 
+\Pi_{\text{i=1}}^\text{n}(p_i)^{\text{y}_i} (1 - p_i)^{1-\text{y}_i} = 
 \mu 
 $$
 $$
@@ -97,11 +152,35 @@ $$
 $$
 \beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}})
 $$
-$$
-\epsilon \sim N(0, \sigma^2)
-$$
-In this model, $\mu$ represents the likelihood of the binomial events $y_i$, while $\pi$ represents the discounted likelihood. These equations show us that the contribution of an observed shot (in game $g_0$) to the likelihood of the current shot (in game $g_i$) decreases as the distance between the observations increases, and as $\Delta$ decreases. In a model with $\Delta$ = 0, then only shots taken in the same game as $g_i$ can contribute to the likelihood, while $\Delta$ = 1 corresponds to a model with no discounting. This model specification results in an MCMC chain for each combination of $g_0$ and $\Delta$. The code for each of these models is located in Appendix **number**.
 
+In this model, $\mu$ represents the likelihood of the binomial events $y_i$, while $\pi$ represents the discounted likelihood. These equations show us that the contribution of an observed shot (in the "anchor game" $g_0$) to the likelihood of the current shot (in game $g_i$) decreases as the distance between the observations increases, and as $\Delta$ decreases. In a model with $\Delta$ = 0, then only shots taken in the same game as $g_i$ can contribute to the likelihood, while $\Delta$ = 1 is equivalent to a model with no discounting. This model specification results in an MCMC chain for each combination of $g_0$ and $\Delta$. Figure \@ref(fig:discplot) illustrates how the likelihood weight of $\delta$ depends on the selected value of $\Delta$ and the distance from the anchor game.
+-->
+```{r discplot, fig.cap = "Illustration of Discounted Weighting"}
+t <- as.matrix(seq(-10, 10))
+#D <- as.matrix(seq(0.1, 1, by=0.1))
+D <- as.matrix(c(seq(0.75, 0.95, 0.05),0.999))
+weights <- as.data.frame(apply(D, 1, '^', abs(t)))
+colnames(weights) <- D
+weights$t <- t
+weightslong <- melt(weights, id="t") %>% 
+  rename(D=variable,
+         y=value)
+
+discplot <- ggplot(weightslong, aes(x=t, y=y, color=D)) + 
+  geom_line(size=1.25) + 
+  labs(color = expression(Delta) ,
+       y = expression(delta[i]),
+       x = expression(g[i] - g[t])) +
+  theme_bw() +
+  theme(legend.title = element_text(size=10,face="bold"),
+        axis.title.y = element_text(angle = 0, vjust=0.5)) +
+  scale_y_continuous(minor_breaks = seq(0, 1, .25)) +
+  scale_x_continuous(minor_breaks = seq(-10, 10, 5))
+  
+discplot
+```
+
+To build these discounted likelihood models in the `R2jags` library, we apply the "ones trick". This technique allows us to do a sampling distribution that do not exist in the library by modifying a common distribution---in this case, the Binomial. The probability $p$ is estimated using the Bayesian hierarchical model. We discount this probability to estimate $\pi$, and then specify that artificial data that consists only of ones comes from a Binomial distribution with the discounted probability; this is equivalent to sampling from a distribution with discounted outcomes.   **elaborate on the ones trick**. See Appendix **number** for the `R` code. 
 
 <!--
 We deal with the missing data by reproducing the results over all games to the results on only home games, since no home games are missing in the dataset. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the players, and formal assessments of differences in patterns game-to-game. These results are illustrated in Appendix **number**.
@@ -291,11 +370,11 @@ if(!load_chains){
 
   glmtot <- fit_glm(Xtrain)
 
-  if(nrow(dat1) > 0)  glm1 <- fit_glm(dat1) else glm1 <- glmtot
-  if(nrow(dat2) > 0)  glm2 <- fit_glm(dat2) else glm2 <- glmtot
-  if(nrow(dat3) > 0)  glm3 <- fit_glm(dat3) else glm3 <- glmtot
-  if(nrow(dat4) > 0)  glm4 <- fit_glm(dat4) else glm4 <- glmtot
-
+  if(nrow(dat1) > 0) glm1 <- fit_glm(dat1) else glm1 <- glmtot
+  if(nrow(dat2) > 0) glm2 <- fit_glm(dat2) else glm2 <- glmtot
+  if(nrow(dat3) > 0) glm3 <- fit_glm(dat3) else glm3 <- glmtot
+  if(nrow(dat4) > 0) glm4 <- fit_glm(dat4) else glm4 <- glmtot
+  
   save(glm1, file=paste0(rdatafiles,"glm1.RData"))
   save(glm2, file=paste0(rdatafiles,"glm2.RData"))
   save(glm3, file=paste0(rdatafiles,"glm3.RData"))
@@ -655,7 +734,7 @@ contplotteam
 
 ### Discounted Likelihood Hierarchical Model
 
-The values of $\Delta$ that we use to fit the discounted likelihood models are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999. We also build an MCMC chain to estimate the posterior using every game as $g_0$. We calculate predictions and fitted values for a particular shot in game $g_i$ using the posterior median of the MCMC chain where $g_i$ is $g_0$. If models with larger values of $\Delta$ best fit the data, this suggests that shooting success is consistent throughout a career. If smaller values of $\Delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation in the data on the game level. 
+The values of $\Delta$ that we use to fit the discounted likelihood models are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999. We also build an MCMC chain to estimate the posterior using every game as $g_t$. We calculate predictions and fitted values for a particular shot in game $g_i$ using the posterior median of the MCMC chain where $g_i$ is the anchor game $g_t$.
 
 ```{r discfxns, cache=TRUE}
 
@@ -858,7 +937,7 @@ get_game_params <- function(sim.mcmc.list=NA, dat=NA){
   return(params.season)
 }
 
-plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA, only_fga_games = TRUE){
+plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA, zlab=NA, only_fga_games = TRUE){
   
   if(id != 0 & only_fga_games){
     #only consider this argument if we are looking at individual effects
@@ -886,7 +965,7 @@ plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA
     guides(linetype=FALSE) + 
     geom_line(size=1.5) +   
     theme_bw() +
-    labs(title=main, y="Estimate", x="Game") + 
+    labs(title=main, y="Estimate", x="Game", color = "Parameters", z=zlab) + 
     theme(panel.grid = element_blank())
   
 }

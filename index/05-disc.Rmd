@@ -7,7 +7,7 @@ Our results so far suggest that some insights can be taken by predicting basketb
 
 ## Evaluation of Models
 
-To evaluate these models, we use 5-fold cross-validation. This process used as many as 20 simultaneous RStudio Pro servers from the Duke University Statistical Science Department. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages over ___. The results are plotted below:
+To evaluate these models, we use 5-fold cross-validation. This process used as many as 20 simultaneous RStudio Pro servers provided by the Duke University Statistical Science Department. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages; to calculate the probability for an individual shot, we calculate a response for each of the 9,500 posterior simulations, then take the average of those responses. The results are plotted below:
 
 ```{r predfxns, cache=TRUE}
 # posterior mean   --> minimize sq err
@@ -253,6 +253,7 @@ calibrate <- function(observed = NA, predicted = NA, nbins = 20, gameids = NA){
 }
 
 plot_calibration <- function(dat, title="Calibration Plot"){
+  
   ggplot(data = dat, aes(x=as.numeric(as.character(bin)), y=p, group=0)) + 
     geom_errorbar(aes(ymin=pl, ymax=pu), width=0) + 
     geom_errorbarh(aes(xmin=binl, xmax=binu), height=0) + 
@@ -262,7 +263,7 @@ plot_calibration <- function(dat, title="Calibration Plot"){
           #,panel.border = element_blank(), axis.text = element_blank(), axis.ticks =   element_blank()
           ) + 
     theme_bw() + 
-    labs(x="bin", title=title)
+    labs(x="Bins",y="Empirical Probability" , title=title)
 }
 
 if(!load_chains){
@@ -343,28 +344,57 @@ g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
 grid.arrange(g1, g2, g3, nrow=2)
 ```
 
-From Figure \@ref(fig:evalplot), we can observe that all of the models have different strengths. The discounted likelihood model with the smallest $\delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of $\Delta$, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may lead to overfitting the model to the training data, since they perform better on the in-sample evaluations and worse in the out-of-sample evaluations. A value for $\Delta$ that balances the trade-off between predictive accuracy and **fill in later** is 0.850.
+From Figure \@ref(fig:evalplot), we can observe that the models have different strengths. The discounted likelihood model with the smallest value of $\Delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of $\Delta$, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may overfit the model to the training data. The generalized linear models perform best in Brier score, but worst in log likelihood. The hierarchical models are about the same, but they have a better log likelihood performance than the GLMs. A model that balances the trade-off between predictive accuracy and likelihood is a discounted likelihood model with $\Delta$ = 0.850.
 
-For the Discounted Likelihood Model with $\Delta$ = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. In Figure \@ref(fig:caliplot), we present these plots for the training set, the testing set, and for two random games.
+In addition, we can see that the variation in model performance is small. For example, most of the out-of-sample classification rates fall between 0.58 and 0.62. This is within the 95% confidence interval for a random binomial proportion of 0.6 using a sample size of `r n <- k*(length(deltas) + 2); n` (for each combination of `r k`-fold cross-validation and `r length(deltas)+2` different models), which is `r err <- sqrt(0.6*(1-0.6)/n); paste0("(", round(0.6-err, 4), ", " , round(0.6+err, 4), ")")`. Therefore, the evidence that certain models predict better than others is not particularly strong.
+
+For the discounted likelihood model with $\Delta$ = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. To make these plots, we divide the predicted probabilities into 20 equally-sized bins, then plot these bins on the x-axis versus the proportions of the actual outcomes within the bins on the y-axis. The horizontal bars represent the bin width, and the vertical bars represent a 95% confidence interval of the proportions. The red line of slope 1 represents equality between the bin medians and the empirical probabilities within the bins. In Figure \@ref(fig:caliplot), we present these plots for a full training set and a testing set.
 
 ```{r caliplot, fig.cap="Calibration Plots for Discounted Likelihood Model, $\\Delta$ = 0.850"}
-twogames <- c(
-  sample(Xtrain$gameid, 1),
-  sample(Xtest$gameid, 1)
-)
 
-# c1 <- Xtrain %>% filter(gameid == twogames[1]) %>% calibrate(., fitted.game.850[Xtrain$gameid == twogames[1]])
+randtrain <- sample(Xtrain$gameid, 1)
+randtest  <- sample(Xtest$gameid, 1)
+randtrainrows <- Xtrain$gameid == randtrain
+randtestrows  <- Xtest$gameid == randtest
+
+calitrain <- Xtrain$result %>% 
+  calibrate(observed=., predicted=fitted.game.850) %>% 
+  plot_calibration(., "Training Set")
+
+calitest <- Xtest$result %>% 
+  calibrate(observed=., predicted=pred.game.850) %>% 
+  plot_calibration(., "Testing Set")
+
+# calitrain1 <- Xtrain$result[randtrainrows] %>% 
+#   calibrate(observed=., predicted=fitted.game.850[randtrainrows], nbins=5) %>% 
+#   plot_calibration(., "Training Game")
+# 
+# calitest1 <- Xtest$result[randtestrows] %>% 
+#   calibrate(observed=., predicted=pred.game.850[randtestrows]) %>% 
+#   plot_calibration(., "Testing Game")
+
+grid.arrange(calitrain, calitest, ncol=2)
+
+```
+
+In this model, we can see that the confidence intervals on the training set all cross the line of slope, which shows that the model reliably estimates the probabilities. In the testing set, however, the predictions only cross this line between about 0.3 and 0.75. In addition, the fact that the bins are so much thinner in the middle shows that the model is not likely to predict values close to 0 or 1.
+
+## Results from Model
+
+To illustrate results from the discounted likelihood model with $\Delta$ = 0.850, we plot the location parameters over time for a high-usage player, a low-usage player, and the overall team. We also try some variances. **make this sound more academic**
+
+```{r discplot850, fig.cap="Parameters Over Time, $\\Delta$ = 0.850"}
 
 ```
 
 
-**in prev paragrpah, also include a point about how all the models are fairly similar. like ranges of classification rates, and expected standard deviations (MLEs)**
-
-To account for possible unexplained variation between seasons, and variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in the 2015 season (25 games), and shots from home games (82 games). **results!** (show these results in Appendix?)
+We can see that the parameters move over time. **elaborate**
 
 ## Conclusion
 
-The results of this paper show that there is not a lot of time-dependency in shooting success rate in this dataset of player-tracking data from the Duke Men's Basketball team. The fact that the models with higher values of 
+The evaluations of the models show that there is not a lot of time-dependency in shooting success rate in this dataset of player-tracking data from the Duke Men's Basketball team. Allowing predictors of shot success to shift based on recent success does not significantly improve the predictive accuracy or the likelihood of a model. However, we do see a systematic improvement in likelihood for smaller discount factors (i.e., more emphasis on recent shots, and therefore support of "streakiness"). 
+
+To account for possible unexplained variation between seasons, and variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in the 2015 season (25 games), and shots from home games (82 games). **results!** (show these results in Appendix?)
 
 ## Future Goals
 

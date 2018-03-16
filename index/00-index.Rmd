@@ -12,10 +12,10 @@ dus: 'Mine Cetinkaya-Rundel'
 department: 'Department of Statistical Science'
 degree: 'Bachelor of Science in Statistical Science'
 title: 'Insert Real Title'
-knit: "bookdown::render_book"
-site: bookdown::bookdown_site
+knit: 'bookdown::render_book'
+site: 'bookdown::bookdown_site'
 output: 
-  thesisdowndss::thesis_pdf: default
+ thesisdowndss::thesis_pdf: default
 #  thesisdowndss::thesis_gitbook: default
 #  thesisdowndss::thesis_word: default
 #  thesisdowndss::thesis_epub: default
@@ -41,7 +41,12 @@ csl: csl/apa.csl
 lot: true
 lof: true
 space_between_paragraphs: true
+documentclass: 'article'
+fontsize: '18pt'
+geometry: 'left=3cm,right=3cm,top=2cm,bottom=2cm'
+biblio-style: apalike
 # header-includes:
+#  - \geometry{margin=1in}
 # - \usepackage{tikz}
 # - \usepackage{float}
 ---
