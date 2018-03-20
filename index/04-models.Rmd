@@ -943,6 +943,13 @@ plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA
     #only consider this argument if we are looking at individual effects
     game.params <- game.params %>% filter(nshots > 0)
   }
+  
+  if(length(zlab) == 0){
+    zlab <- parameters
+  }else if(is.na(zlab[1])){
+    zlab <- parameters
+  }
+
   plotdat <- game.params %>% 
     filter(globalplayerid == id) %>% 
     select(gameid, 
@@ -956,20 +963,22 @@ plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA
            param = parameters[as.numeric(param)],
            param = ifelse(is.na(param), "black", param))
   
-    ggplot(data = plotdat, 
+  ggplot(data = plotdat, 
          aes(x=as.integer(as.factor(gameid)), 
              y=y, 
              z=type, 
-             linetype=(!type %in% c("mid", "mid1","mid2")),
+             linetype=(!type %in% paste0("mid", c("",1:length(parameters)))),
+             size = as.numeric(type %in% paste0("mid", c("",1:length(parameters)))),
              color=param)) + 
-    guides(linetype=FALSE) + 
-    geom_line(size=1.5) +   
+    scale_size(range=c(0.5, 3)) +
+    guides(linetype=FALSE, size=FALSE) + 
+    geom_line() +   
     theme_bw() +
-    labs(title=main, y="Estimate", x="Game", color = "Parameters", z=zlab) + 
+    labs(title=main, y="Estimate", x="Game", color = "Parameters") +
+    scale_color_manual(values = 1:length(parameters), labels = zlab) + 
     theme(panel.grid = element_blank())
   
 }
-
 
 if(!load_chains){
   
@@ -1024,6 +1033,6 @@ grid.arrange(discplot6,discplot7,discplot8,discplot9, nrow=2)
 discplot10
 ```
 
-The plots above illustrate how the intercepts change for players over time. These plots illustrate that smaller values of $\Delta$ allow for greater variation in parameter values over time.
+The plots above illustrate how the intercepts change for the four players and for the population over time. They also show how smaller values of $\Delta$ allow for greater variation in parameter values over time.
 
 

@@ -325,19 +325,19 @@ g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
    geom_point() + 
    geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
    theme_bw() + 
-   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "")
+   labs(y="Classification Rate \n (0.5 cutoff)", x=expression(Delta), linetype = "")
 
 g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Log Likelihood", x="delta", linetype = "")
+  labs(y="Log Likelihood \n", x=expression(Delta), linetype = "")
 
 g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Brier Score (MSE)", x="delta", linetype = "")
+  labs(y="Brier Score (MSE)", x=expression(Delta), linetype = "")
 ```
 
 ```{r evalplot, fig.cap="Model Evaluation"}
@@ -381,14 +381,23 @@ In this model, we can see that the confidence intervals on the training set all 
 
 ## Results from Model
 
-To illustrate results from the discounted likelihood model with $\Delta$ = 0.850, we plot the location parameters over time for a high-usage player, a low-usage player, and the overall team. We also try some variances. **make this sound more academic**
+To illustrate results from the discounted likelihood model with $\Delta$ = 0.850, we plot the location parameters over time for a high-usage player and a low-usage player that play the same position, and for the overall team. **make this sound more academic**
 
 ```{r discplot850, fig.cap="Parameters Over Time, $\\Delta$ = 0.850"}
 
+idhi <- 842297
+idlo <- 551769
+
+plot_time_effect(game.params.850, id=idhi, parameters=c("intH","intA", "r", "theta"), main="High-Usage Player", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
+
+plot_time_effect(game.params.850, id=idlo, parameters=c("intH","intA", "r", "theta"), main="Low-Usage Player", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
+
+plot_time_effect(game.params.850, id=0, parameters=c("intH","intA", "r", "theta"), main="Team", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
 ```
 
 
-We can see that the parameters move over time. **elaborate**
+We can see that the parameters move over time. **elaborate. like the team parameters move the most over time.**
+The distance parameter moves the least. This suggests that the ability to shoot long-range shots did not drastically increase or decrease between games in the data.
 
 ## Conclusion
 

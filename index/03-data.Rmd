@@ -99,13 +99,15 @@ For our analysis, we use the following files for each game:
 
 This dataset comes in an a semi-structured Extensible Markup Language (XML) file, where there is a unique element for each "event" (an event is a basketball action such as a dribble, pass, shot, foul, etc.). Each event element has attributes describing the type of event, the time of the event, and the player who completed the action. We use these files to uncover when a shot is attempted in a game, who attempted the shot, and the result of the shot attempt.
     
+<!--
 * Box Score Optical:
 
 We use this dataset to match the names and IDs of players who are in the game. This is also an XML file, with elements corresponding to individual players. These elements contain attributes describing information about the player (e.g. team name, jersey number) and various statistics for the game (e.g. points, assists, distance run).
+-->
 
 * Final Sequence Optical:
 
-    These XML files contain the locations of all ten players and the ball during precise time intervals within the game. Each timeunit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter's location at the moment of a shot attempt.
+    These XML files contain the locations of all ten players and the ball during precise time intervals within the game. Each time unit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter's location at the moment of a shot attempt.
 
 ## Data Cleaning
 
