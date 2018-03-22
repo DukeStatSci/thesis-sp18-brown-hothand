@@ -946,7 +946,7 @@ get_game_params <- function(sim.mcmc.list=NA, dat=NA){
 
 plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=NA, zlab=NULL, only_fga_games = TRUE){
   
-  if(only_fga_games & ids != 0){
+  if(only_fga_games & ids[1] != 0){
     #only consider this argument if we are looking at individual effects
     game.params <- game.params %>% filter(nshots > 0)
   }
@@ -1007,6 +1007,15 @@ plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=N
   }
 }
 
+
+get_season <- function(gameid=NA){
+  season <- as.numeric(substr(gameid,1,4))
+  increment <- as.numeric(substr(gameid,5,6)) > 4
+  season[increment] <- season[increment] + 1
+  return(season)
+}
+
+
 if(!load_chains){
   
   eval(parse(
@@ -1030,38 +1039,37 @@ if(!load_chains){
 
 }
 
-p <- c("intH", "intA")
-z <- c("Intercept (Away)", "Intercept (Home)")
-# discplot1A <- plot_time_effect(game.params.750, id=id1, parameters=p, main="Player 1", zlab = z)
-# discplot2A <- plot_time_effect(game.params.750, id=id2, parameters=p, main="Player 2", zlab = z)
-# discplot3A <- plot_time_effect(game.params.750, id=id3, parameters=p, main="Player 3", zlab = z)
-# discplot4A <- plot_time_effect(game.params.750, id=id4, parameters=p, main="Player 4", zlab = z)
-discplot5A <- plot_time_effect(game.params.750, id=0, parameters=p, main="Team Effect", zlab = z)
+game.params.750_sub <- game.params.750 %>% 
+  mutate(season = get_season(gameid)) %>% 
+  filter(season == 2016)
+game.params.999_sub <- game.params.999 %>% 
+  mutate(season = get_season(gameid)) %>% 
+  filter(season == 2016)
+IDS <- c(0, id1, id4) 
+z_IDS <- c("Team", 1, 4)
 
-# discplot1B <- plot_time_effect(game.params.999, id=id1, parameters=p, main="Player 1", zlab = z)
-# discplot2B <- plot_time_effect(game.params.999, id=id2, parameters=p, main="Player 2", zlab = z)
-# discplot3B <- plot_time_effect(game.params.999, id=id3, parameters=p, main="Player 3", zlab = z)
-# discplot4B <- plot_time_effect(game.params.999, id=id4, parameters=p, main="Player 4", zlab = z)
-discplot5B <- plot_time_effect(game.params.999, id=0, parameters=c(p[2],p[1]), main="Team Effect", zlab = c(z[2],z[1]))
+discplot750H <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="intH", main="Intercept (Home)", zlab = z_IDS)
+discplot750A <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="intA", main="Intercept (Away)", zlab = z_IDS)
+discplot750r <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="r", main="Distance", zlab = z_IDS)
+discplot750theta <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="theta", main="Angle", zlab = z_IDS)
 
-```
+discplot999H <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="intH", main="Intercept (Home)", zlab = z_IDS)
+discplot999A <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="intA", main="Intercept (Away)", zlab = z_IDS)
+discplot999r <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="r", main="Distance", zlab = z_IDS)
+discplot999theta <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="theta", main="Angle", zlab = z_IDS)
 
-```{r discplot7500}
-grid.arrange(discplot1A,discplot2A,discplot3A,discplot4A, nrow=2)
 ```
 
 ```{r discplot750, fig.cap="Intercepts for Four Players and Population over Time, $\\delta$ = 0.750", out.width="90%", fig.align="right"}
-discplot5A
+grid.arrange(discplot1A,discplot2A,discplot3A,discplot4A, nrow=2)
 ```
 
-```{r discplot9990}
+
+
+```{r discplot999, fig.cap="Intercepts for Four Players and Population over Time, $\\delta$ = 0.999", out.width="90%", fig.align="right"}
 grid.arrange(discplot1B,discplot2B,discplot3B,discplot4B, nrow=2)
 ```
 
-```{r discplot999, fig.cap="Intercepts for Four Players and Population over Time, $\\delta$ = 0.999", out.width="90%", fig.align="right"}
-discplot5B
-```
-
-The plots above illustrate how the intercepts change for the four players and for the population over time. They also show how smaller values of $\delta$ allow for greater variation in parameter values over time.
+The plots in Figure \@ref(fig:discplot750) and Figure \@ref(fig:discplot999) show how the parameters change for two players and the population over time; they also illustrate how smaller values of $\delta$ allow for more time-variation in the posteriors. Another insight from these figures is a disadvantage of the discounting model. Between the two Angle plots, we can tell that Player 1's distinct preference of the left side of the goal is not as strong when there is more discounting. The game indexes shown are for all the available games that occured over a single season.
 
 
