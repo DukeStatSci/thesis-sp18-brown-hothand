@@ -23,7 +23,7 @@ The `R2jags` code used to build these models, as well as some diagnostic plots, 
 First, we build a logistic regression model of the following form:
 
 $$
-\text{log} \left( \frac{p}{1-p} \right) = 
+\text{logit}(p) = 
 \beta_{\text{int}} +
 x_{\text{r}}\beta_{\text{r}} +
 x_{\theta}\beta_{\theta} +
@@ -38,7 +38,7 @@ Our second model is a hierarchical model, with random effects on the $\textit{j}
 
 
 $$
-\text{log} \left( \frac{p}{1-p} \right) = 
+\text{logit}(p) = 
 \beta_{\text{int, j}} +
 x_{\text{r}}\beta_{\text{r, j}} +
 x_{\theta}\beta_{\theta, j} +
@@ -67,30 +67,30 @@ $$
 $$
 the joint posterior distribution of the parameters given the data up to time unit $\textit{t}$, $X_t$, is:
 $$
-P_{g_t}(\Theta | X_t) \propto 
-P(\Theta)^{\delta^t}
-P(X_1|\Theta)^{\delta^{t-1}}
-P(X_2|\Theta)^{\delta^{t-2}}...
-P(X_{t-2}|\Theta)^{\delta^2}
-P(X_{t-1}|\Theta)^{\delta}
-P(X_t|\Theta)
+p_{g_t}(\Theta | X_t) \propto 
+p(\Theta)^{\delta^t}
+p(X_1|\Theta)^{\delta^{t-1}}
+p(X_2|\Theta)^{\delta^{t-2}}...
+p(X_{t-2}|\Theta)^{\delta^2}
+p(X_{t-1}|\Theta)^{\delta}
+p(X_t|\Theta)
 $$
 $$
 0 < \delta < 1
 $$
 This equation shows that as distance from time $\textit{t}$ increases, the effect on the posterior distribution decreases. The Reverse Updating extension of this concept allows the effect to take place as the distance from $\textit{t}$ increases in either the positive or negative direction.
 $$
-P_{g_t}(\Theta | X_t) \propto 
-P(\Theta)^{\delta^t}...
-P(X_{t-2}|\Theta)^{\delta^2}
-P(X_{t-1}|\Theta)^{\delta}
-P(X_t|\Theta)
-P(X_{t+1}|\Theta)^{\delta}
-P(X_{t+2}|\Theta)^{\delta^2}...
+p_{g_t}(\Theta | X_t) \propto 
+p(\Theta)^{\delta^t}...
+p(X_{t-2}|\Theta)^{\delta^2}
+p(X_{t-1}|\Theta)^{\delta}
+p(X_t|\Theta)
+p(X_{t+1}|\Theta)^{\delta}
+p(X_{t+2}|\Theta)^{\delta^2}...
 $$
 Specifically for our model, given an observed shot $\textit{i}$ in game $g_i$, attempted by player $\textit{j}$, we use the above concept to discount the probability of a made shot in the hierarchical model.
 $$
-\text{log} \left( \frac{p}{1-p} \right) = 
+\text{logit}(p) = 
 \beta_{\text{int, j}} +
 x_{\text{r}}\beta_{\text{r, j}} +
 x_{\theta}\beta_{\theta, j} +
@@ -100,12 +100,9 @@ $$
 L(p) = 
 \Pi_{\text{i=1}}^\text{n}p^{\text{y}_i} (1 - p)^{1-\text{y}_i},
 $$
-$$
-\delta_i = \Delta^{|g_i - g_t|},
-$$
 
 $$
-\pi = L(p)^{\delta_i},
+\pi = L(p)^{\delta^{|g_i - g_t|}},
 $$
 $$
 \beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
@@ -119,7 +116,7 @@ $$
 $$
 \beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
 $$
-In this model, $p$ represents the binomial likelihood, and $\pi$ is the discounted likelihood. Both of these quantities are probabilities that are bounded in the interval [0,1]. The contribution of shot outcomes (in the "anchor game" $g_t$) to the likelihood of the current shot outcome (in game $g_i$) decreases as the distance between the observations increases, and as $\Delta$ decreases. In a model with $\Delta$ = 0, only shots taken in the same game as $g_i$ can contribute to the likelihood, while $\Delta$ = 1 is equivalent to a model with no discounting. If models with larger values of $\Delta$ best fit the data, this suggests that shooting success is consistent throughout a career. If smaller values of $\Delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation, or "streakinss" in the data on the game level. This model specification results in an MCMC chain for each combination of $g_t$ and $\Delta$. Figure \@ref(fig:discplot) illustrates how the likelihood weight of $\delta$ depends on the selected value of $\Delta$ and the distance from the anchor game ($|g_i - g_t|$).
+In this model, $p$ represents the binomial likelihood, and $\pi$ is the discounted likelihood. Both of these quantities are probabilities that are bounded in the interval [0,1]. The contribution of shot outcomes (in the "anchor game" $g_t$) to the likelihood of the current shot outcome (in game $g_i$) decreases as the distance between the observations increases, and as $\delta$ decreases. In a model with $\delta$ = 0, only shots taken in the same game as $g_i$ can contribute to the likelihood, while $\delta$ = 1 is equivalent to a model with no discounting. If models with larger values of $\delta$ best fit the data, this suggests that shooting success is consistent throughout a career. If smaller values of $\delta$ are more likely in the data, however, then we can assume there is a substantial amount of time variation, or "streakinss" in the data on the game level. This model specification results in an MCMC chain for each combination of $g_t$ and $\delta$. Figure \@ref(fig:discplot) illustrates how the exponential weight on the likelihood depends on the selected value of $\delta$ and the distance from the anchor game ($|g_i - g_t|$).
 
 <!--
 $$
@@ -168,8 +165,8 @@ weightslong <- melt(weights, id="t") %>%
 
 discplot <- ggplot(weightslong, aes(x=t, y=y, color=D)) + 
   geom_line(size=1.25) + 
-  labs(color = expression(Delta) ,
-       y = expression(delta[i]),
+  labs(color = expression(delta) ,
+       y = expression(delta[i]^abs(g[i] - g[t])),
        x = expression(g[i] - g[t])) +
   theme_bw() +
   theme(legend.title = element_text(size=10,face="bold"),
@@ -180,7 +177,7 @@ discplot <- ggplot(weightslong, aes(x=t, y=y, color=D)) +
 discplot
 ```
 
-To build these discounted likelihood models in the `R2jags` library, we apply the "ones trick". This technique allows us to do a sampling distribution that do not exist in the library by modifying a common distribution---in this case, the Binomial. The probability $p$ is estimated using the Bayesian hierarchical model. We discount this probability to estimate $\pi$, and then specify that artificial data that consists only of ones comes from a Binomial distribution with the discounted probability; this is equivalent to sampling from a distribution with discounted outcomes.   **insert a snippet of the cde**. See Appendix **number** for the full `R` code. 
+To build these discounted likelihood models in the `R2jags` library, we apply the "ones trick". This technique allows us to do a sampling distribution that do not exist in the library by modifying a common distribution---in this case, the Binomial. The probability $p$ is estimated using the Bayesian hierarchical model. We discount this probability to estimate $\pi$, and then specify that artificial data that consists only of ones comes from a Binomial distribution with the discounted probability; this is equivalent to sampling from a distribution with discounted outcomes.   **insert a snippet of the code**. See Appendix **number** for the full `R` code. 
 
 <!--
 We deal with the missing data by reproducing the results over all games to the results on only home games, since no home games are missing in the dataset. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the players, and formal assessments of differences in patterns game-to-game. These results are illustrated in Appendix **number**.
@@ -741,7 +738,9 @@ contplotteam
 
 ### Discounted Likelihood Hierarchical Model
 
-The values of $\Delta$ that we use to fit the discounted likelihood models are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999. We also build an MCMC chain to estimate the posterior using every game as $g_t$. We calculate predictions and fitted values for a particular shot in game $g_i$ using the posterior median of the MCMC chain where $g_i$ is the anchor game $g_t$.
+The values of $\delta$ that we use to fit the discounted likelihood models are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999. We also build an MCMC chain to estimate the posterior using every game as $g_t$. We calculate predictions and fitted values for a particular shot in game $g_i$ using the posterior median of the MCMC chain where $g_i$ is the anchor game $g_t$.
+
+**instead of just showing each player over many time periods, look at multiple players in the same parameter within the same time period***
 
 ```{r discfxns, cache=TRUE}
 
@@ -944,18 +943,15 @@ get_game_params <- function(sim.mcmc.list=NA, dat=NA){
   return(params.season)
 }
 
-plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=NA, zlab=NA, only_fga_games = TRUE){
+plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=NA, zlab=NULL, only_fga_games = TRUE){
   
   if(only_fga_games & ids != 0){
     #only consider this argument if we are looking at individual effects
     game.params <- game.params %>% filter(nshots > 0)
   }
   
-  if(length(zlab) == 0){
-    zlab <- parameters
-  }else if(is.na(zlab[1])){
-    zlab <- parameters
-  }
+  # ids <- factor(ids, levels=ids)
+  # parameters <- factor(parameters, levels=parameters)
 
   plotdat <- game.params %>% 
     filter(globalplayerid %in% ids) %>% 
@@ -970,10 +966,10 @@ plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=N
     mutate(clr_p = str_extract(type, "[[:digit:]]+"),
            clr_p = parameters[as.numeric(clr_p)],
            clr_p = ifelse(is.na(clr_p), 0, clr_p),
-           clr_p = as.factor(clr_p),
-           clr_i = as.factor(globalplayerid))
+           clr_p = factor(clr_p, levels=parameters),
+           clr_i = factor(globalplayerid, levels=ids))
   
-  if(length(ids) == 1 & length(parameters) > 1){
+  if(length(ids) == 1){
     
     ggplot(data = plotdat, 
            aes(x=as.integer(as.factor(gameid)), 
@@ -1022,9 +1018,9 @@ if(!load_chains){
   
 }else{
   
-  # eval(parse(
-  #   text=paste0("game.mcmc.list.",deltas_str," <- load_gamelist(",deltas_str,");\n")
-  # ))
+   # eval(parse(
+   #   text=paste0("game.mcmc.list.",deltas_str," <- load_gamelist(",deltas_str,");\n")
+   # ))
   
   eval(parse(
     text=paste0("load(file='",rdatafiles,"gameparams",deltas_str,".RData');\n")
@@ -1033,36 +1029,38 @@ if(!load_chains){
 
 }
 
-discplot1 <- plot_time_effect(game.params.750, id=id1, parameter=c("intH", "intA"), main="Player 1")
-discplot2 <- plot_time_effect(game.params.750, id=id2, parameters=c("intH", "intA"), main="Player 2")
-discplot3 <- plot_time_effect(game.params.750, id=id3, parameters=c("intH", "intA"), main="Player 3")
-discplot4 <- plot_time_effect(game.params.750, id=id4, parameters=c("intH", "intA"), main="Player 4")
-discplot5 <- plot_time_effect(game.params.750, id=0, parameters=c("intH", "intA"), main="Team Effect")
+p <- c("intH", "intA")
+z <- c("Intercept (Away)", "Intercept (Home)")
+# discplot1A <- plot_time_effect(game.params.750, id=id1, parameters=p, main="Player 1", zlab = z)
+# discplot2A <- plot_time_effect(game.params.750, id=id2, parameters=p, main="Player 2", zlab = z)
+# discplot3A <- plot_time_effect(game.params.750, id=id3, parameters=p, main="Player 3", zlab = z)
+# discplot4A <- plot_time_effect(game.params.750, id=id4, parameters=p, main="Player 4", zlab = z)
+discplot5A <- plot_time_effect(game.params.750, id=0, parameters=p, main="Team Effect", zlab = z)
 
-discplot6 <- plot_time_effect(game.params.999, id=id1, parameters=c("intH", "intA"), main="Player 1")
-discplot7 <- plot_time_effect(game.params.999, id=id2, parameters=c("intH", "intA"), main="Player 2")
-discplot8 <- plot_time_effect(game.params.999, id=id3, parameters=c("intH", "intA"), main="Player 3")
-discplot9 <- plot_time_effect(game.params.999, id=id4, parameters=c("intH", "intA"), main="Player 4")
-discplot10 <- plot_time_effect(game.params.999, id=0, parameters=c("intH", "intA"), main="Team Effect")
+# discplot1B <- plot_time_effect(game.params.999, id=id1, parameters=p, main="Player 1", zlab = z)
+# discplot2B <- plot_time_effect(game.params.999, id=id2, parameters=p, main="Player 2", zlab = z)
+# discplot3B <- plot_time_effect(game.params.999, id=id3, parameters=p, main="Player 3", zlab = z)
+# discplot4B <- plot_time_effect(game.params.999, id=id4, parameters=p, main="Player 4", zlab = z)
+discplot5B <- plot_time_effect(game.params.999, id=0, parameters=c(p[2],p[1]), main="Team Effect", zlab = c(z[2],z[1]))
 
 ```
 
 ```{r discplot7500}
-grid.arrange(discplot1,discplot2,discplot3,discplot4, nrow=2)
+grid.arrange(discplot1A,discplot2A,discplot3A,discplot4A, nrow=2)
 ```
 
-```{r discplot750, fig.cap="Intercepts for Four Players and Population over Time, $\\Delta$ = 0.750", out.width="90%", fig.align="right"}
-discplot5
+```{r discplot750, fig.cap="Intercepts for Four Players and Population over Time, $\\delta$ = 0.750", out.width="90%", fig.align="right"}
+discplot5A
 ```
 
 ```{r discplot9990}
-grid.arrange(discplot6,discplot7,discplot8,discplot9, nrow=2)
+grid.arrange(discplot1B,discplot2B,discplot3B,discplot4B, nrow=2)
 ```
 
-```{r discplot999, fig.cap="Intercepts for Four Players and Population over Time, $\\Delta$ = 0.999", out.width="90%", fig.align="right"}
-discplot10
+```{r discplot999, fig.cap="Intercepts for Four Players and Population over Time, $\\delta$ = 0.999", out.width="90%", fig.align="right"}
+discplot5B
 ```
 
-The plots above illustrate how the intercepts change for the four players and for the population over time. They also show how smaller values of $\Delta$ allow for greater variation in parameter values over time.
+The plots above illustrate how the intercepts change for the four players and for the population over time. They also show how smaller values of $\delta$ allow for greater variation in parameter values over time.
 
 

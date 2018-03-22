@@ -323,32 +323,32 @@ g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
    geom_point() + 
    geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
    theme_bw() + 
-   labs(y="Classification Rate \n (0.5 cutoff)", x=expression(Delta), linetype = "")
+   labs(y="Classification Rate \n (0.5 cutoff)", x=expression(delta), linetype = "")
 
 g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Log Likelihood \n", x=expression(Delta), linetype = "")
+  labs(y="Log Likelihood \n", x=expression(delta), linetype = "")
 
 g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Brier Score (MSE)", x=expression(Delta), linetype = "")
+  labs(y="Brier Score (MSE)", x=expression(delta), linetype = "")
 ```
 
 ```{r evalplot, fig.cap="Model Evaluation"}
 grid.arrange(g1, g2, g3, nrow=2)
 ```
 
-From Figure \@ref(fig:evalplot), we can observe that the models have different strengths. The discounted likelihood model with the smallest value of $\Delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of $\Delta$, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may overfit the model to the training data. The generalized linear models perform best in Brier score, but worst in log likelihood. The hierarchical models are about the same, but they have a better log likelihood performance than the GLMs. A model that balances the trade-off between predictive accuracy and likelihood is a discounted likelihood model with $\Delta$ = 0.850.
+From Figure \@ref(fig:evalplot), we can observe that the models have different strengths. The discounted likelihood model with the smallest value of $\delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of $\delta$, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may overfit the model to the training data. The generalized linear models perform best in Brier score, but worst in log likelihood. The hierarchical models are about the same, but they have a better log likelihood performance than the GLMs. A model that balances the trade-off between predictive accuracy and likelihood is a discounted likelihood model with $\delta$ = 0.850.
 
 In addition, we can see that the variation in model performance is small. For example, most of the out-of-sample classification rates fall between 0.58 and 0.62. This is within the 95% confidence interval for a random binomial proportion of 0.6 using a sample size of `r n <- k*(length(deltas) + 2); n` (for each combination of `r k`-fold cross-validation and `r length(deltas)+2` different models), which is `r err <- sqrt(0.6*(1-0.6)/n); paste0("(", round(0.6-err, 4), ", " , round(0.6+err, 4), ")")`. Therefore, the evidence that certain models predict better than others is not particularly strong.
 
-For the discounted likelihood model with $\Delta$ = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. To make these plots, we divide the predicted probabilities into 20 equally-sized bins, then plot these bins on the x-axis versus the proportions of the actual outcomes within the bins on the y-axis. The horizontal bars represent the bin width, and the vertical bars represent a 95% confidence interval of the proportions. The red line of slope 1 represents equality between the bin medians and the empirical probabilities within the bins. In Figure \@ref(fig:caliplot), we present these plots for a full training set and a testing set.
+For the discounted likelihood model with $\delta$ = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. To make these plots, we divide the predicted probabilities into 20 equally-sized bins, then plot these bins on the x-axis versus the proportions of the actual outcomes within the bins on the y-axis. The horizontal bars represent the bin width, and the vertical bars represent a 95% confidence interval of the proportions. The red line of slope 1 represents equality between the bin medians and the empirical probabilities within the bins. In Figure \@ref(fig:caliplot), we present these plots for a full training set and a testing set.
 
-```{r caliplot, fig.cap="Calibration Plots for Discounted Likelihood Model, $\\Delta$ = 0.850"}
+```{r caliplot, fig.cap="Calibration Plots for Discounted Likelihood Model, $\\delta$ = 0.850"}
 
 randtrain <- sample(Xtrain$gameid, 1)
 randtest  <- sample(Xtest$gameid, 1)
@@ -379,9 +379,9 @@ In this model, we can see that the confidence intervals on the training set all 
 
 ## Results from Model
 
-To illustrate results from the discounted likelihood model with $\Delta$ = 0.850, we plot the location parameters over time for a high-usage player and a low-usage player that play the same position, and for the overall team. **make this sound more academic**
+To illustrate results from the discounted likelihood model with $\delta$ = 0.850, we plot the location parameters over time for a high-usage player and a low-usage player that play the same position, and for the overall team. **make this sound more academic**
 
-```{r discplot850, fig.cap="Parameters Over Time, $\\Delta$ = 0.850"}
+```{r discplot850, fig.cap="Parameters Over Time, $\\delta$ = 0.850"}
 
 idhi <- 842297
 idlo <- 551769

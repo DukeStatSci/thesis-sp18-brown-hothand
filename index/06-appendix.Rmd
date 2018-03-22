@@ -266,14 +266,14 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
 
 ```{r eval=FALSE, echo=TRUE}
 
-fit_game <- function(dat = NA, g0 = NA, Delta = NA, 
+fit_game <- function(dat = NA, g0 = NA, delta = NA, 
                      S = 10000, B = 500){
 
   model.game <- function(){
 
     for(i in 1:N){
-      delta[i] <- Delta^abs(games[i]-g0)  
-      # Delta = discount rate for game g relative to anchor game g0
+      wt[i] <- delta^abs(games[i]-g0)  
+      # delta = discount rate for game g relative to anchor game g0
       
       # player-level random effects
       logit(prob[i]) <- beta_int[player[i]]*int[i] + 
@@ -286,7 +286,7 @@ fit_game <- function(dat = NA, g0 = NA, Delta = NA,
       p2[i] <- (1-prob[i])^(1-result[i])
       
       # Discounted likelihood function
-      pi[i] <- (p1[i] * p2[i])^delta[i]  
+      pi[i] <- (p1[i] * p2[i])^wt[i]  
       
       # defines correct discounted likelihood function
       y[i] ~ dbern(pi[i]) 
@@ -327,7 +327,7 @@ fit_game <- function(dat = NA, g0 = NA, Delta = NA,
       M = n_distinct(dat$globalplayerid),
       mu0r = mu0r,
       mu0theta = mu0theta,
-      Delta = Delta,
+      delta = delta,
       games = as.integer(as.factor(dat$gameid)),
       g0 = g0,
       y = rep(1, nrow(dat))
