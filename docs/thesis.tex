@@ -68,7 +68,7 @@
 
 
 % To pass between YAML and LaTeX the dollar signs are added by CII
-\title{Insert Real Title}
+\title{Bayesian Analysis of Player Performance over Time}
 \author{Nathaniel Brown}
 % The month and year that you submit your FINAL draft TO THE LIBRARY (May or December)
 \date{May 2018}
@@ -112,9 +112,9 @@
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 \Acknowledgements{
-Thank you to Kevin Cullen, Basketball Director of Information Technology
-for the Duke Men's Basketball team, for providing data for this
-research.
+A special thank you to Kevin Cullen, Basketball Director of Information
+Technology for the Duke Men's Basketball team, for providing data for
+this research.
 }
 
 \Dedication{
@@ -122,8 +122,7 @@ Insert a real dedication. (optional)
 }
 
 \Preface{
-This is an example of a thesis setup to use the reed thesis document
-class (for LaTeX) and the R bookdown package, in general.
+
 }
 
 \Abstract{
@@ -175,14 +174,11 @@ Our results so far show that the best-fitting model is \ldots{}
 \frontmatter % this stuff will be roman-numbered
 \pagestyle{empty} % this removes page numbers from the frontmatter
   \begin{acknowledgements}
-    Thank you to Kevin Cullen, Basketball Director of Information Technology
-    for the Duke Men's Basketball team, for providing data for this
-    research.
+    A special thank you to Kevin Cullen, Basketball Director of Information
+    Technology for the Duke Men's Basketball team, for providing data for
+    this research.
   \end{acknowledgements}
-  \begin{preface}
-    This is an example of a thesis setup to use the reed thesis document
-    class (for LaTeX) and the R bookdown package, in general.
-  \end{preface}
+
   \hypersetup{linkcolor=black}
   \setcounter{tocdepth}{2}
   \tableofcontents
@@ -224,9 +220,24 @@ shooting the ball into the goal. Some factors we consider that may
 affect the success rate include the location of the shooter, the
 individual skill of the shooter, whether the shooter is playing on his
 home court or on an away court, and the shooting success in recent
-surrounding games. There have been previous studies on how much recent
-shooting success affects current shooting success, and the results vary.
-For example, \emph{insert examples from literature review}.
+surrounding games. There have been previous studies investigating the
+effect of recent shooting success on current shooting success, and the
+results vary. For example, Gilovich, Vallone, \& Tversky (1985) use
+Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot
+attempts, goodness-of-fit tests for the distribution of successes, and
+paired t-tests comparing the mean of makes following a make to that of
+makes following a miss. These statistical tests did not detect
+significant evidence supporting streakiness in basketball shooting data.
+In addition, Ryan Wetzels (2016) found evidence that a Hidden Markov
+Model with two states (representing a high shot success rate and a low
+rate) better fits Shaquille O'Neal's free throw shooting data than a
+Binomial model with one constant state. Bar-Eli, Avugos, \& Raab (2006)
+completed a review of previous statistical papers whose authors research
+the concept of streaky success rates in data with a binomial response;
+the applications include basketball shooting, baseball hitting, baseball
+pitching, horeshoe, cognitive science, and economics. They summarize 11
+papers that support evidence of streakiness in binomial data, and 13
+that do not.
 
 The purpose of this paper is to investigate Bayesian modelling
 techniques shooting data, and to learn more about time-dependency in
@@ -253,92 +264,9 @@ Our results so far show that the best-fitting model is \ldots{}
 
 \chapter{Literature Review}\label{litreview}
 
-\subsection{how do I get the full citations to show up and not just last
+\section{how do I get the full citations to show up and not just last
 name and
 year?}\label{how-do-i-get-the-full-citations-to-show-up-and-not-just-last-name-and-year}
-
-Gilovich, Vallone, \& Tversky (1985)
-
-In this research paper from \emph{Cognitive Psychology}, Thomas
-Gilovich, Robert Vallone, and Amos Tversky investigate peoples' belief
-in the Hot Hand in Basketball. The Hot Hand is the concept that the
-probability of a success increases for trials that follow a success in a
-binary sequence; in basketball, these binary events are shot attempts.
-The methods in this paper include an analysis of shot attempts from the
-Philadelphia 76ers of the National Basketball Association (NBA) in the
-1981 season, analysis of free-throw attempts from the Boston Celtics in
-the 1981 and 1982 seasons, and a controlled shooting drill using male
-and female varsity basketball players at Cornell University. Statistical
-techniques they used to attempt to detect streakiness in the data
-included Walf-Wolfowitz run tests, autocorrelation tests on consecutive
-shot attempts, goodness-of-fit tests for the distribution of succesess,
-and paired t-tests comparing the mean of makes following a make to that
-of makes following a miss. In addition to this analysis of shooting,
-this research also contained a survey of basketball fans, that gauged
-how much people believed success probabilities changed given a success
-or a failure. The statistical tests did not detect significant evidence
-supporting the Hot Hand in basketball. The lack of statistical power in
-Gilovich, Vallone, and Tversky's frequentist tests motivates the use of
-Bayesian models in this thesis. Strengths of this paper include the fact
-that it was one of the first research papers to analyze streakiness in
-basketball data, and many future papers build off of it. Some weaknesses
-in this paper are the assumptions it makes in its analysis, such as all
-shots being independent of each other, and not accounting for shot
-location. Albert \& Williamson (1999)
-
-In this paper, Jim Albert attempts to improve upon the low-powered tests
-of Gilovich, Vallone, and Tverky's 1985 paper on the Hot Hand. Albert
-formally defines ``streakiness'' as the presence of nonstationarity
-(nonconstant probability between trials) or autocorrelation (sequential
-dependency). Albert uses Gibbs sampling to approximate posterior
-densities and to simulate data, then fits two types of models on binary
-data from baseball and basketball to try to characterize streakiness. He
-fits an overdispersion model to detect nonstationarity, and a markov
-switching model to detect sequential dependencies. While he did not
-uncover strong evidence for the hot hand, one of his takeaways was that
-overdispersion decreases as time goes on in basketball free throw
-shooting data. A weakness of this paper is that Albert does not show the
-results of both the Markov model and the overdispersion model on the
-same data. We use Albert's formal definitions of streakiness as well as
-his motivation for Bayesian models over frequentist tests.
-
-Bar-Eli, Avugos, \& Raab (2006)
-
-This paper is a review of previous hot hand research. It reviews several
-papers investigating the concept of the ``hot hand'' in several sports
-such as basketball, baseball, volleyball, and horeshoe, and other fields
-such as cognitive science and economics. Bar-Eli, Avugos, and Raab
-evaluate the datasets, the tests and statistics used, and the
-conclusions of each study. Overall, the authors summarize 13 papers that
-oppose the hot hand phenomenon, and 11 that support it; they also
-acknowledge that the scientific evidence for the hot hand is weaker than
-the evidence against it, and it is typically more controversial. Instead
-of just looking to answer whether the hot hand exists, Bar-Eli, Avugos,
-and Raab also examine how people define a ``hot hand'', and the
-psychological factors behind the belief in it, such as the gambling and
-game strategy. The strengths of this paper are that it evaluates the
-strengths and weaknesses of many competing claims, and concisely
-summarizes the information into a table. A weakness is that they do not
-make any claim of their own. This paper is useful in this thesis because
-it describes several data analysis techniques to detect streaks in a
-binary sequence.
-
-Ryan Wetzels (2016)
-
-In this research paper, Wetzels conducts a simulation study to
-investigate the Hot Hand Phenomenon. His analysis consists of
-calculating Bayes Factors to compare evidence between a Hidden Markov
-Model with two states and a binomial model with one state. He applies
-this method to data from basketball foul shots and from visual
-discernment tests. In the basketball data, he found that Shaquille
-O'Neal's free-throws show evidence for a two-state Markov model, while
-Kobe Bryant's show more evidence for a one-state binomial model. In the
-data from the visual discernment tests, he found no strong evidence
-supporting one model over the other. A strength of this paper is
-Wetzel's formal comparison of a Bayesian Markov model to a binomial
-model. A weakness is that the Bayes Factors only compare evidence
-between the two models; it does not mean that either model is ``good''.
-We use this paper for the specification of the Hidden Markov Model.
 
 Albert (1993)
 
@@ -361,16 +289,113 @@ model with a constant \(p_j\), and a streaky model with a varying
 paper is the concept that the existence of streakiness depends on the
 definition of ``success'' in binary outcome data. He found substantially
 more evidence for streakiness for when a success was coded as ``not a
-strikeout'' instead of a ``hit''. Likewise, in this paper we
-\emph{blank}.
+strikeout'' instead of a ``hit''. From this paper, we learn that the
+organization of the data can affect the outcomes, and a technique for
+comparing Bayesian models.
 
-West, Harrison, \& Migon (1985)
+Albert \& Williamson (1999)
+
+In this paper, Jim Albert attempts to improve upon the low-powered tests
+of Gilovich, Vallone, and Tverky's 1985 paper on the Hot Hand. Albert
+formally defines ``streakiness'' as the presence of nonstationarity
+(nonconstant probability between trials) or autocorrelation (sequential
+dependency). Albert uses Gibbs sampling to approximate posterior
+densities and to simulate data, then fits two types of models on binary
+data from baseball and basketball to try to characterize streakiness. He
+fits an overdispersion model to detect nonstationarity, and a markov
+switching model to detect sequential dependencies. While he did not
+uncover strong evidence for the hot hand, one of his takeaways was that
+overdispersion decreases as time goes on in basketball free throw
+shooting data. A weakness of this paper is that Albert does not show the
+results of both the Markov model and the overdispersion model on the
+same data. We use Albert's formal definitions of streakiness as well as
+his motivation for Bayesian models over frequentist tests.
+
+Ameen \& Harrison (1984)
+
+This journal article contains information about discounted likelihood
+regression using exponential weights, which generalizes to discount
+weighted estimation (DWE). There is also a section that elaborates on
+how these models apply to time series. Although the material in this
+book focues on data with a Normal response instead of a Binomial, we use
+the concepts in this article to help explain our discounted likelihood
+models in Section \textbf{number.number.number}.
+
+Bar-Eli et al. (2006)
+
+This paper is a review of previous hot hand research. It reviews several
+papers investigating the concept of the ``hot hand'' in several sports
+such as basketball, baseball, volleyball, and horseshoe, and other
+fields such as cognitive science and economics. Bar-Eli, Avugos, and
+Raab evaluate the datasets, the tests and statistics used, and the
+conclusions of each study. Overall, the authors summarize 13 papers that
+oppose the hot hand phenomenon, and 11 that support it; they also
+acknowledge that the scientific evidence for the hot hand is weaker than
+the evidence against it, and it is typically more controversial. Instead
+of just looking to answer whether the hot hand exists, Bar-Eli, Avugos,
+and Raab also examine how people define a ``hot hand'', and the
+psychological factors behind the belief in it, such as the gambling and
+game strategy. The strengths of this paper are that it evaluates the
+strengths and weaknesses of many competing claims, and concisely
+summarizes the information into a table. A weakness is that they do not
+make any claim of their own. This paper is useful in this thesis because
+it describes several data analysis techniques to detect streaks in a
+binary sequence.
+
+Gilovich et al. (1985)
+
+In this research paper from \emph{Cognitive Psychology}, Thomas
+Gilovich, Robert Vallone, and Amos Tversky investigate peoples' belief
+in the Hot Hand in Basketball. The Hot Hand is the concept that the
+probability of a success increases for trials that follow a success in a
+binary sequence; in basketball, these binary events are shot attempts.
+The methods in this paper include an analysis of shot attempts from the
+Philadelphia 76ers of the National Basketball Association (NBA) in the
+1981 season, analysis of free-throw attempts from the Boston Celtics in
+the 1981 and 1982 seasons, and a controlled shooting drill using male
+and female varsity basketball players at Cornell University. Statistical
+techniques they used to attempt to detect streakiness in the data
+included Walf-Wolfowitz run tests, autocorrelation tests on consecutive
+shot attempts, goodness-of-fit tests for the distribution of successes,
+and paired t-tests comparing the mean of makes following a make to that
+of makes following a miss. In addition to this analysis of shooting,
+this research also contained a survey of basketball fans, that gauged
+how much people believed success probabilities changed given a success
+or a failure. The statistical tests did not detect significant evidence
+supporting the Hot Hand in basketball. The lack of statistical power in
+Gilovich, Vallone, and Tversky's frequentist tests motivates the use of
+Bayesian models in this thesis. Strengths of this paper include the fact
+that it was one of the first research papers to analyze streakiness in
+basketball data, and many future papers build off of it. Some weaknesses
+in this paper are the assumptions it makes in its analysis, such as all
+shots being independent of each other, and not accounting for shot
+location.
+
+Prado \& West (2010)
 
 This textbook provides theory, applications, and examples of time series
 models such Dynamic Generalized Linear Models (DGLMs). More
 specifically, section 14.4 provides an example of a DGLM for a binomial
-response variable, which we apply in chapter \emph{blank} of this
-research paper.
+response variable. The concept of a time-varying parameter in a binomial
+model is applied in this paper, through our use of discounted likelihood
+models.
+
+Ryan Wetzels (2016)
+
+In this research paper, Wetzels conducts a simulation study to
+investigate the Hot Hand Phenomenon. His analysis consists of
+calculating Bayes Factors to compare evidence between a Hidden Markov
+Model with two states and a binomial model with one state. He applies
+this method to data from basketball foul shots and from visual
+discernment tests. In the basketball data, he found that Shaquille
+O'Neal's free-throws show evidence for a two-state Markov model, while
+Kobe Bryant's show more evidence for a one-state binomial model. In the
+data from the visual discernment tests, he found no strong evidence
+supporting one model over the other. A strength of this paper is
+Wetzel's formal comparison of a Bayesian Markov model to a binomial
+model. A weakness is that the Bayes Factors only compare evidence
+between the two models; it does not mean that either model is ``good''.
+We use this paper for the specification of the Hidden Markov Model.
 
 \chapter{Data}\label{data}
 
@@ -383,11 +408,11 @@ Basketball team permitted us to use their SportVU data from the 2014 to
 2017 basketball seasons for this project. Since the ability to record
 this data depends on specialized tracking cameras, Duke does not have
 this data for every game they play---only home games, and a few road
-games in arenas that had the techology installed. Therefore, there is a
+games in arenas that had the technology installed. Therefore, there is a
 substantial amount of missing data between games. More specifically,
 between the 2014 and 2017 seasons, the Duke Men's Basketball team played
-147 games; this dataset contains 94 games, with 82 at Duke and 12 on
-another court.
+147 games; this dataset contains 94 games, with 82 at Duke and 12 other
+courts.
 
 For our analysis, we use the following files for each game:
 \begin{itemize}
@@ -403,21 +428,11 @@ the event, and the player who completed the action. We use these files
 to uncover when a shot is attempted in a game, who attempted the shot,
 and the result of the shot attempt.
 \begin{itemize}
-\tightlist
-\item
-  Box Score Optical:
-\end{itemize}
-We use this dataset to match the names and IDs of players who are in the
-game. This is also an XML file, with elements corresponding to
-individual players. These elements contain attributes describing
-information about the player (e.g.~team name, jersey number) and various
-statistics for the game (e.g.~points, assists, distance run).
-\begin{itemize}
 \item
   Final Sequence Optical:
 
   These XML files contain the locations of all ten players and the ball
-  during precise time intervals within the game. Each timeunit has a
+  during precise time intervals within the game. Each time unit has a
   unique element, and these elements have attributes describing the
   locations. We merge this with the Final Sequence Play-by-Play Optical
   data on the time attribute to obtain the shooter's location at the
@@ -494,10 +509,9 @@ The following exploratory plots in Figure \ref{fig:smoothplot} examine
 how consistent the probability of a made shot is, using a loess smooth
 curve on the binary outcomes. We present these smoothed plots for four
 high-usage basketball players at Duke University between the 2013-2014
-and 2016-2017 seasons, and we leave the others in Appendix
-\textbf{number}. Each plot represents a single player's ordered shooting
-outcomes for a single season. These plots do not account for the amount
-of time in between shots, but simply shot order and outcome.
+and 2016-2017 seasons. Each plot represents a single player's ordered
+shooting outcomes for a single season. These plots do not account for
+the amount of time in between shots, but simply shot order and outcome.
 
 \includegraphics{thesis_files/figure-latex/smoothplot0-1.pdf}
 \begin{figure}[htbp]
@@ -653,18 +667,22 @@ L(p) =
 \] \[
 \beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
 \] In this model, \(p\) represents the binomial likelihood, and \(\pi\)
-is the discounted likelihood. Both of these quantities are bounded in
-the interval {[}0,1{]}. The contribution of observed shot outcomes (in
-the ``anchor game'' \(g_t\)) to the likelihood of the current shot
-outcome (in game \(g_i\)) decreases as the distance between the
-observations increases, and as \(\Delta\) decreases. In a model with
+is the discounted likelihood. Both of these quantities are probabilities
+that are bounded in the interval {[}0,1{]}. The contribution of shot
+outcomes (in the ``anchor game'' \(g_t\)) to the likelihood of the
+current shot outcome (in game \(g_i\)) decreases as the distance between
+the observations increases, and as \(\Delta\) decreases. In a model with
 \(\Delta\) = 0, only shots taken in the same game as \(g_i\) can
 contribute to the likelihood, while \(\Delta\) = 1 is equivalent to a
-model with no discounting. This model specification results in an MCMC
-chain for each combination of \(g_0\) and \(\Delta\). Figure
-\ref{fig:discplot} illustrates how the likelihood weight of \(\delta\)
-depends on the selected value of \(\Delta\) and the distance from the
-anchor game (\(|g_i - g_t|\)).
+model with no discounting. If models with larger values of \(\Delta\)
+best fit the data, this suggests that shooting success is consistent
+throughout a career. If smaller values of \(\Delta\) are more likely in
+the data, however, then we can assume there is a substantial amount of
+time variation, or ``streakinss'' in the data on the game level. This
+model specification results in an MCMC chain for each combination of
+\(g_t\) and \(\Delta\). Figure \ref{fig:discplot} illustrates how the
+likelihood weight of \(\delta\) depends on the selected value of
+\(\Delta\) and the distance from the anchor game (\(|g_i - g_t|\)).
 \begin{figure}[htbp]
 \centering
 \includegraphics{thesis_files/figure-latex/discplot-1.pdf}
@@ -768,14 +786,10 @@ Model}\label{discounted-likelihood-hierarchical-model-1}
 
 The values of \(\Delta\) that we use to fit the discounted likelihood
 models are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999. We also build
-an MCMC chain to estimate the posterior using every game as \(g_0\). We
+an MCMC chain to estimate the posterior using every game as \(g_t\). We
 calculate predictions and fitted values for a particular shot in game
 \(g_i\) using the posterior median of the MCMC chain where \(g_i\) is
-\(g_0\). If models with larger values of \(\Delta\) best fit the data,
-this suggests that shooting success is consistent throughout a career.
-If smaller values of \(\Delta\) are more likely in the data, however,
-then we can assume there is a substantial amount of time variation in
-the data on the game level.
+the anchor game \(g_t\).
 
 \includegraphics{thesis_files/figure-latex/discplot7500-1.pdf}
 \begin{figure}
@@ -791,13 +805,12 @@ the data on the game level.
 
 \caption{Intercepts for Four Players and Population over Time, $\Delta$ = 0.999}\label{fig:discplot999}
 \end{figure}
-The plots above illustrate how the intercepts change for players over
-time. These plots illustrate that smaller values of \(\Delta\) allow for
-greater variation in parameter values over time.
+The plots above illustrate how the intercepts change for the four
+players and for the population over time. They also show how smaller
+values of \(\Delta\) allow for greater variation in parameter values
+over time.
 
 \chapter{Discussion}\label{disc}
-
-\textbf{Summarize and reflect upon results}
 
 \section{Evaluation of Models}\label{evaluation-of-models}
 
@@ -825,24 +838,69 @@ is more heavily influenced by shots closer to it, may overfit the model
 to the training data. The generalized linear models perform best in
 Brier score, but worst in log likelihood. The hierarchical models are
 about the same, but they have a better log likelihood performance than
-the GLMs. Therefore, a model that balances the trade-off between
-predictive accuracy and likelihood is a discounted likelihood model with
-\(\Delta\) = 0.850. In addition, we can see that the variation in model
-performance is small. For example, most of the out-of-sample
-classification rates fall between 0.58 and 0.62. This is within the 95\%
-confidence interval for a proportion of 0.6 using a sample size of 40
-(for each combination of 5-fold cross-validation and 8 different
-models), which is (0.5225, 0.6775). Therefore, the evidence that certain
-models predict better than others is not particularly strong.
+the GLMs. A model that balances the trade-off between predictive
+accuracy and likelihood is a discounted likelihood model with \(\Delta\)
+= 0.850.
+
+In addition, we can see that the variation in model performance is
+small. For example, most of the out-of-sample classification rates fall
+between 0.58 and 0.62. This is within the 95\% confidence interval for a
+random binomial proportion of 0.6 using a sample size of 40 (for each
+combination of 5-fold cross-validation and 8 different models), which is
+(0.5225, 0.6775). Therefore, the evidence that certain models predict
+better than others is not particularly strong.
 
 For the discounted likelihood model with \(\Delta\) = 0.850, we build
 calibration plots to assess how well the estimated probabilities fit the
-actual proportions. In Figure \ref{fig:caliplot}, we present these plots
-for the training set, the testing set, and for two random games.
+actual proportions. To make these plots, we divide the predicted
+probabilities into 20 equally-sized bins, then plot these bins on the
+x-axis versus the proportions of the actual outcomes within the bins on
+the y-axis. The horizontal bars represent the bin width, and the
+vertical bars represent a 95\% confidence interval of the proportions.
+The red line of slope 1 represents equality between the bin medians and
+the empirical probabilities within the bins. In Figure
+\ref{fig:caliplot}, we present these plots for a full training set and a
+testing set.
+\begin{figure}[htbp]
+\centering
+\includegraphics{thesis_files/figure-latex/caliplot-1.pdf}
+\caption{\label{fig:caliplot}Calibration Plots for Discounted Likelihood
+Model, \(\Delta\) = 0.850}
+\end{figure}
+In this model, we can see that the confidence intervals on the training
+set all cross the line of slope, which shows that the model reliably
+estimates the probabilities. In the testing set, however, the
+predictions only cross this line between about 0.3 and 0.75. In
+addition, the fact that the bins are so much thinner in the middle shows
+that the model is not likely to predict values close to 0 or 1.
 
-\textbf{in prev paragrpah, also include a point about how all the models
-are fairly similar. like ranges of classification rates, and expected
-standard deviations (MLEs)}
+\section{Results from Model}\label{results-from-model}
+
+To illustrate results from the discounted likelihood model with
+\(\Delta\) = 0.850, we plot the location parameters over time for a
+high-usage player and a low-usage player that play the same position,
+and for the overall team. \textbf{make this sound more academic}
+
+\includegraphics{thesis_files/figure-latex/discplot850-1.pdf}
+\includegraphics{thesis_files/figure-latex/discplot850-2.pdf}
+\includegraphics{thesis_files/figure-latex/discplot850-3.pdf}
+
+We can see that the parameters move over time. \textbf{elaborate. like
+the team parameters move the most over time. and the intercepts have
+wider uncertainty.} The distance parameter moves the least. This
+suggests that the ability to shoot long-range shots did not drastically
+increase or decrease between games in the data.
+
+\section{Conclusion}\label{conclusion}
+
+The evaluations of the models show that there is not a lot of
+time-dependency in shooting success rate in this dataset of
+player-tracking data from the Duke Men's Basketball team. Allowing
+predictors of shot success to shift based on recent success does not
+significantly improve the predictive accuracy or the likelihood of a
+model. However, we do see a systematic improvement in likelihood for
+smaller discount factors (i.e., more emphasis on recent shots, and
+therefore support of ``streakiness'').
 
 To account for possible unexplained variation between seasons, and
 variation introduced from having such a small population of road games,
@@ -850,13 +908,6 @@ I repeated this analysis on a subset of the data that only consisted of
 shots from available games in the 2015 season (25 games), and shots from
 home games (82 games). \textbf{results!} (show these results in
 Appendix?)
-
-\section{Conclusion}\label{conclusion}
-
-The results of this paper show that there is not a lot of
-time-dependency in shooting success rate in this dataset of
-player-tracking data from the Duke Men's Basketball team. The fact that
-the models with higher values of
 
 \section{Future Goals}\label{future-goals}
 
@@ -1068,8 +1119,8 @@ Model}\label{hierarchical-generalized-linear-model-2}
   
   \NormalTok{sim.mcmc.player <-}\StringTok{ }\KeywordTok{eval}\NormalTok{(}\KeywordTok{parse}\NormalTok{(}\DataTypeTok{text=}
     \KeywordTok{paste0}\NormalTok{(}\StringTok{"sim.mcmc.player %>%}
-\StringTok{            mutate("}\NormalTok{,hometext,}\StringTok{", beta_intH0 = beta_int0 + beta_home0)"}\NormalTok{, }
-           \StringTok{" %>% rename("}\NormalTok{,awaytext,}\StringTok{", beta_intA0 = beta_int0)"}
+\StringTok{              mutate("}\NormalTok{,hometext,}\StringTok{", beta_intH0 = beta_int0 + beta_home0)"}\NormalTok{,}\StringTok{" %>%}
+\StringTok{              rename("}\NormalTok{,awaytext,}\StringTok{", beta_intA0 = beta_int0)"}
            \NormalTok{))) %>%}
 \StringTok{    }\KeywordTok{select}\NormalTok{(}\KeywordTok{grep}\NormalTok{(}\StringTok{"(beta_int)|(beta_theta)|(beta_r)"}\NormalTok{,}\KeywordTok{names}\NormalTok{(.)))}
   
@@ -1078,7 +1129,10 @@ Model}\label{hierarchical-generalized-linear-model-2}
   
   \CommentTok{# Renaming mixed effects columns from default factor levels (integers) to the corresponding player ids}
   
-  \NormalTok{factorids <-}\StringTok{ }\KeywordTok{str_extract_all}\NormalTok{(}\KeywordTok{names}\NormalTok{(sim.mcmc.player), }\StringTok{"[[:digit:]]+"}\NormalTok{) %>%}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{()}
+  \NormalTok{factorids <-}\StringTok{ }
+\StringTok{    }\KeywordTok{str_extract_all}\NormalTok{(}\KeywordTok{names}\NormalTok{(sim.mcmc.player), }\StringTok{"[[:digit:]]+"}\NormalTok{) %>%}\StringTok{ }
+\StringTok{    }\KeywordTok{as.numeric}\NormalTok{()}
+  
   \NormalTok{fids <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{factorid =} \NormalTok{factorids, }\DataTypeTok{order =} \DecValTok{1}\NormalTok{:}\KeywordTok{length}\NormalTok{(factorids))}
   
   \NormalTok{datmap <-}\StringTok{ }\NormalTok{dat %>%}\StringTok{ }
@@ -1087,12 +1141,16 @@ Model}\label{hierarchical-generalized-linear-model-2}
   
   \NormalTok{gameids <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(datmap, fids, }\DataTypeTok{all.x=}\OtherTok{FALSE}\NormalTok{,}\DataTypeTok{all.y=}\OtherTok{TRUE}\NormalTok{) %>%}\StringTok{ }
 \StringTok{    }\KeywordTok{unique}\NormalTok{() %>%}\StringTok{ }
-\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{globalplayerid =} \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(globalplayerid),}\DecValTok{0}\NormalTok{,globalplayerid)) %>%}\StringTok{ }
+\StringTok{    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{globalplayerid =} \KeywordTok{ifelse}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(globalplayerid),}
+                                   \DecValTok{0}\NormalTok{,}
+                                   \NormalTok{globalplayerid)) %>%}\StringTok{ }
 \StringTok{    }\KeywordTok{arrange}\NormalTok{(order)}
   
-  \KeywordTok{names}\NormalTok{(sim.mcmc.player) <-}\StringTok{ }\KeywordTok{str_replace_all}\NormalTok{(}\KeywordTok{names}\NormalTok{(sim.mcmc.player), }\StringTok{"[[:digit:]]+"}\NormalTok{, }\KeywordTok{as.character}\NormalTok{(gameids$globalplayerid))}
-  \NormalTok{-}
-\StringTok{  }\KeywordTok{return}\NormalTok{(sim.mcmc.player)}
+  \KeywordTok{names}\NormalTok{(sim.mcmc.player) <-}\StringTok{ }
+\StringTok{    }\KeywordTok{str_replace_all}\NormalTok{(}\KeywordTok{names}\NormalTok{(sim.mcmc.player), }\StringTok{"[[:digit:]]+"}\NormalTok{,}
+                    \KeywordTok{as.character}\NormalTok{(gameids$globalplayerid))}
+  
+  \KeywordTok{return}\NormalTok{(sim.mcmc.player)}
   
 \NormalTok{\}}
 \end{Highlighting}
@@ -1101,7 +1159,8 @@ Model}\label{hierarchical-generalized-linear-model-2}
 Model}\label{discounted-likelihood-hierarchical-model-2}
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fit_game <-}\StringTok{ }\NormalTok{function(}\DataTypeTok{dat =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{g0 =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{Delta =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{S =} \DecValTok{10000}\NormalTok{, }\DataTypeTok{B =} \DecValTok{500}\NormalTok{)\{}
+\NormalTok{fit_game <-}\StringTok{ }\NormalTok{function(}\DataTypeTok{dat =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{g0 =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{Delta =} \OtherTok{NA}\NormalTok{, }
+                     \DataTypeTok{S =} \DecValTok{10000}\NormalTok{, }\DataTypeTok{B =} \DecValTok{500}\NormalTok{)\{}
 
   \NormalTok{model.game <-}\StringTok{ }\NormalTok{function()\{}
 
@@ -1200,21 +1259,29 @@ Model}\label{discounted-likelihood-hierarchical-model-2}
   \CommentTok{# Changing from a baseline mean + a shift amount}
   \CommentTok{# to two different means based on the type of game.}
   
-  \NormalTok{hometext <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"`beta_intH["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]` = `beta_int["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]` + `beta_home["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]`"}\NormalTok{, }\DataTypeTok{collapse=}\StringTok{",}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
-  \NormalTok{awaytext <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"`beta_intA["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]` = `beta_int["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]`"}\NormalTok{, }\DataTypeTok{collapse=}\StringTok{",}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+  \NormalTok{hometext <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"`beta_intH["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]` = }
+\StringTok{                     `beta_int["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]` + }
+\StringTok{                     `beta_home["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]`"}\NormalTok{, }
+                     \DataTypeTok{collapse=}\StringTok{",}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+  
+  \NormalTok{awaytext <-}\StringTok{ }\KeywordTok{paste0}\NormalTok{(}\StringTok{"`beta_intA["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]` = }
+\StringTok{                     `beta_int["}\NormalTok{,}\DecValTok{1}\NormalTok{:M,}\StringTok{"]`"}\NormalTok{, }
+                     \DataTypeTok{collapse=}\StringTok{",}\CharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
 
   \NormalTok{sim.mcmc.game <-}\StringTok{ }\KeywordTok{eval}\NormalTok{(}\KeywordTok{parse}\NormalTok{(}\DataTypeTok{text=}
     \KeywordTok{paste0}\NormalTok{(}\StringTok{"sim.mcmc.game %>%}
-\StringTok{            mutate("}\NormalTok{,hometext,}\StringTok{", beta_intH0 = beta_int0 + beta_home0)"}\NormalTok{,}
-           \StringTok{" %>% rename("}\NormalTok{,awaytext,}\StringTok{", beta_intA0 = beta_int0)"}\NormalTok{)}
-    \NormalTok{)) %>%}\StringTok{ }\KeywordTok{select}\NormalTok{(}\KeywordTok{grep}\NormalTok{(}\StringTok{"(beta_int)|(beta_theta)|(beta_r)"}\NormalTok{,}\KeywordTok{names}\NormalTok{(.)))}
+\StringTok{              mutate("}\NormalTok{,hometext,}\StringTok{", beta_intH0 = beta_int0 + beta_home0)"}\NormalTok{,}\StringTok{" %>%}
+\StringTok{              rename("}\NormalTok{,awaytext,}\StringTok{", beta_intA0 = beta_int0)"}
+           \NormalTok{))) %>%}\StringTok{ }
+\StringTok{    }\KeywordTok{select}\NormalTok{(}\KeywordTok{grep}\NormalTok{(}\StringTok{"(beta_int)|(beta_theta)|(beta_r)"}\NormalTok{,}\KeywordTok{names}\NormalTok{(.)))}
   
   
   \CommentTok{# Renaming mixed effects columns from default factor levels (integers) to the corresponding player ids}
 
   \NormalTok{sim.mcmc.game <-}\StringTok{ }\NormalTok{sim.mcmc.game[ , }\KeywordTok{order}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(sim.mcmc.game))]}
   
-  \NormalTok{factorids <-}\StringTok{ }\KeywordTok{str_extract_all}\NormalTok{(}\KeywordTok{names}\NormalTok{(sim.mcmc.game), }\StringTok{"[[:digit:]]+"}\NormalTok{) %>%}
+  \NormalTok{factorids <-}\StringTok{ }
+\StringTok{    }\KeywordTok{str_extract_all}\NormalTok{(}\KeywordTok{names}\NormalTok{(sim.mcmc.game), }\StringTok{"[[:digit:]]+"}\NormalTok{) %>%}
 \StringTok{    }\KeywordTok{as.numeric}\NormalTok{()}
   \NormalTok{fids <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\DataTypeTok{factorid =} \NormalTok{factorids, }\DataTypeTok{order =} \DecValTok{1}\NormalTok{:}\KeywordTok{length}\NormalTok{(factorids))}
   
@@ -1276,6 +1343,10 @@ Albert, J. (2013). Looking at spacings to assess streakiness.
 Albert, J., \& Williamson, P. (1999). Using model/data simulations to
 detect streakiness. \emph{The American Statistician}, \emph{55}, 41--50.
 
+\hypertarget{ref-ameen84}{}
+Ameen, J. R., \& Harrison, P. J. (1984). Discount weighted estimation.
+\emph{Journal of Forecasting}, \emph{3}, 285--296.
+
 \hypertarget{ref-bareli06}{}
 Bar-Eli, M., Avugos, S., \& Raab, M. (2006). Twenty years of ``hot
 hand'' research: Review and critique. \emph{Psychology of Sport and
@@ -1286,19 +1357,13 @@ Gilovich, T., Vallone, R., \& Tversky, A. (1985). The hot hand in
 basketball: On the misperception of random sequences. \emph{Cognitive
 Psychology}, \emph{17}, 295--314.
 
-\hypertarget{ref-miller16}{}
-Miller, J. B., \& Sanjurjo, A. (2016). Surprised by the gambler's and
-hot hand fallacies? A truth in the law of small numbers. \emph{IGIER
-Working Paper No. 552}.
+\hypertarget{ref-west10}{}
+Prado, R., \& West, M. (2010). \emph{Time series: Modelling, computation
+\& inference}. Chapman \& Hall/CRC Press.
 
 \hypertarget{ref-wetzels16}{}
 Ryan Wetzels, e. a. (2016). A bayesian test for the hot hand phenomenon.
 \emph{Journal of Mathematical Psychology}, \emph{72}, 200--209.
-
-\hypertarget{ref-west85}{}
-West, M., Harrison, P. J., \& Migon, H. S. (1985). Dynamic generalised
-linear models and bayesian forecasting (with discussion). \emph{Journal
-of the American Statistical Association}, \emph{80}, 73--97.
 
 
 % Index?

@@ -180,7 +180,7 @@ discplot <- ggplot(weightslong, aes(x=t, y=y, color=D)) +
 discplot
 ```
 
-To build these discounted likelihood models in the `R2jags` library, we apply the "ones trick". This technique allows us to do a sampling distribution that do not exist in the library by modifying a common distribution---in this case, the Binomial. The probability $p$ is estimated using the Bayesian hierarchical model. We discount this probability to estimate $\pi$, and then specify that artificial data that consists only of ones comes from a Binomial distribution with the discounted probability; this is equivalent to sampling from a distribution with discounted outcomes.   **elaborate on the ones trick**. See Appendix **number** for the `R` code. 
+To build these discounted likelihood models in the `R2jags` library, we apply the "ones trick". This technique allows us to do a sampling distribution that do not exist in the library by modifying a common distribution---in this case, the Binomial. The probability $p$ is estimated using the Bayesian hierarchical model. We discount this probability to estimate $\pi$, and then specify that artificial data that consists only of ones comes from a Binomial distribution with the discounted probability; this is equivalent to sampling from a distribution with discounted outcomes.   **insert a snippet of the cde**. See Appendix **number** for the full `R` code. 
 
 <!--
 We deal with the missing data by reproducing the results over all games to the results on only home games, since no home games are missing in the dataset. The formal Bayesian analysis allows us to produce full quantified inferences on these patterns over time, with probabilistic summaries of the between-game outcomes. For each provided game, we will analyze player shooting tendencies and outcomes, which provides understanding of inherent variability (or "randomness") for the players, and formal assessments of differences in patterns game-to-game. These results are illustrated in Appendix **number**.
@@ -336,7 +336,7 @@ plot_params <- function(sim.mcmc = NA, main=""){
     coefs <- sim.mcmc %>%
       apply(2, quantile, c(0.025,0.5,0.975)) %>%
       as.data.frame() %>%
-      mutate(beta_theta = beta_theta) %>% 
+      mutate(beta_theta = -beta_theta) %>% 
       select(beta_intA, beta_intH, beta_r, beta_theta) %>% 
       t() %>%
       as.data.frame()
@@ -535,6 +535,13 @@ get_player_params <- function(sim.mcmc.hier=NA){
     gsub(x=., "_50", "") %>%
     gsub(x=., "_97.5","_hi")
   
+  #because of an error in the definition of angle, theta actually = -theta
+  playermapparams %>% mutate(theta = -theta,
+                             theta_hi_save = theta_hi,
+                             theta_hi = -theta_lo,
+                             theta_lo = -theta_hi_save,
+                             theta_hi_save = NULL)
+  
   return(playermapparams)
 }
 
@@ -582,7 +589,7 @@ meplotr <- ggplot(data = player.mcmc, aes(x=beta_r0)) +
   theme_bw() +
   theme(panel.grid = element_blank())
   
-meplottheta <- ggplot(data = player.mcmc, aes(x= -beta_theta0)) + 
+meplottheta <- ggplot(data = player.mcmc, aes(x= beta_theta0)) + 
   geom_density() + 
   geom_vline(xintercept = -fourparams[["theta"]], col="red") + 
   geom_label(data=fourparams, aes(x= -theta, y=0, label=1:4)) +
@@ -937,9 +944,9 @@ get_game_params <- function(sim.mcmc.list=NA, dat=NA){
   return(params.season)
 }
 
-plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA, zlab=NA, only_fga_games = TRUE){
+plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=NA, zlab=NA, only_fga_games = TRUE){
   
-  if(id != 0 & only_fga_games){
+  if(only_fga_games & ids != 0){
     #only consider this argument if we are looking at individual effects
     game.params <- game.params %>% filter(nshots > 0)
   }
@@ -951,33 +958,56 @@ plot_time_effect <- function(game.params = NA, id = NA, parameters = NA, main=NA
   }
 
   plotdat <- game.params %>% 
-    filter(globalplayerid == id) %>% 
+    filter(globalplayerid %in% ids) %>% 
     select(gameid, 
            lo  = paste0(parameters,"_lo"),
            mid = paste0(parameters),
-           hi  = paste0(parameters,"_hi")) %>%
-    melt(id = "gameid") %>%
-    select(gameid, type = variable, y = value) %>%
-    arrange(gameid, type) %>%
-    mutate(param = str_extract(type, "[[:digit:]]+"),
-           param = parameters[as.numeric(param)],
-           param = ifelse(is.na(param), "black", param))
+           hi  = paste0(parameters,"_hi"),
+           globalplayerid) %>%
+    melt(id = c("gameid", "globalplayerid")) %>%
+    select(globalplayerid, gameid, type = variable, y = value) %>%
+    arrange(globalplayerid, gameid, type) %>%
+    mutate(clr_p = str_extract(type, "[[:digit:]]+"),
+           clr_p = parameters[as.numeric(clr_p)],
+           clr_p = ifelse(is.na(clr_p), 0, clr_p),
+           clr_p = as.factor(clr_p),
+           clr_i = as.factor(globalplayerid))
   
-  ggplot(data = plotdat, 
-         aes(x=as.integer(as.factor(gameid)), 
-             y=y, 
-             z=type, 
-             linetype=(!type %in% paste0("mid", c("",1:length(parameters)))),
-             size = as.numeric(type %in% paste0("mid", c("",1:length(parameters)))),
-             color=param)) + 
-    scale_size(range=c(0.5, 3)) +
-    guides(linetype=FALSE, size=FALSE) + 
-    geom_line() +   
-    theme_bw() +
-    labs(title=main, y="Estimate", x="Game", color = "Parameters") +
-    scale_color_manual(values = 1:length(parameters), labels = zlab) + 
-    theme(panel.grid = element_blank())
-  
+  if(length(ids) == 1 & length(parameters) > 1){
+    
+    ggplot(data = plotdat, 
+           aes(x=as.integer(as.factor(gameid)), 
+               y=y, 
+               z=type, 
+               linetype=(!type %in% paste0("mid", c("",1:length(parameters)))),
+               size = as.numeric(type %in% paste0("mid", c("",1:length(parameters)))),
+               color=clr_p)) + 
+      scale_size(range=c(0.5, 3)) +
+      guides(linetype=FALSE, size=FALSE) + 
+      geom_line() +   
+      theme_bw() +
+      labs(title=main, y="Estimate", x="Game Index", color = "Parameters") +
+      scale_color_manual(values = 1:length(parameters), labels = zlab) + 
+      theme(panel.grid = element_blank())
+    
+  }else if(length(ids) > 1 & length(parameters) == 1){
+    
+    ggplot(data = plotdat, 
+           aes(x=as.integer(as.factor(gameid)), 
+               y=y, 
+               z=type, 
+               linetype=(!type %in% paste0("mid", c("",1:length(parameters)))),
+               size = as.numeric(type %in% paste0("mid", c("",1:length(parameters)))),
+               color=clr_i)) + 
+      scale_size(range=c(0.5, 3)) +
+      guides(linetype=FALSE, size=FALSE) + 
+      geom_line() +   
+      theme_bw() +
+      labs(title=main, y="Estimate", x="Game Index", color = "Players") +
+      scale_color_manual(values = 1:length(ids), labels = zlab) + 
+      theme(panel.grid = element_blank())
+
+  }
 }
 
 if(!load_chains){

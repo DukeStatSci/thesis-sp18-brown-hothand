@@ -3,8 +3,6 @@
 <!--
 Our results so far suggest that some insights can be taken by predicting basketball shooting outcomes, but none of our results are more insightful than common intuition (i.e. the most frequent shooters are usually above average shooters, or the probability of making a shot decreases as distance from the basket increases). None of the models that we have built predict the out-of-sample data well. We could refine our models by including more predictors such as a proxy for fatigue (using information about total minutes played, or consecutive minutes played without a timeout), or shot difficulty (using information about the nearest defender). -->
 
-**Summarize and reflect upon results**
-
 ## Evaluation of Models
 
 To evaluate these models, we use 5-fold cross-validation. This process used as many as 20 simultaneous RStudio Pro servers provided by the Duke University Statistical Science Department. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages; to calculate the probability for an individual shot, we calculate a response for each of the 9,500 posterior simulations, then take the average of those responses. The results are plotted below:
@@ -392,11 +390,11 @@ plot_time_effect(game.params.850, id=idhi, parameters=c("intH","intA", "r", "the
 
 plot_time_effect(game.params.850, id=idlo, parameters=c("intH","intA", "r", "theta"), main="Low-Usage Player", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
 
-plot_time_effect(game.params.850, id=0, parameters=c("intH","intA", "r", "theta"), main="Team", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
+plot_time_effect(game.params.850, id=0, parameters=c("intH","intA", "r", "theta"), main="Team Effects", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
 ```
 
 
-We can see that the parameters move over time. **elaborate. like the team parameters move the most over time.**
+We can see that the parameters move over time. **elaborate. like the team parameters move the most over time. and the intercepts have wider uncertainty.**
 The distance parameter moves the least. This suggests that the ability to shoot long-range shots did not drastically increase or decrease between games in the data.
 
 ## Conclusion

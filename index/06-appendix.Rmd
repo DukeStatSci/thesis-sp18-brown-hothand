@@ -224,8 +224,8 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
   
   sim.mcmc.player <- eval(parse(text=
     paste0("sim.mcmc.player %>%
-            mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)", 
-           " %>% rename(",awaytext,", beta_intA0 = beta_int0)"
+              mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)"," %>%
+              rename(",awaytext,", beta_intA0 = beta_int0)"
            ))) %>%
     select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
   
@@ -234,7 +234,10 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
   
   # Renaming mixed effects columns from default factor levels (integers) to the corresponding player ids
   
-  factorids <- str_extract_all(names(sim.mcmc.player), "[[:digit:]]+") %>% as.numeric()
+  factorids <- 
+    str_extract_all(names(sim.mcmc.player), "[[:digit:]]+") %>% 
+    as.numeric()
+  
   fids <- data.frame(factorid = factorids, order = 1:length(factorids))
   
   datmap <- dat %>% 
@@ -243,11 +246,15 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
   
   gameids <- merge(datmap, fids, all.x=FALSE,all.y=TRUE) %>% 
     unique() %>% 
-    mutate(globalplayerid = ifelse(is.na(globalplayerid),0,globalplayerid)) %>% 
+    mutate(globalplayerid = ifelse(is.na(globalplayerid),
+                                   0,
+                                   globalplayerid)) %>% 
     arrange(order)
   
-  names(sim.mcmc.player) <- str_replace_all(names(sim.mcmc.player), "[[:digit:]]+", as.character(gameids$globalplayerid))
-  -
+  names(sim.mcmc.player) <- 
+    str_replace_all(names(sim.mcmc.player), "[[:digit:]]+",
+                    as.character(gameids$globalplayerid))
+  
   return(sim.mcmc.player)
   
 }
@@ -259,7 +266,8 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
 
 ```{r eval=FALSE, echo=TRUE}
 
-fit_game <- function(dat = NA, g0 = NA, Delta = NA, S = 10000, B = 500){
+fit_game <- function(dat = NA, g0 = NA, Delta = NA, 
+                     S = 10000, B = 500){
 
   model.game <- function(){
 
@@ -358,21 +366,29 @@ fit_game <- function(dat = NA, g0 = NA, Delta = NA, S = 10000, B = 500){
   # Changing from a baseline mean + a shift amount
   # to two different means based on the type of game.
   
-  hometext <- paste0("`beta_intH[",1:M,"]` = `beta_int[",1:M,"]` + `beta_home[",1:M,"]`", collapse=",\n")
-  awaytext <- paste0("`beta_intA[",1:M,"]` = `beta_int[",1:M,"]`", collapse=",\n")
+  hometext <- paste0("`beta_intH[",1:M,"]` = 
+                     `beta_int[",1:M,"]` + 
+                     `beta_home[",1:M,"]`", 
+                     collapse=",\n")
+  
+  awaytext <- paste0("`beta_intA[",1:M,"]` = 
+                     `beta_int[",1:M,"]`", 
+                     collapse=",\n")
 
   sim.mcmc.game <- eval(parse(text=
     paste0("sim.mcmc.game %>%
-            mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)",
-           " %>% rename(",awaytext,", beta_intA0 = beta_int0)")
-    )) %>% select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
+              mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)"," %>%
+              rename(",awaytext,", beta_intA0 = beta_int0)"
+           ))) %>% 
+    select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
   
   
   # Renaming mixed effects columns from default factor levels (integers) to the corresponding player ids
 
   sim.mcmc.game <- sim.mcmc.game[ , order(colnames(sim.mcmc.game))]
   
-  factorids <- str_extract_all(names(sim.mcmc.game), "[[:digit:]]+") %>%
+  factorids <- 
+    str_extract_all(names(sim.mcmc.game), "[[:digit:]]+") %>%
     as.numeric()
   fids <- data.frame(factorid = factorids, order = 1:length(factorids))
   

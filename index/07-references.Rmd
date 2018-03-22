@@ -34,11 +34,10 @@ To create a hanging indent and spacing between entries.  These three lines may n
 
 
 <!--
-This is just for testing with more citations for the bibliography at the end.  Add other entries into the list here if you'd like them to appear in the bibliography even if they weren't explicitly cited in the document.
+This is just for testing with more citations for the bibliography at the end.  Add other entries into the nocite section below if you'd like them to appear in the bibliography even if they weren't explicitly cited in the document.
 -->
 
 ---
 nocite: | 
-  <!--@albert93, @albert13, @abc123, @west97 -->
-  @gilovich85, @miller16
+<!--  @west10, @miller16 -->
 ...

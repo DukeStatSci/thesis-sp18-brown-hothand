@@ -28,12 +28,10 @@ abstract: |
 # like below, use a command like that for the abstract above.  Note that a tab is 
 # needed on the line after the |.
 acknowledgements: |
-  Thank you to Kevin Cullen, Basketball Director of Information Technology for the Duke Men's Basketball team, for providing data for this research.
+  A special thank you to Kevin Cullen, Basketball Director of Information Technology for the Duke Men's Basketball team, for providing data for this research.
 dedication: |
   Insert a real dedication. (optional) 
-preface: |
-  This is an example of a thesis setup to use the reed thesis document class
-  (for LaTeX) and the R bookdown package, in general.
+  
 bibliography: bib/thesis.bib
 # Refer to your specific bibliography file in the line above.
 csl: csl/apa.csl
