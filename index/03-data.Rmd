@@ -151,7 +151,7 @@ plt <- ggplot(Xtotrange, aes(x=xt, y=yt, color=as.factor(result))) +
                                x=0.50, y=0.50,
                                width = .92, height = .92),
                     -Inf, Inf, -Inf, Inf) + 
-  scale_color_manual(values=c("red", "blue")) +
+  scale_color_manual(values=c("red", "blue"), labels=c("missed", "made")) +
   geom_point(alpha=0.2) +
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
