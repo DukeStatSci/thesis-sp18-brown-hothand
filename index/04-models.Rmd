@@ -533,7 +533,8 @@ get_player_params <- function(sim.mcmc.hier=NA){
     gsub(x=., "_97.5","_hi")
   
   #because of an error in the definition of angle, theta actually = -theta
-  playermapparams %>% mutate(theta = -theta,
+  playermapparams <- 
+    playermapparams %>% mutate(theta = -theta,
                              theta_hi_save = theta_hi,
                              theta_hi = -theta_lo,
                              theta_lo = -theta_hi_save,
@@ -586,7 +587,7 @@ meplotr <- ggplot(data = player.mcmc, aes(x=beta_r0)) +
   theme_bw() +
   theme(panel.grid = element_blank())
   
-meplottheta <- ggplot(data = player.mcmc, aes(x= beta_theta0)) + 
+meplottheta <- ggplot(data = player.mcmc, aes(x= -beta_theta0)) + 
   geom_density() + 
   geom_vline(xintercept = -fourparams[["theta"]], col="red") + 
   geom_label(data=fourparams, aes(x= -theta, y=0, label=1:4)) +
