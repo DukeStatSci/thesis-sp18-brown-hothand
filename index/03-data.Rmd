@@ -9,7 +9,7 @@ output:
 ```{r dat, include=FALSE}
 
 library(knitr)     # for knitting
-#library(kableExtra)
+library(kableExtra)
 library(dplyr)     # used throughout
 library(ggplot2)
 library(stringr)
@@ -151,7 +151,7 @@ plt <- ggplot(Xtotrange, aes(x=xt, y=yt, color=as.factor(result))) +
                                x=0.50, y=0.50,
                                width = .92, height = .92),
                     -Inf, Inf, -Inf, Inf) + 
-  scale_color_manual(values=c("red", "blue"), labels=c("missed", "made")) +
+  scale_color_manual(values=c("red", "blue"), labels=c("misses", "makes")) +
   geom_point(alpha=0.2) +
   geom_vline(xintercept = 0) +
   geom_hline(yintercept = 0) +
@@ -165,7 +165,7 @@ plt <- ggplot(Xtotrange, aes(x=xt, y=yt, color=as.factor(result))) +
            size=3,
            color="black", 
            fontface="bold") +
-  labs(title = "Distribution of Shot Locations", y="", x="", color = "result") +
+  labs(title = "Distribution of Shot Locations", y="", x="", color = "Result") +
   theme_bw() + 
   theme(panel.grid = element_blank(), panel.border = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
 

@@ -319,22 +319,34 @@ if(!load_chains){
 
 df_delta <- eval.df %>% filter(!is.na(delta))
 df <- eval.df %>% filter(is.na(delta))
+df_delta$delta <- df_delta$delta %>%
+  as.character() %>%
+  as.numeric() %>%
+  '/'(1000) %>%
+  as.character() %>%
+  str_pad(width=5, side="right", pad="0") %>%
+  as.factor()
+  
 g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
    geom_point() + 
    geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
    theme_bw() + 
+   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
    labs(y="Classification Rate \n (0.5 cutoff)", x=expression(delta), linetype = "")
+
 
 g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
   theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
   labs(y="Log Likelihood \n", x=expression(delta), linetype = "")
 
 g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
   theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
   labs(y="Brier Score (MSE)", x=expression(delta), linetype = "")
 ```
 

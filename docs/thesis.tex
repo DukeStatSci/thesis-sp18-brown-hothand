@@ -371,14 +371,23 @@ in this paper are the assumptions it makes in its analysis, such as all
 shots being independent of each other, and not accounting for shot
 location.
 
+Joseph (n.d.)
+
+This web page provided a sample of code describing how to implement the
+one's trick in JAGS. The source is from the Lawrence Joseph, a professor
+in the Department of Epidemiology and Biostatistics of McGill University
+in Montreal, Quebec. The information from this source was used in the
+code where we build the model, and in the descriptions of the discounted
+likelihood hierarchical model in Section 4.1.3.
+
 Prado \& West (2010)
 
 This textbook provides theory, applications, and examples of time series
 models such Dynamic Generalized Linear Models (DGLMs). More
-specifically, section 14.4 provides an example of a DGLM for a binomial
-response variable. The concept of a time-varying parameter in a binomial
-model is applied in this paper, through our use of discounted likelihood
-models.
+specifically, Section 14.4 in this book provides an example of a DGLM
+for a binomial response variable. The concept of a time-varying
+parameter in a binomial model is applied in this paper, through our use
+of discounted likelihood models.
 
 Ryan Wetzels (2016)
 
@@ -559,36 +568,38 @@ diagnostic plots, can be found in Appendices \textbf{number} and
 First, we build a logistic regression model of the following form:
 
 \[
-\text{log} \left( \frac{p}{1-p} \right) = 
+\text{logit}(p_{i}) = 
 \beta_{\text{int}} +
-x_{\text{r}}\beta_{\text{r}} +
-x_{\theta}\beta_{\theta} +
-x_{\text{H}}\beta_{\text{H}}.
+x_{\text{r,i}}\beta_{\text{r}} +
+x_{\theta,\text{i}}\beta_{\theta} +
+x_{\text{H,i}}\beta_{\text{H}}.
 \]
 
 In this model, the \(x\) refers to the data, and the \(\beta\)s are the
 pareters from the model. The subscripts \(\textit{int}\),
 \(\textit{r}\), \(\theta\), and \(\textit{H}\) respectively refer to the
 intercept, the log-distance of the shot, the angle of the shot, and
-whether shot was taken on Duke's home court or another gym.
+whether shot was taken on Duke's home court or another gym. This fourth
+\(\beta\) accounts for the possibility of ``home-court advanatge'',
+which can affect shot outcomes.
 
 \subsection{Hierarchical Generalized Linear
 Model}\label{hierarchical-generalized-linear-model}
 
 Our second model is a hierarchical model, with random effects on the
 \(\textit{j}\) players in the dataset. These random effects occur for
-each of the four parameters of interest---the intercept, the home
-effect, the distance effect, and the angle effect. Each individual
-player's parameter values are sampled from a Normal distribution
-centered at the population values. The parameters for players without a
-lot of shot attemps are shrunk towards the population means.
+each of the four parameters of interest---the intercept, the distance
+effect, the angle effect, and the home effect. Each individual player's
+parameter values are sampled from a Normal distribution centered at the
+population values. The parameters for players without a lot of shot
+attemps are shrunk towards the population means.
 
 \[
-\text{log} \left( \frac{p}{1-p} \right) = 
+\text{logit}(p_{\text{ji}}) = 
 \beta_{\text{int, j}} +
-x_{\text{r}}\beta_{\text{r, j}} +
-x_{\theta}\beta_{\theta, j} +
-x_{\text{H}}\beta_{\text{H, j}},
+x_{\text{r,ji}}\beta_{\text{r, j}} +
+x_{\theta,\text{ji}}\beta_{\theta, \text{j}} +
+x_{\text{H, ji}}\beta_{\text{H, j}},
 \] \[
 \beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
 \] \[
@@ -603,62 +614,112 @@ x_{\text{H}}\beta_{\text{H, j}},
 Model}\label{discounted-likelihood-hierarchical-model}
 
 In the discounted likelihood models, the likelihood of a single
-observation at time \(\textit{t}\) is more heavily influenced by the
-observations close to it than the observations far away from it. We
-measure the ``distance'' between observations by the number of games
-between them; a shot attempt that occurs in the next or the preceding
-game will influence the likelihood of the observation more than a shot
-that occurs two games away. To conceptualize this model, we first start
-with a Forward Filtering model that uses a discounted Bayes Theorem. The
-discounted Bayes Theorem, like the traditional Bayes Theorem, states
-that the posterior is proportional to the product of the likelihood and
-the prior, but it weights the most recent data higher than the earlier
-data, which is weighted higher than the prior.
+observation at time unit \(\textit{g}\) (game index) is more heavily
+influenced by the observations close to it than the observations far
+away from it. We measure the ``distance'' between observations by the
+number of games between them; a shot attempt that occurs in the next or
+the preceding game will influence the likelihood of the observation more
+than a shot that occurs two games away. To conceptualize this model, we
+first start with a Forward Filtering model that uses a discounted Bayes
+Theorem. The discounted Bayes Theorem, like the traditional Bayes
+Theorem, states that the posterior is proportional to the product of the
+likelihood and the prior, but it weights the most recent data higher
+than the earlier data, which is weighted higher than the prior.
 
-In other words, given the parameters: \[
-\Theta = (\beta_{\text{int}}, \beta_{\text{r}}, \beta_{\theta}, \beta_\text{H}, \tau^2_{\text{int}}, \tau^2_{\text{r}}, \tau^2_{\theta})
+In other words, given the parameters:
+
+\[
+\Theta = (\beta_{\text{int}}, \beta_{\text{r}}, \beta_{\theta}, \beta_\text{H}, \tau^2_{\text{int}}, \tau^2_{\text{r}}, \tau^2_{\theta}),
 \] the joint posterior distribution of the parameters given the data up
-to time unit \(\textit{t}\), \(X_t\), is: \[
-P_{g_t}(\Theta | X_t) \propto 
-P(\Theta)^{\delta^t}
-P(X_1|\Theta)^{\delta^{t-1}}
-P(X_2|\Theta)^{\delta^{t-2}}...
-P(X_{t-2}|\Theta)^{\delta^2}
-P(X_{t-1}|\Theta)^{\delta}
-P(X_t|\Theta)
+to time unit \(\textit{t}\), \(X_\text{t}\), is:
+
+\[
+\text{p}_{t}(\Theta | X_\text{t}) \propto 
+\text{p}(\Theta)^{\delta^\text{t}}
+\text{p}(X_1|\Theta)^{\delta^{\text{t}-1}}
+\text{p}(X_2|\Theta)^{\delta^{\text{t}-2}}...
+\text{p}(X_{\text{t}-2}|\Theta)^{\delta^2}
+\text{p}(X_{\text{t}-1}|\Theta)^{\delta}
+\text{p}(X_\text{t}|\Theta)
 \] \[
 0 < \delta < 1
-\] This equation shows that as distance from time \(\textit{t}\)
-increases, the effect on the posterior distribution decreases. The
-Reverse Updating extension of this concept allows the effect to take
-place as the distance from \(\textit{t}\) increases in either the
-positive or negative direction. \[
-P_{g_t}(\Theta | X_t) \propto 
-P(\Theta)^{\delta^t}...
-P(X_{t-2}|\Theta)^{\delta^2}
-P(X_{t-1}|\Theta)^{\delta}
-P(X_t|\Theta)
-P(X_{t+1}|\Theta)^{\delta}
-P(X_{t+2}|\Theta)^{\delta^2}...
-\] Specifically for our model, given an observed shot \(\textit{i}\) in
-game \(g_i\), attempted by player \(\textit{j}\), we use the above
-concept to discount the probability of a made shot in the hierarchical
-model. \[
-\text{log} \left( \frac{p}{1-p} \right) = 
-\beta_{\text{int, j}} +
-x_{\text{r}}\beta_{\text{r, j}} +
-x_{\theta}\beta_{\theta, j} +
-x_{\text{H}}\beta_{\text{H, j}},
-\] \[
-L(p) = 
-\Pi_{\text{i=1}}^\text{n}p^{\text{y}_i} (1 - p)^{1-\text{y}_i},
-\] \[
-\delta_i = \Delta^{|g_i - g_t|},
+\]
+
+This equation shows that as distance from time \(\textit{t}\) increases,
+the effect on the joint posterior distribution decreases. The Backwards
+Sampling (or Reverse Updating) extension of this concept allows the
+discounting effect to take place as the distance from \(\textit{t}\)
+increases in either the positive or negative direction. In the equations
+below, \(T\) represents the final time unit:
+
+\[
+\text{p}_{\text{t}}(\Theta | X_\text{T}) \propto
+\text{p}(\Theta)^{\delta^\text{t}}
+...
+\text{p}(X_{\text{t}-2}|\Theta)^{\delta^2}
+\text{p}(X_{\text{t}-1}|\Theta)^{\delta}
+\text{p}(X_{\text{t}}|\Theta)
+\text{p}(X_{\text{t}+1}|\Theta)^{\delta}
+\text{p}(X_{\text{t}+2}|\Theta)^{\delta^2}
+...
+\text{p}(X_\text{T}|\Theta)^{\delta^{\text{T}-\text{t}}}
 \]
 
 \[
-\pi = L(p)^{\delta_i},
+0 < \delta < 1
+\]
+
+Specifically for our model, given an observed shot \(\textit{i}\) in
+game \(g\), attempted by player \(\textit{j}\), we apply the above
+reasoning to discount the likelihood of a made shot in the hierarchical
+model:
+
+\[
+\text{logit}(p_{\text{gji}}) = 
+\beta_{\text{int, gj}} +
+x_{\text{r,gji}}\beta_{\text{r, gj}} +
+x_{\theta,\text{gji}}\beta_{\theta, \text{gj}} +
+x_{\text{H, gji}}\beta_{\text{H, gj}}.
+\]
+
+Without discounting, the likelihood of a shot's outcome,
+\(\text{y}_\text{gji}\), that is attempted by player \(\textit{j}\) in
+the game \(\textit{g}\), is:
+
+\[
+L_\text{gj}(\Theta) =
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}{
+  \text{p}(\text{y}_{\text{gji}} | \Theta) 
+}
+\propto 
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}{
+  p_\text{gji}^{\text{y}_\text{gji}} 
+  (1 - p_\text{gji})^{1-\text{y}_\text{gji}}
+}.
+\]
+
+When we apply the exponential discounting, our likelihood becomes:
+
+\[
+\pi_{\text{gji}} =
+\left(
+  p_\text{gji}^{\text{y}_\text{gji}} 
+  (1 - p_\text{gji})^{1-\text{y}_\text{gji}}
+\right)
+^{\delta^{|g-g_0|}},
 \] \[
+\Lambda_{\text{gj}}(\Theta) = 
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}
+  \pi_{\text{gji}},
+\]
+
+where \({g}\) is the game index of the current shot \(\textit{i}\), and
+\(g_0\) is a fixed game index.
+
+This discounted likelihood hierarchical model has the same priors as the
+previous hierarchical model:
+
+\[
 \beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
 \] \[
 \beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}}),
@@ -666,23 +727,27 @@ L(p) =
 \beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta}),
 \] \[
 \beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
-\] In this model, \(p\) represents the binomial likelihood, and \(\pi\)
-is the discounted likelihood. Both of these quantities are probabilities
-that are bounded in the interval {[}0,1{]}. The contribution of shot
-outcomes (in the ``anchor game'' \(g_t\)) to the likelihood of the
-current shot outcome (in game \(g_i\)) decreases as the distance between
-the observations increases, and as \(\Delta\) decreases. In a model with
-\(\Delta\) = 0, only shots taken in the same game as \(g_i\) can
-contribute to the likelihood, while \(\Delta\) = 1 is equivalent to a
-model with no discounting. If models with larger values of \(\Delta\)
-best fit the data, this suggests that shooting success is consistent
-throughout a career. If smaller values of \(\Delta\) are more likely in
-the data, however, then we can assume there is a substantial amount of
-time variation, or ``streakinss'' in the data on the game level. This
-model specification results in an MCMC chain for each combination of
-\(g_t\) and \(\Delta\). Figure \ref{fig:discplot} illustrates how the
-likelihood weight of \(\delta\) depends on the selected value of
-\(\Delta\) and the distance from the anchor game (\(|g_i - g_t|\)).
+\]
+
+In this model, \(p\) represents the binomial probability, and \(\pi\) is
+the discounted probability. Both of these quantities are probabilities
+that are bounded in the interval {[}0,1{]}. Similarly, \(L\) is the
+likelihood and \(\Lambda\) is the discounted likelihood. The
+contribution of shot outcomes (in the ``anchor game'' \(g_0\)) to the
+likelihood of the current shot outcome (in game \(g\)) decreases as the
+distance between the observations increases, and as \(\delta\)
+decreases. In a model with \(\delta\) = 0, only shots taken in the same
+game as shot \(i\) can contribute to the likelihood, while \(\delta\) =
+1 is equivalent to a model with no discounting. If models with larger
+values of \(\delta\) best fit the data, this suggests that shooting
+success is consistent throughout a career. If smaller values of
+\(\delta\) are more likely in the data, however, then we can assume
+there is a substantial amount of time variation, or ``streakinss'' in
+the data on the game level. This model specification results in an MCMC
+chain for each combination of \(g_0\) and \(\delta\). Figure
+\ref{fig:discplot} illustrates how the exponential weight on the
+likelihood depends on the selected value of \(\delta\) and the distance
+from the anchor game (\(|g - g_0|\)).
 \begin{figure}[htbp]
 \centering
 \includegraphics{thesis_files/figure-latex/discplot-1.pdf}
@@ -693,11 +758,49 @@ library, we apply the ``ones trick''. This technique allows us to do a
 sampling distribution that do not exist in the library by modifying a
 common distribution---in this case, the Binomial. The probability \(p\)
 is estimated using the Bayesian hierarchical model. We discount this
-probability to estimate \(\pi\), and then specify that artificial data
-that consists only of ones comes from a Binomial distribution with the
-discounted probability; this is equivalent to sampling from a
-distribution with discounted outcomes. \textbf{elaborate on the ones
-trick}. See Appendix \textbf{number} for the \texttt{R} code.
+probability to estimate \(\pi\), and then we specify that it comes from
+Binomial data that consists only of ones; this is equivalent to sampling
+from a distribution with discounted outcomes. An excerpt of the code is
+shown below:
+\begin{Shaded}
+\begin{Highlighting}[]
+    \NormalTok{for(i in }\DecValTok{1}\NormalTok{:N)\{}
+      
+      \CommentTok{# delta = discount rate for game g relative to anchor game g0}
+      \NormalTok{wt[i] <-}\StringTok{ }\NormalTok{delta^}\KeywordTok{abs}\NormalTok{(games[i]-g0)  }
+      
+      \CommentTok{# player-level random effects}
+      \KeywordTok{logit}\NormalTok{(prob[i]) <-}\StringTok{ }\NormalTok{beta_int[player[i]]*int[i] +}\StringTok{ }
+\StringTok{                        }\NormalTok{beta_home[player[i]]*home[i] +}\StringTok{ }
+\StringTok{                        }\NormalTok{beta_r[player[i]]*logr[i] +}\StringTok{ }
+\StringTok{                        }\NormalTok{beta_theta[player[i]]*theta[i] }
+
+      \CommentTok{# likelihood function}
+      \NormalTok{p1[i] <-}\StringTok{ }\NormalTok{prob[i]^result[i]}
+      \NormalTok{p2[i] <-}\StringTok{ }\NormalTok{(}\DecValTok{1}\NormalTok{-prob[i])^(}\DecValTok{1}\NormalTok{-result[i])}
+      
+      \CommentTok{# discounted likelihood function}
+      \NormalTok{pi[i] <-}\StringTok{ }\NormalTok{(p1[i] *}\StringTok{ }\NormalTok{p2[i])^wt[i]  }
+      
+      \CommentTok{# defines correct discounted likelihood function}
+      \NormalTok{y[i] ~}\StringTok{ }\KeywordTok{dbern}\NormalTok{(pi[i]) }
+      
+      \CommentTok{# result = actual outcome}
+      \CommentTok{# prob   = actual likelihood probability}
+      \CommentTok{# y      = "trick" outcomes: a vector of 1s}
+      \CommentTok{# pi     = discounted likelihood probability}
+    \NormalTok{\}}
+    
+    \CommentTok{# Priors}
+    \NormalTok{for(j in }\DecValTok{1}\NormalTok{:M)\{}
+      \NormalTok{beta_int[j] ~}\StringTok{ }\KeywordTok{dnorm}\NormalTok{(beta_int0,tau_int)}
+      \NormalTok{beta_home[j] ~}\StringTok{ }\KeywordTok{dnorm}\NormalTok{(beta_home0, tau_int)}
+      \NormalTok{beta_r[j] ~}\StringTok{ }\KeywordTok{dnorm}\NormalTok{(beta_r0,tau_r)}
+      \NormalTok{beta_theta[j] ~}\StringTok{ }\KeywordTok{dnorm}\NormalTok{(beta_theta0,tau_theta)}
+    \NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+See Appendix \textbf{number} for the full \texttt{R} code.
 
 \section{Analysis}\label{analysis}
 
@@ -784,31 +887,37 @@ of scoring among those four.
 \subsection{Discounted Likelihood Hierarchical
 Model}\label{discounted-likelihood-hierarchical-model-1}
 
-The values of \(\Delta\) that we use to fit the discounted likelihood
+The values of \(\delta\) that we use to fit the discounted likelihood
 models are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999. We also build
-an MCMC chain to estimate the posterior using every game as \(g_t\). We
+an MCMC chain to estimate the posterior using every game as \(g_0\). We
 calculate predictions and fitted values for a particular shot in game
-\(g_i\) using the posterior median of the MCMC chain where \(g_i\) is
-the anchor game \(g_t\).
+\(g\) using the posterior median of the MCMC chain where \(g\) is the
+anchor game \(g_0\).
 
-\includegraphics{thesis_files/figure-latex/discplot7500-1.pdf}
+\textbf{instead of just showing each player over many time periods, look
+at multiple players in the same parameter within the same time period}*
 \begin{figure}
 
 \hfill{}\includegraphics[width=0.9\linewidth]{thesis_files/figure-latex/discplot750-1} 
 
-\caption{Intercepts for Four Players and Population over Time, $\Delta$ = 0.750}\label{fig:discplot750}
+\caption{Intercepts for Four Players and Population over Time, $\delta$ = 0.750}\label{fig:discplot750}
 \end{figure}
-\includegraphics{thesis_files/figure-latex/discplot9990-1.pdf}
 \begin{figure}
 
 \hfill{}\includegraphics[width=0.9\linewidth]{thesis_files/figure-latex/discplot999-1} 
 
-\caption{Intercepts for Four Players and Population over Time, $\Delta$ = 0.999}\label{fig:discplot999}
+\caption{Intercepts for Four Players and Population over Time, $\delta$ = 0.999}\label{fig:discplot999}
 \end{figure}
-The plots above illustrate how the intercepts change for the four
-players and for the population over time. They also show how smaller
-values of \(\Delta\) allow for greater variation in parameter values
-over time.
+The plots in Figure \ref{fig:discplot750} and Figure
+\ref{fig:discplot999} show how the parameters change for two players and
+the population over time; they also illustrate how smaller values of
+\(\delta\) allow for more time-variation in the posteriors. Another
+insight from these figures is the drop in signal strength that occurs as
+the amount of discounting in the likelihood increases. Between the two
+Angle plots, we can tell that the model does not capture Player 1's
+distinct preference of the left side of the goal when there is more
+discounting. The game indexes shown are for all the available games that
+occured over a single season.
 
 \chapter{Discussion}\label{disc}
 
@@ -830,16 +939,16 @@ take the average of those responses. The results are plotted below:
 \end{figure}
 From Figure \ref{fig:evalplot}, we can observe that the models have
 different strengths. The discounted likelihood model with the smallest
-value of \(\Delta\) consistently has the highest likelihood. However, it
+value of \(\delta\) consistently has the highest likelihood. However, it
 does not test as well as the other models in areas of out-of-sample
 classification rate and Brier score. This suggests that models with
-smaller values of \(\Delta\), where the likelihood of an observed shot
+smaller values of \(\delta\), where the likelihood of an observed shot
 is more heavily influenced by shots closer to it, may overfit the model
 to the training data. The generalized linear models perform best in
 Brier score, but worst in log likelihood. The hierarchical models are
 about the same, but they have a better log likelihood performance than
 the GLMs. A model that balances the trade-off between predictive
-accuracy and likelihood is a discounted likelihood model with \(\Delta\)
+accuracy and likelihood is a discounted likelihood model with \(\delta\)
 = 0.850.
 
 In addition, we can see that the variation in model performance is
@@ -850,7 +959,7 @@ combination of 5-fold cross-validation and 8 different models), which is
 (0.5225, 0.6775). Therefore, the evidence that certain models predict
 better than others is not particularly strong.
 
-For the discounted likelihood model with \(\Delta\) = 0.850, we build
+For the discounted likelihood model with \(\delta\) = 0.850, we build
 calibration plots to assess how well the estimated probabilities fit the
 actual proportions. To make these plots, we divide the predicted
 probabilities into 20 equally-sized bins, then plot these bins on the
@@ -865,7 +974,7 @@ testing set.
 \centering
 \includegraphics{thesis_files/figure-latex/caliplot-1.pdf}
 \caption{\label{fig:caliplot}Calibration Plots for Discounted Likelihood
-Model, \(\Delta\) = 0.850}
+Model, \(\delta\) = 0.850}
 \end{figure}
 In this model, we can see that the confidence intervals on the training
 set all cross the line of slope, which shows that the model reliably
@@ -877,7 +986,7 @@ that the model is not likely to predict values close to 0 or 1.
 \section{Results from Model}\label{results-from-model}
 
 To illustrate results from the discounted likelihood model with
-\(\Delta\) = 0.850, we plot the location parameters over time for a
+\(\delta\) = 0.850, we plot the location parameters over time for a
 high-usage player and a low-usage player that play the same position,
 and for the overall team. \textbf{make this sound more academic}
 
@@ -1159,14 +1268,15 @@ Model}\label{hierarchical-generalized-linear-model-2}
 Model}\label{discounted-likelihood-hierarchical-model-2}
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{fit_game <-}\StringTok{ }\NormalTok{function(}\DataTypeTok{dat =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{g0 =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{Delta =} \OtherTok{NA}\NormalTok{, }
+\NormalTok{fit_game <-}\StringTok{ }\NormalTok{function(}\DataTypeTok{dat =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{g0 =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{delta =} \OtherTok{NA}\NormalTok{, }
                      \DataTypeTok{S =} \DecValTok{10000}\NormalTok{, }\DataTypeTok{B =} \DecValTok{500}\NormalTok{)\{}
 
   \NormalTok{model.game <-}\StringTok{ }\NormalTok{function()\{}
 
     \NormalTok{for(i in }\DecValTok{1}\NormalTok{:N)\{}
-      \NormalTok{delta[i] <-}\StringTok{ }\NormalTok{Delta^}\KeywordTok{abs}\NormalTok{(games[i]-g0)  }
-      \CommentTok{# Delta = discount rate for game g relative to anchor game g0}
+
+      \CommentTok{# delta = discount rate for game g relative to anchor game g0}
+      \NormalTok{wt[i] <-}\StringTok{ }\NormalTok{delta^}\KeywordTok{abs}\NormalTok{(games[i]-g0)  }
       
       \CommentTok{# player-level random effects}
       \KeywordTok{logit}\NormalTok{(prob[i]) <-}\StringTok{ }\NormalTok{beta_int[player[i]]*int[i] +}\StringTok{ }
@@ -1174,20 +1284,20 @@ Model}\label{discounted-likelihood-hierarchical-model-2}
 \StringTok{                        }\NormalTok{beta_r[player[i]]*logr[i] +}\StringTok{ }
 \StringTok{                        }\NormalTok{beta_theta[player[i]]*theta[i] }
 
-      \CommentTok{# Likelihood function}
+      \CommentTok{# likelihood function}
       \NormalTok{p1[i] <-}\StringTok{ }\NormalTok{prob[i]^result[i]}
       \NormalTok{p2[i] <-}\StringTok{ }\NormalTok{(}\DecValTok{1}\NormalTok{-prob[i])^(}\DecValTok{1}\NormalTok{-result[i])}
       
-      \CommentTok{# Discounted likelihood function}
-      \NormalTok{pi[i] <-}\StringTok{ }\NormalTok{(p1[i] *}\StringTok{ }\NormalTok{p2[i])^delta[i]  }
+      \CommentTok{# discounted likelihood function}
+      \NormalTok{pi[i] <-}\StringTok{ }\NormalTok{(p1[i] *}\StringTok{ }\NormalTok{p2[i])^wt[i]  }
       
       \CommentTok{# defines correct discounted likelihood function}
       \NormalTok{y[i] ~}\StringTok{ }\KeywordTok{dbern}\NormalTok{(pi[i]) }
       
       \CommentTok{# result = actual outcome}
-      \CommentTok{# prob   = actual likelihood}
-      \CommentTok{# y      = artificial "ones trick" outcomes}
-      \CommentTok{# pi     = discounted likelihood}
+      \CommentTok{# prob   = actual likelihood probability}
+      \CommentTok{# y      = "trick" outcomes: a vector of 1s}
+      \CommentTok{# pi     = discounted likelihood probability}
     \NormalTok{\}}
     
     \CommentTok{# Priors}
@@ -1220,7 +1330,7 @@ Model}\label{discounted-likelihood-hierarchical-model-2}
       \DataTypeTok{M =} \KeywordTok{n_distinct}\NormalTok{(dat$globalplayerid),}
       \DataTypeTok{mu0r =} \NormalTok{mu0r,}
       \DataTypeTok{mu0theta =} \NormalTok{mu0theta,}
-      \DataTypeTok{Delta =} \NormalTok{Delta,}
+      \DataTypeTok{delta =} \NormalTok{delta,}
       \DataTypeTok{games =} \KeywordTok{as.integer}\NormalTok{(}\KeywordTok{as.factor}\NormalTok{(dat$gameid)),}
       \DataTypeTok{g0 =} \NormalTok{g0,}
       \DataTypeTok{y =} \KeywordTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{, }\KeywordTok{nrow}\NormalTok{(dat))}
@@ -1356,6 +1466,11 @@ Exercise}, \emph{7}, 525--553.
 Gilovich, T., Vallone, R., \& Tversky, A. (1985). The hot hand in
 basketball: On the misperception of random sequences. \emph{Cognitive
 Psychology}, \emph{17}, 295--314.
+
+\hypertarget{ref-joseph}{}
+Joseph, L. (n.d.). Specifying a new sampling distribution. Retrieved
+from
+\url{http://www.medicine.mcgill.ca/epidemiology/Joseph/courses/common/Tricks.html}
 
 \hypertarget{ref-west10}{}
 Prado, R., \& West, M. (2010). \emph{Time series: Modelling, computation

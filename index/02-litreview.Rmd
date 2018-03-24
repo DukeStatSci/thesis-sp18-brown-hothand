@@ -29,15 +29,13 @@ This paper is a review of previous hot hand research. It reviews several papers 
 
 In this research paper from *Cognitive Psychology*, Thomas Gilovich, Robert Vallone, and Amos Tversky investigate peoples' belief in the Hot Hand in Basketball. The Hot Hand is the concept that the probability of a success increases for trials that follow a success in a binary sequence; in basketball, these binary events are shot attempts. The methods in this paper include an analysis of shot attempts from the Philadelphia 76ers of the National Basketball Association (NBA) in the 1981 season, analysis of free-throw attempts from the Boston Celtics in the 1981 and 1982 seasons, and a controlled shooting drill using male and female varsity basketball players at Cornell University. Statistical techniques they used to attempt to detect streakiness in the data included Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of successes, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. In addition to this analysis of shooting, this research also contained a survey of basketball fans, that gauged how much people believed success probabilities changed given a success or a failure. The statistical tests did not detect significant evidence supporting the Hot Hand in basketball. The lack of statistical power in Gilovich, Vallone, and Tversky's frequentist tests motivates the use of Bayesian models in this thesis. Strengths of this paper include the fact that it was one of the first research papers to analyze streakiness in basketball data, and many future papers build off of it. Some weaknesses in this paper are the assumptions it makes in its analysis, such as all shots being independent of each other, and not accounting for shot location.
 
-@mcgill
+@joseph
 
-http://www.medicine.mcgill.ca/epidemiology/Joseph/courses/common/Tricks.html
-
-This web page provided a sample of code describing how to implement the one's trick in JAGS. The source is from the **Lawrence Josph in the Epidemiology Department of McGill University in Montreal, Quebec** 
+This web page provided a sample of code describing how to implement the one's trick in JAGS. The source is from the Lawrence Joseph, a professor in the Department of Epidemiology and Biostatistics of McGill University in Montreal, Quebec. The information from this source was used in the code where we build the model, and in the descriptions of the discounted likelihood hierarchical model in Section 4.1.3.
 
 @west10
 
-This textbook provides theory, applications, and examples of time series models such Dynamic Generalized Linear Models (DGLMs). More specifically, section 14.4 provides an example of a DGLM for a binomial response variable. The concept of a time-varying parameter in a binomial model is applied in this paper, through our use of discounted likelihood models.
+This textbook provides theory, applications, and examples of time series models such Dynamic Generalized Linear Models (DGLMs). More specifically, Section 14.4 in this book provides an example of a DGLM for a binomial response variable. The concept of a time-varying parameter in a binomial model is applied in this paper, through our use of discounted likelihood models.
 
 @wetzels16
 

@@ -272,8 +272,9 @@ fit_game <- function(dat = NA, g0 = NA, delta = NA,
   model.game <- function(){
 
     for(i in 1:N){
-      wt[i] <- delta^abs(games[i]-g0)  
+
       # delta = discount rate for game g relative to anchor game g0
+      wt[i] <- delta^abs(games[i]-g0)  
       
       # player-level random effects
       logit(prob[i]) <- beta_int[player[i]]*int[i] + 
@@ -281,20 +282,20 @@ fit_game <- function(dat = NA, g0 = NA, delta = NA,
                         beta_r[player[i]]*logr[i] + 
                         beta_theta[player[i]]*theta[i] 
 
-      # Likelihood function
+      # likelihood function
       p1[i] <- prob[i]^result[i]
       p2[i] <- (1-prob[i])^(1-result[i])
       
-      # Discounted likelihood function
+      # discounted likelihood function
       pi[i] <- (p1[i] * p2[i])^wt[i]  
       
       # defines correct discounted likelihood function
       y[i] ~ dbern(pi[i]) 
       
       # result = actual outcome
-      # prob   = actual likelihood
-      # y      = artificial "ones trick" outcomes
-      # pi     = discounted likelihood
+      # prob   = actual likelihood probability
+      # y      = "trick" outcomes: a vector of 1s
+      # pi     = discounted likelihood probability
     }
     
     # Priors
