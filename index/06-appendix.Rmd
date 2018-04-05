@@ -23,7 +23,7 @@ This first appendix includes all of the R chunks of code that were hidden throug
 # The Second Appendix, for Fun
 -->
 
-# Appendix 1: Code
+# Code for Models
 
 ## Generalized Linear Model
 
@@ -224,21 +224,26 @@ fit_players <- function(dat = NA, S = 10000, B = 500){
   
   sim.mcmc.player <- eval(parse(text=
     paste0("sim.mcmc.player %>%
-              mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)"," %>%
-              rename(",awaytext,", beta_intA0 = beta_int0)"
+              mutate(",hometext,",
+                     beta_intH0 = beta_int0 + beta_home0)","%>%
+              rename(",awaytext,",
+                     beta_intA0 = beta_int0)"
            ))) %>%
     select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
   
-  sim.mcmc.player <- sim.mcmc.player[ ,order(colnames(sim.mcmc.player))]
+  colorder <- order(colnames(sim.mcmc.player))
+  sim.mcmc.player <- sim.mcmc.player[ , colorder]
   
   
-  # Renaming mixed effects columns from default factor levels (integers) to the corresponding player ids
+  # Renaming mixed effects columns from default factor levels 
+  # (integers) to the corresponding player ids
   
   factorids <- 
     str_extract_all(names(sim.mcmc.player), "[[:digit:]]+") %>% 
     as.numeric()
   
-  fids <- data.frame(factorid = factorids, order = 1:length(factorids))
+  fids <- data.frame(factorid = factorids, 
+                     order = 1:length(factorids))
   
   datmap <- dat %>% 
     mutate(factorid = as.integer(as.factor(globalplayerid))) %>%
@@ -291,11 +296,7 @@ fit_game <- function(dat = NA, g0 = NA, delta = NA,
       
       # defines correct discounted likelihood function
       y[i] ~ dbern(pi[i]) 
-      
-      # result = actual outcome
-      # prob   = actual likelihood probability
-      # y      = "trick" outcomes: a vector of 1s
-      # pi     = discounted likelihood probability
+
     }
     
     # Priors
@@ -378,20 +379,25 @@ fit_game <- function(dat = NA, g0 = NA, delta = NA,
 
   sim.mcmc.game <- eval(parse(text=
     paste0("sim.mcmc.game %>%
-              mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)"," %>%
-              rename(",awaytext,", beta_intA0 = beta_int0)"
+              mutate(",hometext,",
+                     beta_intH0 = beta_int0 + beta_home0)"," %>%
+              rename(",awaytext,",
+                     beta_intA0 = beta_int0)"
            ))) %>% 
     select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
   
-  
-  # Renaming mixed effects columns from default factor levels (integers) to the corresponding player ids
+  colorder <- order(colnames(sim.mcmc.game))
+  sim.mcmc.game <- sim.mcmc.game[ , colorder]
 
-  sim.mcmc.game <- sim.mcmc.game[ , order(colnames(sim.mcmc.game))]
+  # Renaming mixed effects columns from default factor levels
+  # (integers) to the corresponding player ids
+
   
   factorids <- 
     str_extract_all(names(sim.mcmc.game), "[[:digit:]]+") %>%
     as.numeric()
-  fids <- data.frame(factorid = factorids, order = 1:length(factorids))
+  fids <- data.frame(factorid = factorids, 
+                     order = 1:length(factorids))
   
   datmap <- dat %>% 
     mutate(factorid = as.integer(as.factor(globalplayerid))) %>%
@@ -399,21 +405,21 @@ fit_game <- function(dat = NA, g0 = NA, delta = NA,
   
   gameids <- merge(datmap, fids, all.x=FALSE,all.y=TRUE) %>% 
     unique() %>% 
-    mutate(globalplayerid = ifelse(is.na(globalplayerid),0,globalplayerid)) %>% 
+    mutate(globalplayerid = ifelse(is.na(globalplayerid),
+                                   0,
+                                   globalplayerid)) %>% 
     arrange(order)
   
-  names(sim.mcmc.game) <- str_replace_all(names(sim.mcmc.game), "[[:digit:]]+", as.character(gameids$globalplayerid))
+  names(sim.mcmc.game) <- 
+    str_replace_all(names(sim.mcmc.game), 
+                    "[[:digit:]]+",
+                    as.character(gameids$globalplayerid))
 
   return(sim.mcmc.game)
 
 }
 
 ```
-
-# Appendix 2: Diagnostic Plots
-
-
-## Generalized Linear Model:
 
 ```{r diagnostics, echo=FALSE, include=FALSE, cache=TRUE}
 
@@ -487,11 +493,11 @@ diagnostic_plots <- function(chain=NA, chain_name = ""){
 
 ```
 
-# Appendix 3: Reproducing Models
+# Reproducing Evaluation Plots
 
 ## Home Games Only
 
-```{r home}
+```{r home, fig.height=6.5}
 
 tempenv <- new.env()
 eval.df <- NULL
@@ -508,31 +514,34 @@ eval.df$delta <- factor(eval.df$delta,sort(as.character(levels(eval.df$delta))))
 
 df_delta <- eval.df %>% filter(!is.na(delta))
 df <- eval.df %>% filter(is.na(delta))
-g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
+gh1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
    geom_point() + 
    geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
    theme_bw() + 
-   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "")
+   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+   labs(y="Classification Rate \n (0.5 cutoff)", x=expression(delta), linetype = "")
 
-g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
+gh2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Log Likelihood", x="delta", linetype = "")
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  labs(y="Log Likelihood", x=expression(delta), linetype = "")
 
-g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
+gh3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Brier Score (MSE)", x="delta", linetype = "")
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  labs(y="Brier Score (MSE)", x=expression(delta), linetype = "")
 
-grid.arrange(g1, g2, g3, nrow=2)
+grid.arrange(gh1, gh2, gh3, nrow=2)
 
 ```
 
-## 2015 Season Only
+## One Season Only
 
-```{r 2015}
+```{r 2015, fig.height=6.5}
 
 tempenv <- new.env()
 eval.df <- NULL
@@ -549,24 +558,27 @@ eval.df$delta <- factor(eval.df$delta,sort(as.character(levels(eval.df$delta))))
 
 df_delta <- eval.df %>% filter(!is.na(delta))
 df <- eval.df %>% filter(is.na(delta))
-g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
+gy1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
    geom_point() + 
    geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
    theme_bw() + 
-   labs(y="Classification Rate \n (0.5 cutoff)", x="delta", linetype = "")
+   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+   labs(y="Classification Rate \n (0.5 cutoff)", x=expression(delta), linetype = "")
 
-g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
+gy2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Log Likelihood", x="delta", linetype = "")
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  labs(y="Log Likelihood", x=expression(delta), linetype = "")
 
-g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
+gy3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   geom_point() +
   geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
   theme_bw() +
-  labs(y="Brier Score (MSE)", x="delta", linetype = "")
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  labs(y="Brier Score (MSE)", x=expression(delta), linetype = "")
 
-grid.arrange(g1, g2, g3, nrow=2)
+grid.arrange(gy1, gy2, gy3, nrow=2)
 
 ```

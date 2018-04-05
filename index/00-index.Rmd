@@ -1,11 +1,9 @@
 ---
 author: 'Nathaniel Brown'
-date: 'May 2018'
+date: 'April 10, 2018'
 institution: 'Duke University'
 division: 'Trinity College of Arts and Sciences'
 advisor: 'Mike West'
-#altadvisor: 'Your Other Advisor'
-# Delete line 7 if you only have one advisor
 committeememberone: 'Merlise Clyde'
 committeemembertwo: 'Cliburn Chan'
 dus: 'Mine Cetinkaya-Rundel'
@@ -28,10 +26,9 @@ abstract: |
 # like below, use a command like that for the abstract above.  Note that a tab is 
 # needed on the line after the |.
 acknowledgements: |
-  A special thank you to Kevin Cullen, Basketball Director of Information Technology for the Duke Men's Basketball team, for providing data for this research.
-dedication: |
-  Insert a real dedication. (optional) 
-  
+
+  Thank you to Mike West, for advising me throughout this project, to Merlise Clyde, for introducing me to the ones trick in JAGS, and to Kevin Cullen, for providing the data for this research.
+
 bibliography: bib/thesis.bib
 # Refer to your specific bibliography file in the line above.
 csl: csl/apa.csl
@@ -39,15 +36,16 @@ csl: csl/apa.csl
 lot: true
 lof: true
 space_between_paragraphs: true
-documentclass: 'article'
-fontsize: '18pt'
-geometry: 'left=3cm,right=3cm,top=2cm,bottom=2cm'
 biblio-style: apalike
-# header-includes:
-#  - \geometry{margin=1in}
-# - \usepackage{tikz}
-# - \usepackage{float}
+documentclass: 'article'
 ---
+
+<!-- from references. will probably help your page margin problem.
+
+\setlength{\parindent}{-0.20in}
+\setlength{\leftskip}{0.20in}
+\setlength{\parskip}{8pt}
+-->
 
 <!--
 Above is the YAML (YAML Ain't Markup Language) header that includes a lot of metadata used to produce the document.  Be careful with spacing in this header!
@@ -83,7 +81,6 @@ on chapters.
 
 # Introduction {.unnumbered}
 
-In the sport of basketball, points are awarded by the binary event of shooting the ball into the goal. Some factors we consider that may affect the success rate include the location of the shooter, the individual skill of the shooter, whether the shooter is playing on his home court or on an away court, and the shooting success in recent surrounding games. There have been previous studies investigating the effect of recent shooting success on current shooting success, and the results vary. For example, @gilovich85 use Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of successes, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. These statistical tests did not detect significant evidence supporting streakiness in basketball shooting data. In addition, @wetzels16 found evidence that a Hidden Markov Model with two states (representing a high shot success rate and a low rate) better fits Shaquille O'Neal's free throw shooting data than a Binomial model with one constant state. @bareli06 completed a review of previous statistical papers whose authors research the concept of streaky success rates in data with a binomial response; the applications include basketball shooting, baseball hitting, baseball pitching, horeshoe, cognitive science, and economics. They summarize 11 papers that support evidence of streakiness in binomial data, and 13 that do not.
+In the sport of basketball, points are awarded by the binary event of shooting the ball into the goal. Some factors that may affect the success rate include the location of the shooter, the individual skill of the shooter, whether the shooter is shooting on his team's home court or on an away court, and his shooting success in recent games. There have been previous studies investigating the effect of recent shooting success on current shooting success, and the results vary. For example, @gilovich85 use Walf-Wolfowitz runs tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of successes, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. These statistical tests did not detect significant evidence supporting streakiness in basketball shooting data. In addition, @wetzels16 found evidence that a Hidden Markov Model with two states (representing a high shot success rate and a low rate) better fits Shaquille O'Neal's free throw shooting data than a Binomial model with one constant state. @bareli06 completed a review of previous statistical papers whose authors research the concept of streaky success rates in data with a binomial response; the applications include basketball shooting, baseball hitting, baseball pitching, horeshoes, cognitive science, and economics. They summarize 11 papers that support evidence of streakiness in binomial data, and 13 that do not.
 
-The purpose of this paper is to investigate Bayesian modelling techniques shooting data, and to learn more about time-dependency in shooting data.
- 
+The purpose of this paper is to investigate Bayesian modelling techniques on basketball shooting data, and to learn more about time-dependency in the data.

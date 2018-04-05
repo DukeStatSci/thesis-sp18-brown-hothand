@@ -55,43 +55,23 @@ tabsum[,1] <- c("season", "categorical", "{2014, ..., 2017}", "")
 tabsum[,2] <- c("gameid","categorical", "NA", "94 unique values")
 tabsum[,3] <- c("time","continuous", "NA", "13-digit timestamp in milliseconds")
 tabsum[,4] <- c("globalplayerid","categorical", "NA", "31 unique values")
-tabsum[,5] <- c("r","continuous", "[0, $\\infty$)", "Distance of shot from hoop (feet)")
+tabsum[,5] <- c("r","continuous", "[0, $\\infty$)", "Distance of shot from basket (feet)")
 tabsum[,6] <- c("theta","continuous ", "[-$\\pi$, $\\pi$]", "Angle of shot (radians)")
-tabsum[,7] <- c("home","categorical", "{0,1}", "1 if shot occured during a home game")
-tabsum[,8] <- c("result","categorical", "{0,1}", "1 if shot was made(response)")
+tabsum[,7] <- c("home","categorical", "{0,1}", "1 if shot occured in a home game")
+tabsum[,8] <- c("result","categorical", "{0,1}", "1 if shot was made (response)")
 colnames(tabsum) <- NULL
 tabsum <- t(tabsum)
 
+ggblank <- ggplot(as.data.frame(1)) + 
+  geom_blank() + 
+  theme_bw() + 
+  theme(panel.border =element_blank())
 ```
 
-<!--
-
-**Help!** This does not work :(
-
-Here is a reference to the plot Figure \@ref(fig:dukelogo).
-
-```{r dukelogo, fig.cap="test caption"}
-plot(iris)
-```
-
-Here is a reference to the table Table \@ref(tab:maxdelays)
-
-
-```{r maxdelays, results="asis"}
-kable(#max_delays, 
-      #col.names = c("Airline", "Max Arrival Delay"),
-      head(iris),
-      caption = "Maximum Delays by Airline",
-      caption.short = "Max Delays by Airline",
-      longtable = TRUE,
-      booktabs = TRUE)
-```
-
--->
 
 ## Description of Dataset
 
-The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted us to use their SportVU data from the 2014 to 2017 basketball seasons for this project. Since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the technology installed. Therefore, there is a substantial amount of missing data between games. More specifically, between the 2014 and 2017 seasons, the Duke Men's Basketball team played 147 games; this dataset contains `r n_distinct(Xtot$gameid)` games, with `r n_distinct(Xtot$gameid[which(Xtot$home==1)])` at Duke and `r n_distinct(Xtot$gameid[which(Xtot$home==0)])` other courts.
+The data for this analysis comes from SportVU, a player-tracking system from STATS, LLC. that provides precise coordinates for all ten players and the ball at a rate of 25 times per second. The Duke University Men's Basketball team permitted us to use their SportVU data from the 2014 to 2017 basketball seasons for this project. Since the ability to record this data depends on specialized tracking cameras, Duke does not have this data for every game they play---only home games, and a few road games in arenas that had the technology installed. Therefore, there is a substantial amount of missing data between games. More specifically, between the 2014 and 2017 seasons, the Duke Men's Basketball team played 147 games; this dataset contains `r n_distinct(Xtot$gameid)` games, with `r n_distinct(Xtot$gameid[which(Xtot$home==1)])` at Duke and `r n_distinct(Xtot$gameid[which(Xtot$home==0)])` at other arenas.
 
 For our analysis, we use the following files for each game:
 
@@ -107,11 +87,11 @@ We use this dataset to match the names and IDs of players who are in the game. T
 
 * Final Sequence Optical:
 
-    These XML files contain the locations of all ten players and the ball during precise time intervals within the game. Each time unit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter's location at the moment of a shot attempt.
+  These XML files contain the locations of all ten players and the ball during precise time intervals within the game (25 times per second). Each time unit has a unique element, and these elements have attributes describing the locations. We merge this with the Final Sequence Play-by-Play Optical data on the time attribute to obtain the shooter's location at the moment of a shot attempt.
 
 ## Data Cleaning
 
-  Steps taken to clean the merged shooter IDs with shot locations include standardizing the locations onto a half-court setting (the teams switch sides of the court halfway through every game, which means that we have to flip the coordinates across the middle of the court for half of the data in every game), converting the x-y coordinates to polar coordinates (in the units of feet and radians), and including an indicator for home games. The final dataset had `r nrow(Xtot)` observations from `r n_distinct(Xtot$globalplayerid)` shooters over `r n_distinct(Xtot$gameid)` games. A summary of the cleaned dataset is in Table \@ref(tab:summarytable):
+  Steps taken to clean the merged shooter IDs with shot locations include translating the locations to a half-court setting (the teams switch sides of the court halfway through every game, which means that we have to flip the coordinates across the middle of the court for about half of the shots in every game), converting the x-y coordinates to polar coordinates (in the units of feet and radians), and adding an indicator for home games. We only use the shots that Duke players attempt, because there is an inadequate amount of data for players on other teams---no opposing players appear in more than 5 games. The final dataset contains 5,467 observations from `r n_distinct(Xtot$globalplayerid)` shooters over `r n_distinct(Xtot$gameid)` games. A summary of the cleaned dataset is in Table \@ref(tab:summarytable):
 
 ```{r summarytable, results="asis"}
 kable(tabsum, 
@@ -122,7 +102,7 @@ kable(tabsum,
       booktabs = FALSE)
 ```
 
-and a small subset of the cleaned data is displayed below in Table \@ref(tab:sampletable):
+A small subset of the cleaned data is displayed below in Table \@ref(tab:sampletable):
 
 ```{r sampletable, results="asis"}
 kable(tabsamp,
@@ -135,7 +115,11 @@ kable(tabsamp,
 ```
 
 
-Figure \@ref(fig:shotplot) shows the location of all the shots in the dataset, excluding heaves from beyond half court. The variable $\theta$ has a range of $2\pi$ radians, but this plot shows that most of the attempts occur within the interval (-$\frac{\pi}{2}$, $\frac{\pi}{2}$). This figure also shows the bimodal distribution of shot distance over all players.
+
+
+\pagebreak
+
+Figure \@ref(fig:shotplot) shows the locations of all the shots in the dataset, translating the locations to one half of the court, and excluding heaves from beyond half court. The variable $\theta$ has a range of $2\pi$ radians, but this plot shows that most of the attempts occur within the interval (-$\frac{\pi}{2}$, $\frac{\pi}{2}$). This figure also shows the bimodal distribution of shot distance over all players.
 
 ```{r shotplot, fig.cap = "Locations and Results of All Shots"}
 img.path <- "./figure/ncaa_bball_court2.png"
@@ -175,11 +159,11 @@ plt
 
 ## Exploratory Data Analysis
 
-The following exploratory plots in Figure \@ref(fig:smoothplot) examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University between the 2013-2014 and 2016-2017 seasons. Each plot represents a single player's ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome. 
+The exploratory data analysis plots in Figure \@ref(fig:smoothplot) examine how consistent the probability of a made shot is, using a loess smooth curve on the binary outcomes. We present these smoothed plots for four high-usage basketball players at Duke University between the 2014 and 2017 seasons. Each plot represents a single player's ordered shooting outcomes for a single season. These plots do not account for the amount of time in between shots, but simply shot order and outcome. 
 
 
 
-```{r smoothplot0}
+```{r smoothplot0, fig.height=5, fig.width=5, fig.align="center"}
 
 plotshottime <- function(playerid, season, main){
   Xtot_sub <- Xtot[Xtot$globalplayerid %in% playerid & Xtot$season %in% season,]
@@ -206,12 +190,13 @@ for(i in 1:nrow(playerseasons)){
 }
 ```
 
-```{r smoothplot, fig.cap = "Moving Average of Shot Success Rate"}
+```{r smoothplot, fig.cap = "Moving Average of Shot Success Rate", fig.height=3.5, fig.width=5, fig.align="center"}
 plotshottime(Xtot$globalplayerid, Xtot$season, "Team Average")
 ```
 
+\pagebreak
 
+We can see that the players vary in the consistency of their made shots, since they all contain spikes and trends. For example, Player 3 initially has a very high success rate, which quickly falls to the middle after about 30 shot attempts, and the Player 2 has a noticeable upward trend in shot success beginning around shot number 150.
 
-We can see that the plots vary in the consistency of their made shots, since they all contain spikes and trends. For example, the third plot initially has a very high success rate, which quickly falls to the middle after about thirty shot attempts, and the second plot has a noticeable upward trend in shot success beginning around shot number one hundred fifty.
+We investigate the shooting outcomes using Bayesian models, and present the results in the next chapter.
 
-We investigate the shooting outcomes using Bayesian models, and present the results in the next section.

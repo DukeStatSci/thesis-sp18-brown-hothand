@@ -1,0 +1,1754 @@
+---
+title: "Bayesian Analysis of Player Performance over Time"
+author: "Nathaniel Brown"
+date: "April 10, 2018"
+output:
+  beamer_presentation: default
+  ioslides_presentation: default
+  slidy_presentation: default
+---
+
+# Introduction
+
+## Objective
+
+* Investigate Bayesian modelling techniques on shooting data, and to learn more about time-dependency in the data.
+
+<!--
+the factors we consider as predictors of shot success are:
+* the location of the shooter (log-distance and angle)
+* home-court (binary variable)
+* shooter ID
+* "recent success" (on the game level)
+  defined at the game level instead of the shot level because:
+    * larger sample size
+    * saves time
+-->
+
+## Previous Studies
+
+*  Gilovich, Vallone, & Tversky (1985) 
+
+<!--
+they use Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of successes, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. These statistical tests did not detect significant evidence supporting streakiness in basketball shooting data.
+-->
+
+* Wetzels (2016)
+
+<!--
+found evidence that a Hidden Markov Model with two states (representing a high shot success rate and a low rate) better fits Shaquille O'Neal's free throw shooting data than a Binomial model with one constant state
+-->
+
+* Bar-Eli, Avugos, & Raab (2006) 
+
+<!--
+completed a review of previous statistical papers whose authors research the concept of streaky success rates in data with a binomial response; the applications include basketball shooting, baseball hitting, baseball pitching, horeshoes, cognitive science, and economics. They summarize 11 papers that support evidence of streakiness in binomial data, and 13 that do not.
+-->
+
+
+# Data
+
+## Description of Dataset
+
+* Player-tracking data provided by the Duke Men's Basketball team.
+
+* Recorded using SportVU, a player-tracking system from STATS, LLC. 
+
+* **Final Sequence Play-by-Play Optical**: contains information of players' basketball actions (e.g., shot makes and attempts, dribbles, passes, fouls) and their time stamps for every game.
+
+* **Final Sequence Optical**: contains precise locations for all 10 players and the ball at a rate of 25 times per second for every game.
+
+```{r dat, include=FALSE}
+
+#   SUGGESTIONS
+#     PUT THE CODE FIRST IN EACH OF THE 3 MODEL SECTIONS. THEN ANALYSIS OUTCOMES.
+#     PUT A SNIPPET OF JAGS CODE IN EACH OF THE 3 MODEL SECTIONS TOO
+#     NOT TREATING DISTANCE AS STRICTLY LINEAR BUT AS LIKE 2 AND 3 POINTER
+#     LEARNING BEST DELTA (VIA CROSS-VALIDATION, SO THAT IS KIND OF WHAT I DID EXCEPT NOT AUTOMATED)
+#     
+
+
+library(knitr)     # for knitting
+library(kableExtra)
+library(dplyr)     # used throughout
+library(ggplot2)
+library(stringr)
+library(reshape2)
+library(R2jags)    # for MCMC
+library(png)       # for graphics
+library(grid)
+library(gridExtra)
+
+knitr::opts_chunk$set(warning = FALSE, message=FALSE, echo=FALSE)
+
+def.chunk.hook  <- knitr::knit_hooks$get("chunk")
+knitr::knit_hooks$set(chunk = function(x, options) {
+  x <- def.chunk.hook(x, options)
+  ifelse(options$size != "normalsize", paste0("\\", options$size,"\n\n", x, "\n\n \\normalsize"), x)
+})
+
+load("../rdatafiles/Xtot.RData")
+
+id1 <- 887665 
+id2 <- 842301 
+id3 <- 603106 
+id4 <- 842296 
+playerseasons <- matrix(
+  c(id1,   2016,
+    id2,   2015,
+    id3,   2014,
+    id4,   2016
+  ),ncol=2,byrow = TRUE
+)
+colnames(playerseasons) <- c("globalplayerid" ,"season")
+
+tabsamp <- Xtot %>%
+  '['(700:704,) %>%
+  mutate(gameid = as.character(gameid),
+         time   = as.character(time),
+         r      = round(r, 4),
+         theta  = round(theta, 4)) %>%
+  select(season, gameid, time, globalplayerid, r, theta, home, result)
+
+tabsum <- matrix(nrow=4, ncol=ncol(tabsamp))
+colnames(tabsum) <- colnames(tabsamp)
+rownames(tabsum) <- c("Name","Type", "Values", "Extra Details")
+tabsum[,1] <- c("season", "categorical", "{2014, ..., 2017}", "")
+tabsum[,2] <- c("gameid","categorical", "NA", "94 unique values")
+tabsum[,3] <- c("time","continuous", "NA", "13-digit timestamp in milliseconds")
+tabsum[,4] <- c("globalplayerid","categorical", "NA", "31 unique values")
+tabsum[,5] <- c("r","continuous", "[0, $\\infty$)", "Distance of shot from hoop (feet)")
+tabsum[,6] <- c("theta","continuous ", "[-$\\pi$, $\\pi$]", "Angle of shot (radians)")
+tabsum[,7] <- c("home","categorical", "{0,1}", "1 if shot occured during a home game")
+tabsum[,8] <- c("result","categorical", "{0,1}", "1 if shot was made(response)")
+colnames(tabsum) <- NULL
+tabsum <- t(tabsum)
+
+```
+
+## Missing Data
+
+* The ability to record this data depends on specialized tracking cameras, and not every arena has the technology installed.
+
+* Has data for 94 out of the 147 games played between the 2013-2014 and 2016-2017 seasons (82 at Home and 12 Away).
+
+## Data Cleaning
+
+* Translate the locations to a half-court setting.
+
+* Convert the x-y coordinates (feet) to polar coordinates (feet and radians).
+
+* Add an indicator for home games.
+
+* Only use the shots that Duke players attempt (no opposing players appear in more than 5 games).
+
+## Data Cleaning (cont.)
+
+```{r summarytable, results="asis", size="tiny"}
+kable(tabsum, 
+      format="pandoc",
+      caption = "Summary of Dataset",
+      caption.short = "Data Summary",
+      longtable = TRUE,
+      booktabs = FALSE)  %>%
+  kable_styling(latex_options = "scale_down") %>%
+  kable_styling(font_size=6)
+
+```
+
+```{r sampletable, results="asis", size="tiny"}
+kable(tabsamp,
+      caption = "Sample of Dataset",
+      caption.short = "Data Sample",
+      longtable = TRUE,
+      booktabs = TRUE) %>%
+  kable_styling(latex_options = "scale_down") %>%
+  kable_styling(font_size=6)
+```
+
+## Data Cleaning (cont.) 
+
+```{r shotplot, fig.cap = "Locations and Results of All Shots", fig.width=7, fig.height=5}
+img.path <- "../index/figure/ncaa_bball_court2.png"
+img <- readPNG(img.path)
+
+xrange <- c(-25,25)
+yrange <- c(0,94/2) - 4
+Xtotrange <- Xtot %>%
+  filter(yt > yrange[1] & yt < yrange[2] & xt > xrange[1] & xt < xrange[2])
+
+plt <- ggplot(Xtotrange, aes(x=xt, y=yt, color=as.factor(result))) + 
+  annotation_custom(rasterGrob(img,
+                               x=0.50, y=0.50,
+                               width = .92, height = .92),
+                    -Inf, Inf, -Inf, Inf) + 
+  scale_color_manual(values=c("red", "blue"), labels=c("misses", "makes")) +
+  geom_point(alpha=0.2) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0) +
+  geom_label(data = data.frame(c(NA, NA, NA)),
+           x=c(-13, 3, 13), 
+           y=c(-1, 40, -1), 
+           parse=TRUE,
+           label=c(as.character(expression(theta == frac(pi,2))),
+                   as.character(expression(theta == 0)),
+                   as.character(expression(theta == -frac(pi,2)))),
+           size=3,
+           color="black", 
+           fontface="bold") +
+  labs(title = "Distribution of Shot Locations", y="", x="", color = "Result") +
+  theme_bw() + 
+  theme(panel.grid = element_blank(), panel.border = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
+
+plt
+```
+
+## Exploratory Data Analysis
+
+* Visualize changes in success rate over time in individuals and in population.
+
+* Moving average only accounts for shot order and outcome. 
+
+## Exploratory Data Analysis (cont.)
+
+```{r smoothplot0}
+
+plotshottime <- function(playerid, season, main){
+  Xtot_sub <- Xtot[Xtot$globalplayerid %in% playerid & Xtot$season %in% season,]
+  par(las=1)
+  if(nrow(Xtot_sub) < 10){
+    # ggplot(data=NULL) + labs(title = "Not Enough Data") + theme_bw()
+    plot(0,0,type="n", yaxt="n",xaxt="n", ylab="",xlab="")
+    text(0,0,label="Not Enough Data", cex=2)
+  }else{
+    Y <- Xtot_sub$result #zoo::rollmean((Xtot_sub$result), 4)
+    X <- 1:length(Y)
+    scatter.smooth(X,Y,span=20/length(Y), main = main,
+                   yaxt="n",ylab="Result",xlab="Order")
+    axis(side=2,at=c(0,1),labels=c("Miss","Make"))
+  }
+}
+
+maxseason <- Xtot %>% group_by(globalplayerid, season) %>% summarize(num=n()) %>% group_by(globalplayerid) %>% mutate(m=max(num)) %>% filter(num==m) %>% as.data.frame()
+
+par(mfrow = c(2,2))
+for(i in 1:nrow(playerseasons)){
+  r <- playerseasons[i,]
+  plotshottime(r[[1]],r[[2]], paste0("Player ",i))
+}
+```
+
+## Exploratory Data Analysis (cont.)
+
+```{r smoothplot, fig.cap = "Moving Average of Shot Success Rate", fig.height=5}
+plotshottime(Xtot$globalplayerid, Xtot$season, "Team Average")
+```
+
+# Models & Analysis
+
+```{r init, include=FALSE}
+
+# srv <- ""
+# k0 <- as.numeric(strsplit(srv, "")[[1]][1])
+# ltr <- strsplit(srv, "")[[1]][2]
+# fldr <- strsplit(srv, "")[[1]][3]
+# if(ltr == "A"){
+#   deltas <- c(0.750, 0.800, 0.850)
+# }else if(ltr == "B"){
+#   deltas <- c(0.900, 0.950, 0.999)
+# }
+# if(fldr == "H"){
+#   home_only <- TRUE
+#   season_2015 <- FALSE
+# }else if(fldr == "2"){
+#   home_only <- FALSE
+#   season_2015 <- TRUE
+# }
+
+# TODO:
+  # put some raw means and stuff  and shot distributions nad home/away splits on EDA section. simple things
+  # put diagnostic plots in the Appendix...but not all of them!
+
+set.seed(49301)
+
+k <- 5 #k-fold cross-validation
+k0 <- 1
+load_chains <- TRUE
+season_2015 <- FALSE
+home_only <- FALSE
+
+deltas <- c(seq(0.75, 0.95, 0.05),0.999)
+deltas_str <- as.character(deltas*1000)
+
+get_rdatafiles <- function(k=NA, home_only=FALSE, season_2015=FALSE){
+
+  base <- "../rdatafiles/"
+  
+  if(home_only){
+    base <- "../rdatafilesH/"
+  }
+  
+  if(season_2015){
+    base <- "../rdatafiles2015/"
+  }
+  
+  load(file=paste0(base, "Xtot.RData"), envir= globalenv())
+  
+  if(k<1){
+    return(base)
+  }else{
+    return(paste0(base,"k",k,"/"))
+  }
+}
+
+
+rdatafiles <- get_rdatafiles(k0, home_only = home_only, season_2015 = season_2015)
+
+N <- nrow(Xtot)
+kgroups <- rmultinom(n=N, size=1, prob = rep(1/k,k)) %>% '=='(1) %>% apply(2,which)
+testrows <- which(kgroups == k0)
+Xtrain <- Xtot[-testrows,] %>% arrange(time)
+Xtest <- Xtot[testrows,] %>% arrange(time)
+
+playermap <- data.frame(
+  factorid = as.integer(as.factor(Xtot$globalplayerid)),
+  globalplayerid = Xtot$globalplayerid
+) %>% unique()
+rownames(playermap) <- NULL
+
+gamemap <- data.frame(
+  factorid = as.integer(as.factor(Xtot$gameid)),
+  gameid   = Xtot$gameid
+) %>% unique()
+rownames(gamemap) <- NULL
+
+```
+
+## Model-Building
+
+* Types of Models
+  
+  - Generalized Linear Model
+  - Hierarchical Generalized Linear Model
+  - Discounted Likelihood Hierarchical Model
+
+* All models based off a logistic regression model
+
+* Built using JAGS library in R (R2jags)
+
+## Generalized Linear Model: Notation
+
+<!-- 
+shot location (log-distance and angle) and home court indicator
+
+standard logistic regression
+
+to get plots for individual players, we subset the data to only shots attempted by that player, and fit the same glm
+
+intercept = angle is zero (directly facing rim) and log distance is zero (one foot away)
+
+takeaways:
+
+  angle matters for player 1 and kind of player 2.  not on team level though
+
+  distance obviously matters (intuitive)
+
+  home-court advantage does not matter
+
+  road games have wider uncertainty because of smaller sample size
+-->
+$$
+\text{logit}(p_{i}) = 
+\beta_{\text{int}} +
+x_{\text{r,i}}\beta_{\text{r}} +
+x_{\theta,\text{i}}\beta_{\theta} +
+x_{\text{H,i}}\beta_{\text{H}}
+$$
+
+```{r glmcode, echo=FALSE, eval=FALSE}
+
+    for(i in 1:N){
+      
+      # model equation
+      logit(prob[i]) <- 
+        beta_int*int[i] + 
+        beta_home*home[i] +
+        beta_r*logr[i] + 
+        beta_theta*theta[i]
+      
+      result[i] ~ dbern(prob[i])
+    }
+```
+
+```{r glmfxns, cache=TRUE}
+
+priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+tau0r <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]^2
+tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+
+
+fit_glm <- function(dat, S = 10000, B = 500){
+
+  model.glm <- function(){
+  
+    # N observations
+    for(i in 1:N){
+      logit(prob[i]) <- beta_int*int[i] + 
+        beta_home*home[i] +
+        beta_r*logr[i] + 
+        beta_theta*theta[i]
+      result[i] ~ dbern(prob[i])
+    }
+
+    # Priors
+    beta_int   ~ dnorm(0, 0.1)
+    beta_home  ~ dnorm(0, 0.1)
+    beta_r     ~ dnorm(mu0r, 0.01) #would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance increases.
+    beta_theta ~ dnorm(mu0theta, 0.1)
+  }
+
+  datlist.glm <-  list(
+    int = rep(1, nrow(dat)),
+    logr = log(dat$r), 
+    theta = dat$theta, 
+    result = dat$result,
+    home = dat$home,
+    N = nrow(dat), 
+    mu0r = mu0r,
+    mu0theta = mu0theta
+  )
+  
+  params.glm <- c("beta_int","beta_home","beta_r", "beta_theta")
+
+  initslist <- list(list("beta_int"=0, "beta_r"=0, "beta_theta"=0, "beta_home"=0))
+                    
+  sim <- jags(data = datlist.glm, 
+              n.chains = 1, n.iter = S, n.burnin = B, n.thin = 1,
+              inits=initslist,
+              parameters.to.save = params.glm,
+              model.file=model.glm
+  )
+  sim.mcmc <- as.data.frame(as.mcmc(sim)[[1]])
+  sim.mcmc <- sim.mcmc %>% 
+    mutate(beta_intA = beta_int,
+           beta_intH = beta_int + beta_home) %>%
+    select(beta_intA, beta_intH, beta_r, beta_theta)
+  
+  return(sim.mcmc)
+}
+
+plot_params <- function(sim.mcmc = NA, main=""){
+  
+    coefs <- sim.mcmc %>%
+      apply(2, quantile, c(0.025,0.5,0.975)) %>%
+      as.data.frame() %>%
+      mutate(beta_theta = -beta_theta) %>% 
+      select(beta_intA, beta_intH, beta_r, beta_theta) %>% 
+      t() %>%
+      as.data.frame()
+    
+    colnames(coefs) <- c("lo", "mid", "hi")
+    
+    xtext <- c("Intercept\n(Away)","Intercept\n(Home)","Distance","Angle")
+    xfact <- factor(xtext, levels=xtext)
+
+    ggplot(data = coefs, aes(x=xfact , y=mid)) + 
+      geom_point() + 
+      geom_errorbar(aes(ymin=lo, ymax=hi), width=0.5) + 
+      geom_abline(intercept=0, slope=0, linetype=2) + 
+      labs(title=main,
+           x="Predictor", 
+           y="Estimate") + 
+      theme_bw()
+}
+
+dat1 <- Xtrain %>% filter(globalplayerid %in% playerseasons[1,1] & 
+                                season %in% playerseasons[1,2])
+dat2 <- Xtrain %>% filter(globalplayerid %in% playerseasons[2,1] & 
+                                season %in% playerseasons[2,2])
+dat3 <- Xtrain %>% filter(globalplayerid %in% playerseasons[3,1] & 
+                                season %in% playerseasons[3,2])
+dat4 <- Xtrain %>% filter(globalplayerid %in% playerseasons[4,1] & 
+                                season %in% playerseasons[4,2])
+
+
+if(!load_chains){
+
+  glmtot <- fit_glm(Xtrain)
+
+  if(nrow(dat1) > 0) glm1 <- fit_glm(dat1) else glm1 <- glmtot
+  if(nrow(dat2) > 0) glm2 <- fit_glm(dat2) else glm2 <- glmtot
+  if(nrow(dat3) > 0) glm3 <- fit_glm(dat3) else glm3 <- glmtot
+  if(nrow(dat4) > 0) glm4 <- fit_glm(dat4) else glm4 <- glmtot
+  
+  save(glm1, file=paste0(rdatafiles,"glm1.RData"))
+  save(glm2, file=paste0(rdatafiles,"glm2.RData"))
+  save(glm3, file=paste0(rdatafiles,"glm3.RData"))
+  save(glm4, file=paste0(rdatafiles,"glm4.RData"))
+  save(glmtot, file=paste0(rdatafiles,"glmtot.RData"))
+  
+}else{
+  
+  load(file=paste0(rdatafiles,"glm1.RData"))
+  load(file=paste0(rdatafiles,"glm2.RData"))
+  load(file=paste0(rdatafiles,"glm3.RData"))
+  load(file=paste0(rdatafiles,"glm4.RData"))
+  load(file=paste0(rdatafiles,"glmtot.RData"))
+  
+}
+
+glmplot1 <- plot_params(glm1, "Player 1")
+glmplot2 <- plot_params(glm2, "Player 2")
+glmplot3 <- plot_params(glm3, "Player 3")
+glmplot4 <- plot_params(glm4, "Player 4")
+glmplot5 <- plot_params(glmtot, "Team Effects")
+
+```
+
+
+## Generalized Linear Model: Results
+
+```{r glmplot0}
+grid.arrange(glmplot1,glmplot2,glmplot3,glmplot4, nrow=2)
+```
+
+## Generalized Linear Model: Results (cont.)
+
+```{r glmplot, fig.cap = "GLM Posterior Distributions for Four Players", out.width="90%", fig.align="right", cache=TRUE}
+glmplot5
+```
+
+## Hierarchical Model: Notation
+
+<!--
+1 enjoys negative angles (left side when facing the basket)
+
+2 has best incercept (most effective scorer close to the basket)
+
+2 has lowest distance (he struggles relatively more as he increases distance. is this because he is actually bad at shooting outside, or it because he has a super high intercept and he's as good as everyone else from 15 feet? we can investigate this question using contour plots.)
+
+looking at 2's contour plot at 15 ft (free throw line) his expected probability at around 15 feet looks comprable, if not slightly better, than everyone else AND the team overall. and better than the team effect. so his low distance parameter does not mean he is incapable of scoring away from the basket, just that he is so great at scoring closely that he drops off more than everyone else relative to his intercept.
+
+contour plots also tell us that 
+  1 enjoys left side
+  4 is lightest overall--least reliable scorer
+
+-->
+$$
+\text{logit}(p_{\text{ji}}) = 
+\beta_{\text{int, j}} +
+x_{\text{r,ji}}\beta_{\text{r, j}} +
+x_{\theta,\text{ji}}\beta_{\theta, \text{j}} +
+x_{\text{H, ji}}\beta_{\text{H, j}},
+$$
+$$
+\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
+$$
+$$
+\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}}),
+$$
+$$
+\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta}),
+$$
+$$
+\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
+$$
+
+```{r hiercode, eval=FALSE, echo=FALSE}
+
+    for(i in 1:N){
+      
+      # model equation with random effects by player
+      logit(prob[i]) <- 
+        beta_int[player[i]]*int[i] + 
+        beta_home[player[i]]*home[i] + 
+        beta_r[player[i]]*logr[i] + 
+        beta_theta[player[i]]*theta[i]
+      
+      result[i] ~ dbern(prob[i])
+    }
+
+```
+
+## Hierarchical Model: Results
+
+```{r hierfxns, cache=TRUE}
+priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+tau0r <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]^2
+tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+
+fit_players <- function(dat = NA, S = 10000, B = 500){
+  
+  model.player <- function(){
+    # N observations
+    for(i in 1:N){
+      
+      logit(prob[i]) <- beta_int[player[i]]*int[i] + 
+        beta_home[player[i]]*home[i] + 
+        beta_r[player[i]]*logr[i] + 
+        beta_theta[player[i]]*theta[i]
+      
+      result[i] ~ dbern(prob[i])
+    }
+    # priors on random player effects
+    for(j in 1:M){
+        beta_int[j] ~ dnorm(beta_int0,tau_int)
+        beta_home[j]  ~ dnorm(beta_home0, tau_int)
+        beta_r[j] ~ dnorm(beta_r0,tau_r)
+        beta_theta[j] ~ dnorm(beta_theta0,tau_theta)
+    }
+    # Hyperpriors
+    beta_int0   ~ dnorm(0, 0.1)
+    beta_home0  ~ dnorm(0, 0.1)
+    beta_r0     ~ dnorm(mu0r, 0.01) #would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance increases.
+    beta_theta0 ~ dnorm(mu0theta, 0.1)
+
+    tau_int ~ dgamma(10, 100)
+    tau_r ~ dgamma(10, 0.2)
+    tau_theta ~ dgamma(10, 10)
+  }
+
+  datlist.player <- list(
+                logr = log(dat$r), 
+                theta = dat$theta, 
+                home = dat$home,
+                result = dat$result, 
+                player = as.integer(as.factor(dat$globalplayerid)),
+                N = nrow(dat), 
+                int = rep(1, nrow(dat)), 
+                M = n_distinct(dat$globalplayerid),
+                mu0r = mu0r,
+                mu0theta = mu0theta
+                )
+  params <- c("beta_int", "beta_home", "beta_r", "beta_theta","beta_int0","beta_home0","beta_r0", "beta_theta0")
+
+  M <- datlist.player$M
+  initslist <- list(
+    list("beta_int"=rep(0,M), "beta_home"=rep(0,M), "beta_r"=rep(0,M), "beta_theta"=rep(0,M),
+          "beta_int0"=0,"beta_home0"=0,"beta_r0"=0, "beta_theta0"=0, 
+          "tau_int"=1, "tau_r"=1, "tau_theta"=1
+  ))
+
+  sim.player <- jags(data = datlist.player, 
+              n.iter = S, n.chains = 1, n.burnin = B, n.thin = 1,
+              inits=initslist,
+              parameters.to.save = params,
+              model.file=model.player
+  )
+  sim.mcmc.player <- as.data.frame(as.mcmc(sim.player)[[1]])
+  
+  hometext <- paste0("`beta_intH[",1:M,"]` = `beta_int[",1:M,"]` + `beta_home[",1:M,"]`", collapse=",\n")
+  awaytext <- paste0("`beta_intA[",1:M,"]` = `beta_int[",1:M,"]`", collapse=",\n")
+  sim.mcmc.player <- eval(parse(text=
+    
+    paste0("sim.mcmc.player %>%
+    mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)", " %>% rename(",awaytext,", beta_intA0 = beta_int0)")
+
+  )) %>% select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
+  
+  sim.mcmc.player <- sim.mcmc.player[ , order(colnames(sim.mcmc.player))]
+  
+  factorids <- str_extract_all(names(sim.mcmc.player), "[[:digit:]]+") %>% as.numeric()
+  fids <- data.frame(factorid = factorids, order = 1:length(factorids))
+  datmap <- dat %>% 
+    mutate(factorid = as.integer(as.factor(globalplayerid))) %>%
+    select(globalplayerid, factorid)
+  gameids <- merge(datmap, fids, all.x=FALSE,all.y=TRUE) %>% 
+    unique() %>% 
+    mutate(globalplayerid = ifelse(is.na(globalplayerid),0,globalplayerid)) %>% 
+    arrange(order)
+  
+  names(sim.mcmc.player) <- str_replace_all(names(sim.mcmc.player), "[[:digit:]]+", as.character(gameids$globalplayerid))
+  -
+  return(sim.mcmc.player)
+  
+}
+
+get_player_params <- function(sim.mcmc.hier=NA){
+
+  quants <- c(0.025,0.50,0.975)
+  #sim.mcmc.means <- colMeans(sim.mcmc.hier)
+  sim.mcmc.meds <- matrix(apply(sim.mcmc.hier, 2, quantile, quants), nrow=length(quants))
+  rownames(sim.mcmc.meds) <- as.character(quants*100)
+  colnames(sim.mcmc.meds) <- colnames(sim.mcmc.hier)
+
+  playermapparams <- melt(sim.mcmc.meds, id="") %>%
+    mutate(globalplayerid = as.numeric(str_extract_all(Var2, "[[:digit:]]+")),
+           param = as.character(str_extract_all(Var2, "(intA)|(intH)|(r)|(theta)"))) %>%
+    dcast(globalplayerid ~ param + Var1)
+  
+  colnames(playermapparams) <- gsub("_2.5", "_lo", colnames(playermapparams)) %>%
+    gsub(x=., "_50", "") %>%
+    gsub(x=., "_97.5","_hi")
+  
+  #because of an error in the definition of angle, theta actually = -theta
+  playermapparams <- 
+    playermapparams %>% mutate(theta = -theta,
+                             theta_hi_save = theta_hi,
+                             theta_hi = -theta_lo,
+                             theta_lo = -theta_hi_save,
+                             theta_hi_save = NULL)
+  
+  return(playermapparams)
+}
+
+if(!load_chains){
+  
+  player.mcmc <- fit_players(dat = Xtrain)
+  player.params <- get_player_params(player.mcmc)
+  
+  save(player.mcmc, file=paste0(rdatafiles,"playermcmc.RData"))
+  save(player.params, file=paste0(rdatafiles,"playerparams.RData"))
+
+}else{
+  
+  load(paste0(rdatafiles,"playermcmc.RData"))
+  load(paste0(rdatafiles,"playerparams.RData"))
+}
+
+fourparams <- merge(playerseasons, player.params ,all=FALSE) %>% select(globalplayerid, intH, intA, r, theta) %>% arrange(-globalplayerid)
+
+```
+
+```{r hierplot, fig.height = 5, fig.cap = "Population Distribution with Four Player Effects"}
+
+meplotA <- ggplot(data = player.mcmc, aes(x=beta_intA0)) + 
+  geom_density() + 
+  geom_vline(xintercept=fourparams[["intA"]], col="red") + 
+  geom_label(data=fourparams, aes(x=intA, y=0, label=1:4)) +
+  labs(x="Intercept (Away)", y="Density") + 
+  theme_bw() + 
+  theme(panel.grid = element_blank())
+  
+meplotH <- ggplot(data = player.mcmc, aes(x=beta_intH0)) + 
+  geom_density() + 
+  geom_vline(xintercept=fourparams[["intH"]], col="red") + 
+  geom_label(data=fourparams, aes(x=intH, y=0, label=1:4)) +
+  labs(x="Intercept (Home)", y="Density") + 
+  theme_bw() + 
+  theme(panel.grid = element_blank())
+
+meplotr <- ggplot(data = player.mcmc, aes(x=beta_r0)) + 
+  geom_density() + 
+  geom_vline(xintercept = fourparams[["r"]], col="red") + 
+  geom_label(data=fourparams, aes(x=r, y=0, label=1:4)) +
+  labs(x="Distance", y="Density") + 
+  theme_bw() +
+  theme(panel.grid = element_blank())
+  
+meplottheta <- ggplot(data = player.mcmc, aes(x= -beta_theta0)) + 
+  geom_density() + 
+  geom_vline(xintercept = fourparams[["theta"]], col="red") + 
+  geom_label(data=fourparams, aes(x= theta, y=0, label=1:4)) +
+  labs(x="Angle", y="Density") + 
+  theme_bw() +
+  theme(panel.grid = element_blank())
+  
+grid.arrange(meplotA, meplotH, meplotr, meplottheta, nrow=2)
+```
+
+
+## Hierarchical Model: Contour Plots
+
+```{r contfxns, cache=TRUE}
+
+get_raneffs <- function(sim.mcmc = player.mcmc, globalplayerid=NA){
+  
+  id_inds <- which(grepl(x=names(sim.mcmc), pattern=paste0("\\[",globalplayerid,"\\]")))
+  
+  #if you can't find the player effects for the input id, use the team effects
+  if(length(id_inds) > 0){
+    raneffs <- sim.mcmc[,id_inds]
+  }else{
+    raneffs <- sim.mcmc %>% 
+               '['(grepl(x=names(.), pattern=paste0("0")) & 
+                  !grepl(x=names(.), pattern="\\["))
+  }
+  return(raneffs)
+}
+
+mcmc_avg <- function(sim.mcmc = player.mcmc, globalplayerid = NA, MLE=FALSE,home=TRUE){
+  
+  all_x <- seq(-25,25, 1)
+  all_y <- seq(0,94/2, 1) - 4
+  
+  S <- nrow(sim.mcmc) 
+  BETA <- as.matrix(get_raneffs(sim.mcmc, globalplayerid))
+  if(MLE){ #faster, but underestimates variance
+    S <- 1
+    BETA <- matrix(colMeans(BETA), nrow=1)
+  }
+  
+  if(home){
+    BETA <- matrix(BETA[,c(2,3,4)], nrow=1)
+  }else{
+    BETA <- matrix(BETA[,c(1,3,4)], nrow=1)
+
+  }
+  
+  PROBSXY <- array(data=NA, dim=c(length(all_x),length(all_y), S))
+
+  # Monte Carlo Average
+  for(s in 1:S){
+    for(i in 1:length(all_x)){
+      for(j in 1:length(all_y)){
+        x <- all_x[i]
+        y <- all_y[j]
+        r <- log(sqrt(x^2+y^2))
+        t <- atan(y/x)
+        if(x < 0){
+          t <- t + pi
+        }
+        t <- t - pi/2
+        t <- -t
+
+        eBx <- exp(-t(BETA[s,]) %*% c(1, r, t))
+        #eBx <- exp(-t(colMeans(BETA)) %*% c(1, r, t))
+        p <- 1/(1+eBx)
+        PROBSXY[i,j,s] <- p
+      }
+    }
+  }
+
+  probsxy <- apply(PROBSXY, c(1,2), mean)
+  return(probsxy)
+}
+
+plot_contours <- function(probsxy = NA, flipx=FALSE, main=""){
+  
+  all_x <- seq(-25,25, 1)
+  all_y <- seq(0,94/2, 1) - 4
+
+  if(flipx){
+    all_x <- -all_x
+  }
+
+  probsxy_melt <- melt(probsxy, c("x","y"))
+  probsxy_melt$x <- rep(all_x, length = nrow(probsxy_melt))
+  probsxy_melt$y <- rep(all_y, each = length(all_x))
+  all_xn <- seq(min(all_x), max(all_x), length=nrow(probsxy_melt))
+  
+  img <- readPNG(img.path)
+
+a <- 0.7
+contplot <- ggplot(probsxy_melt, aes(x = -x, y = y, z = value)) +
+  annotation_custom(rasterGrob(img,
+                               x=0.50, y=0.50,
+                               width = .92, height = .92),
+                    -Inf, Inf, -Inf, Inf) + 
+  geom_tile(aes(fill = value), alpha=a) + # the color gradient
+  #stat_contour(bins = 15) + # the lines
+  scale_fill_gradient2(low = rgb(1,1,1), # white
+                       mid = rgb(1,1,0), # yellow 
+                       high= rgb(1,0,0), # red 
+                       midpoint=0.45) +
+  labs(title = main, y="", x="") +
+  guides(fill = guide_colorbar(title = "Probability")) + # the legend
+  theme_bw() + 
+  theme(panel.grid = element_blank(), panel.border = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
+
+  contplot
+}
+
+if(!load_chains){
+  avg1 <- mcmc_avg(player.mcmc, id1)
+  avg2 <- mcmc_avg(player.mcmc, id2)
+  avg3 <- mcmc_avg(player.mcmc, id3)
+  avg4 <- mcmc_avg(player.mcmc, id4)
+  avgtot <- mcmc_avg(player.mcmc, 0)
+  
+  save(avg1, file=paste0(rdatafiles,"avg1.RData"))
+  save(avg2, file=paste0(rdatafiles,"avg2.RData"))
+  save(avg3, file=paste0(rdatafiles,"avg3.RData"))
+  save(avg4, file=paste0(rdatafiles,"avg4.RData"))
+  save(avgtot, file=paste0(rdatafiles,"avgtot.RData"))
+  
+}else{
+  
+  load(paste0(rdatafiles,"avg1.RData"))
+  load(paste0(rdatafiles,"avg2.RData"))
+  load(paste0(rdatafiles,"avg3.RData"))
+  load(paste0(rdatafiles,"avg4.RData"))
+  load(paste0(rdatafiles,"avgtot.RData"))
+
+}
+
+contplot1 <- plot_contours(avg1, main="Player 1")
+contplot2 <- plot_contours(avg2, main="Player 2")
+contplot3 <- plot_contours(avg3, main="Player 3")
+contplot4 <- plot_contours(avg4, main="Player 4")
+contplotteam <- plot_contours(avgtot, main="Team Effect")
+```
+
+```{r contplot0}
+grid.arrange(contplot1, contplot2, contplot3, contplot4, nrow=2)
+```
+
+## Hierarchical Model: Contour Plots (cont.)
+
+```{r contplot, fig.cap = "Contour Plots for Four Players and Population of Players", out.width="90%", fig.align="right"}
+contplotteam
+```
+
+## Discounted Model: Notation
+
+<!--
+selected values of delta: 0.750, 0.800,0.850, 0.900, 0.950, and 0.999
+
+TODO: *you should write down what the model does when you have more energy*
+
+the plots below only shows 1 season (because peoples' lines would fall to the mean when they aren't playing)
+-->
+
+Hierarchical model equation:
+
+$$
+\text{logit}(p_{\text{ji}}) = 
+\beta_{\text{int, j}} +
+x_{\text{r,ji}}\beta_{\text{r, j}} +
+x_{\theta,\text{ji}}\beta_{\theta, \text{j}} +
+x_{\text{H, ji}}\beta_{\text{H, j}}.
+$$
+
+Binomial likelihood term:
+
+$$
+L_\text{gj}(\Theta) =
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}{
+  p(\text{y}_{\text{gji}} | \Theta) 
+}
+\propto 
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}{
+  p_\text{gji}^{\text{y}_\text{gji}} 
+  (1 - p_\text{gji})^{1-\text{y}_\text{gji}}
+}.
+$$
+
+Exponential discounting on outcomes:
+
+$$
+\pi_{\text{gji}} =
+\left(
+  p_\text{gji}^{\text{y}_\text{gji}} 
+  (1 - p_\text{gji})^{1-\text{y}_\text{gji}}
+\right)
+^{\delta^{|g-g_0|}}.
+$$
+
+Discounted likelihood:
+
+$$
+\Lambda_{\text{gj}}(\Theta) = 
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}
+  \pi_{\text{gji}}.
+$$
+
+## Discounted Model: Ones Trick
+
+```{r disccode, eval=FALSE, echo=TRUE, size="tiny"}
+
+    for(i in 1:N){
+      
+      # delta = discount rate
+      wt[i] <- delta^abs(games[i]-g0)  
+      
+      # model equation with random effects by player
+      logit(prob[i]) <- 
+        beta_int[player[i]]*int[i] + 
+        beta_home[player[i]]*home[i] +
+        beta_r[player[i]]*logr[i] + 
+        beta_theta[player[i]]*theta[i] 
+
+      # likelihood function
+      p1[i] <- prob[i]^result[i]
+      p2[i] <- (1-prob[i])^(1-result[i])
+      
+      # discounted likelihood function
+      pi[i] <- (p1[i] * p2[i])^wt[i]  
+      
+      # defines correct discounted likelihood function
+      y[i] ~ dbern(pi[i]) 
+    }
+```
+
+## Discounted Model: Weighting
+
+```{r discplot, fig.height=5, fig.cap = "Illustration of Discounted Weighting"}
+t <- as.matrix(seq(-10, 10))
+#D <- as.matrix(seq(0.1, 1, by=0.1))
+D <- as.matrix(c(seq(0.75, 0.95, 0.05),0.999))
+weights <- as.data.frame(apply(D, 1, '^', abs(t)))
+colnames(weights) <- D
+weights$t <- t
+weightslong <- melt(weights, id="t") %>% 
+  rename(D=variable,
+         y=value)
+
+discplot <- ggplot(weightslong, aes(x=t, y=y, color=D)) + 
+  geom_line(size=1.25) + 
+  labs(color = expression(delta) ,
+       y = expression(delta[i]^abs(g - g[0])),
+       x = expression(g - g[0])) +
+  theme_bw() +
+  theme(legend.title = element_text(size=10,face="bold"),
+        axis.title.y = element_text(angle = 0, vjust=0.5)) +
+  scale_y_continuous(minor_breaks = seq(0, 1, .25)) +
+  scale_x_continuous(minor_breaks = seq(-10, 10, 5))
+  
+discplot
+```
+
+
+## Discounted Model: Results
+
+```{r discfxns, cache=TRUE}
+
+priormod <- glm(result ~ log(r) + theta, data=Xtrain %>% filter(as.integer(as.factor(gameid)) < 5), family="binomial")
+mu0r <- summary(priormod)[["coefficients"]]["log(r)","Estimate"]
+mu0theta <- summary(priormod)[["coefficients"]]["theta","Estimate"]
+tau0r <- summary(priormod)[["coefficients"]]["log(r)","Std. Error"]^2
+tau0theta <- summary(priormod)[["coefficients"]]["theta","Std. Error"]^2
+
+
+#saves the list by its elements so it will fit in github
+save_gamelist <- function(GL=NA, delta_str=NA, g_str=NA, dir = rdatafiles){
+
+  for(g in 1:length(GL)){
+    if(is.na(g_str[g])){
+      g_str2 <- formatC(g, digits=2, flag="0")
+    }else{
+      g_str2 <- g_str[g]
+    }
+    
+    game <- GL[[g]]
+    save(game, file = paste0(dir,"gamemcmc",delta_str,"_",g_str2,".RData"))
+    #giving them all the same workspace name will make it easier to delete them.
+  }
+
+}
+
+#takes the elements from the rdata files and formats them into a list
+load_gamelist <- function(delta_str=NA, dir = rdatafiles){
+  
+  localenv <- new.env()
+  GL <- list()
+  filenames <- paste0(dir,"/",list.files(path=dir, pattern=paste0("gamemcmc", delta_str))) %>% '['(order(.))
+  
+  for(i in 1:length(filenames)){
+    load(filenames[i], envir=localenv)
+    GL[[i]] <- localenv$game
+    if(length(localenv$game) == 0){
+      eval(parse(
+        text=paste0("GL[[i]] <- localenv$game.mcmc.",delta_str,"_",formatC(i, digits=2, flag="0"))
+      ))
+    }
+
+  }
+  names(GL) <- as.character(gamemap$gameid)
+
+  return(GL)
+}
+
+fit_game <- function(dat = NA, anchor = NA, discount_wt = NA, S = 10000, B = 500){
+
+  model.game <- function(){
+
+    for(i in 1:N){
+      delta[i] <- del^abs(games[i]-g0)  # discount rate for game g relative to anchor game g0
+      
+      # player-level random effects
+      logit(prob[i]) <- beta_int[player[i]]*int[i] + 
+                        beta_home[player[i]]*home[i] + 
+                        beta_r[player[i]]*logr[i] + 
+                        beta_theta[player[i]]*theta[i] 
+    
+      p1[i] <- prob[i]^result[i]
+      p2[i] <- (1-prob[i])^(1-result[i])
+      p[i] <- (p1[i] * p2[i])^delta[i]  
+      # prob = likelihood, p = discounted likelihood
+      
+      # closer game index -> larger delta
+      # larger discount weight -> larger delta
+      # larger delta -> larger effect on likelihood
+      # delta=1 -> all shots contribute to the likelihood like a normal independent binomial model.
+      # delta=0 -> only the shots taken in the same game contribute to the likelihood
+      
+      #y[i] <- 1 # "ones trick" dummy outcomes
+      y[i] ~ dbern(p[i]) # defines correct discounted likelihood function
+    }
+    
+    #same priors as player model.
+    # priors on random player effects
+    for(j in 1:M){
+      beta_int[j] ~ dnorm(beta_int0,tau_int)
+      beta_home[j] ~ dnorm(beta_home0, tau_int)
+      beta_r[j] ~ dnorm(beta_r0,tau_r)
+      beta_theta[j] ~ dnorm(beta_theta0,tau_theta)
+    }
+    # Priors
+    beta_int0   ~ dnorm(0, 0.1)
+    beta_home0  ~ dnorm(0, 0.1)
+    beta_r0     ~ dnorm(mu0r, 0.01) #would not expect a lot of variation in distance parameter between players. Everyone should get worse as distance   increases.  
+    beta_theta0 ~ dnorm(mu0theta, 0.1)
+  
+    # Hyperpriors
+    tau_int ~ dgamma(10, 100)
+    tau_r ~ dgamma(10, 0.2)
+    tau_theta ~ dgamma(10, 10)
+  }
+  
+  datlist.game <- list(
+    int = rep(1, nrow(dat)), 
+    logr = log(dat$r), 
+    theta = dat$theta, 
+    result = dat$result, 
+    home = dat$home,
+    player = as.integer(as.factor(dat$globalplayerid)),
+    N = nrow(dat), 
+    M = n_distinct(dat$globalplayerid),
+    mu0r = mu0r,
+    mu0theta = mu0theta,
+    del = discount_wt,
+    games = as.integer(as.factor(dat$gameid)),
+    g0 = anchor,
+    y = rep(1, nrow(dat)) #"phantom data"
+  )
+
+  #same params as player model (may need to change)
+  params <- c("beta_int","beta_r", "beta_home", "beta_theta","beta_int0","beta_home0","beta_r0", "beta_theta0")
+
+  M <- n_distinct(dat$globalplayerid)
+  initslist <- list(list("beta_int"=rep(0,M), "beta_r"=rep(0,M), "beta_theta"=rep(0,M),
+                         "beta_int0"=0,"beta_r0"=0, "beta_theta0"=0, 
+                         "tau_int"=1, "tau_r"=1, "tau_theta"=1
+                         ))
+
+  sim.game <- jags(data = datlist.game, 
+              n.iter = S, n.chains = 1, n.burnin = B, n.thin = 1,
+              inits = initslist,
+              parameters.to.save = params,
+              model.file=model.game
+  )
+  sim.mcmc.game <- as.data.frame(as.mcmc(sim.game)[[1]])
+
+  hometext <- paste0("`beta_intH[",1:M,"]` = `beta_int[",1:M,"]` + `beta_home[",1:M,"]`", collapse=",\n")
+  awaytext <- paste0("`beta_intA[",1:M,"]` = `beta_int[",1:M,"]`", collapse=",\n")
+
+  sim.mcmc.game <- eval(parse(text=
+    
+    paste0("sim.mcmc.game %>%
+    mutate(",hometext,", beta_intH0 = beta_int0 + beta_home0)", " %>% rename(",awaytext,", beta_intA0 = beta_int0)")
+
+  )) %>% select(grep("(beta_int)|(beta_theta)|(beta_r)",names(.)))
+  
+  sim.mcmc.game <- sim.mcmc.game[ , order(colnames(sim.mcmc.game))]
+  
+  factorids <- str_extract_all(names(sim.mcmc.game), "[[:digit:]]+") %>% as.numeric()
+  fids <- data.frame(factorid = factorids, order = 1:length(factorids))
+  datmap <- dat %>% 
+    mutate(factorid = as.integer(as.factor(globalplayerid))) %>%
+    select(globalplayerid, factorid)
+  gameids <- merge(datmap, fids, all.x=FALSE,all.y=TRUE) %>% 
+    unique() %>% 
+    mutate(globalplayerid = ifelse(is.na(globalplayerid),0,globalplayerid)) %>% 
+    arrange(order)
+  
+  names(sim.mcmc.game) <- str_replace_all(names(sim.mcmc.game), "[[:digit:]]+", as.character(gameids$globalplayerid))
+
+  return(sim.mcmc.game)
+
+}
+
+fit_games <- function(dat = NA, discount_wt = NA, gstart = 1, S = 10000, B = 500){
+    
+  G <- n_distinct(dat$gameid)
+  gnames <- unique(dat$gameid)
+  M <- n_distinct(dat$globalplayerid)
+
+  game.mcmc.list <- as.list(rep(NA, G))
+
+  for(g in gstart:G){
+    print(paste(k0, discount_wt, g, sep=" : "))
+    game.mcmc <- fit_game(dat, g, discount_wt, S, B)
+    game.mcmc.list[[ g ]] <- game.mcmc
+    
+    save_gamelist(game.mcmc.list[g], delta_str=1000*discount_wt, g_str=formatC(g, digits=2, flag="0"))
+  }
+  
+  names(game.mcmc.list) <- as.character(gamemap$gameid)
+  return(game.mcmc.list)
+}
+
+get_game_params <- function(sim.mcmc.list=NA, dat=NA){
+  
+  G <- length(sim.mcmc.list)
+  M <- n_distinct(as.character(str_extract_all(names(sim.mcmc.list[[1]]), "[[:digit:]]+")))
+
+  for(g in 1:G){
+    params.game <- get_player_params(sim.mcmc.list[[g]]) %>% filter(!is.na(globalplayerid))
+    if(g==1){
+       params.season <- data.frame(matrix(nrow = M*G, ncol = ncol(params.game)))
+       colnames(params.season) <- c(colnames(params.game))
+       gameids <- gamemap %>% arrange(factorid) %>% '[['("gameid")
+       params.season$gameid <- rep(gameids, each=M)
+     }
+     params.season[(M*(g-1) + 1):(M*g), 1:ncol(params.game)] <- params.game
+  }
+  
+  n2 <- dat %>% group_by(gameid, globalplayerid) %>% summarize(nshots = n()) %>% as.data.frame()
+  params.season <- merge(params.season, n2, all=TRUE)
+  params.season$nshots[is.na(params.season$nshots)] <- 0
+
+  return(params.season)
+}
+
+plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=NA, zlab=NULL, only_fga_games = TRUE, yrange = c(NULL,NULL)){
+  
+  if(only_fga_games & ids[1] != 0){
+    #only consider this argument if we are looking at individual effects
+    game.params <- game.params %>% filter(nshots > 0)
+  }
+  
+  # ids <- factor(ids, levels=ids)
+  # parameters <- factor(parameters, levels=parameters)
+
+  plotdat <- game.params %>% 
+    filter(globalplayerid %in% ids) %>% 
+    select(gameid, 
+           lo  = paste0(parameters,"_lo"),
+           mid = paste0(parameters),
+           hi  = paste0(parameters,"_hi"),
+           globalplayerid) %>%
+    melt(id = c("gameid", "globalplayerid")) %>%
+    select(globalplayerid, gameid, type = variable, y = value) %>%
+    arrange(globalplayerid, gameid, type) %>%
+    mutate(clr_p = str_extract(type, "[[:digit:]]+"),
+           clr_p = parameters[as.numeric(clr_p)],
+           clr_p = ifelse(is.na(clr_p), 0, clr_p),
+           clr_p = factor(clr_p, levels=parameters),
+           clr_i = factor(globalplayerid, levels=ids))
+  
+  if(length(ids) == 1){
+    
+    ggplot(data = plotdat, 
+           aes(x=as.integer(as.factor(gameid)), 
+               y=y, 
+               z=type, 
+               linetype=(!type %in% paste0("mid", c("",1:length(parameters)))),
+               size = as.numeric(type %in% paste0("mid", c("",1:length(parameters)))),
+               color=clr_p)) + 
+      scale_size(range=c(0.5, 3)) +
+      guides(linetype=FALSE, size=FALSE) + 
+      geom_line() +   
+      theme_bw() +
+      labs(title=main, y="Estimate", x="Game Index", color = "Parameters") +
+      scale_color_manual(values = 1:length(parameters), labels = zlab) + 
+      theme(panel.grid = element_blank()) +
+      coord_cartesian(ylim = yrange) 
+    
+  }else if(length(ids) > 1 & length(parameters) == 1){
+    
+    ggplot(data = plotdat, 
+           aes(x=as.integer(as.factor(gameid)), 
+               y=y, 
+               z=type, 
+               linetype=(!type %in% paste0("mid", c("",1:length(parameters)))),
+               size = as.numeric(type %in% paste0("mid", c("",1:length(parameters)))),
+               color=clr_i)) + 
+      scale_size(range=c(0.5, 3)) +
+      guides(linetype=FALSE, size=FALSE) + 
+      geom_line() +   
+      theme_bw() +
+      labs(title=main, y="Estimate", x="Game Index", color = "Players") +
+      scale_color_manual(values = 1:length(ids), labels = zlab) + 
+      theme(panel.grid = element_blank()) +
+      coord_cartesian(ylim = yrange) 
+
+  }
+}
+
+get_season <- function(gameid=NA){
+  season <- as.numeric(substr(gameid,1,4))
+  increment <- as.numeric(substr(gameid,5,6)) > 4
+  season[increment] <- season[increment] + 1
+  return(season)
+}
+
+if(!load_chains){
+  
+  eval(parse(
+    text=paste0("game.mcmc.list.",deltas_str," <- fit_games(Xtrain,0.",deltas_str,", gstart=1, S=10000, B=500)\n    save_gamelist(game.mcmc.list.",deltas_str,",",deltas_str,");\n")
+   ))
+  
+  eval(parse(
+    text=paste0("game.params.",deltas_str," <- get_game_params(dat=Xtrain, game.mcmc.list.",deltas_str,");\n      save(game.params.",deltas_str,", file='",rdatafiles,"gameparams",deltas_str,".RData');\n")
+  ))
+  
+}else{
+  
+   # eval(parse(
+   #   text=paste0("game.mcmc.list.",deltas_str," <- load_gamelist(",deltas_str,");\n")
+   # ))
+  
+  eval(parse(
+    text=paste0("load(file='",rdatafiles,"gameparams",deltas_str,".RData');\n")
+  ))
+
+}
+
+game.params.750_sub <- game.params.750 %>% 
+  mutate(season = get_season(gameid)) %>% 
+  filter(season == 2016)
+game.params.999_sub <- game.params.999 %>% 
+  mutate(season = get_season(gameid)) %>% 
+  filter(season == 2016)
+IDS <- c(0, id1, id4) 
+z_IDS <- c("Team", "Player 1", "Player 4")
+
+discplot750H <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="intH", main="Intercept (Home)", zlab = z_IDS, yrange = c(-2, 4))
+discplot750A <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="intA", main="Intercept (Away)", zlab = z_IDS, yrange = c(-2, 4))
+discplot750r <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="r", main="Distance", zlab = z_IDS, yrange = c(-1, 0.1))
+discplot750theta <- plot_time_effect(game.params.750_sub, ids=IDS, parameters="theta", main="Angle", zlab = z_IDS, yrange = c(-1.5, 0.75))
+
+discplot999H <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="intH", main="Intercept (Home)", zlab = z_IDS, yrange = c(-2, 4))
+discplot999A <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="intA", main="Intercept (Away)", zlab = z_IDS, yrange = c(-2, 4))
+discplot999r <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="r", main="Distance", zlab = z_IDS, yrange = c(-1, 0.1))
+discplot999theta <- plot_time_effect(game.params.999_sub, ids=IDS, parameters="theta", main="Angle", zlab = z_IDS, yrange = c(-1.5, 0.75))
+
+```
+
+```{r discplot750, fig.cap="Parameters for Two Players and Population over Time, $\\delta$ = 0.750", fig.align="center", fig.height=5}
+grid.arrange(discplot750H,discplot750A,discplot750r,discplot750theta, nrow=2)
+```
+
+## Discounted Model: Results (cont.)
+
+```{r discplot999, fig.cap="Parameters for Two Players and Population over Time, $\\delta$ = 0.999", fig.align="center", fig.height=5}
+grid.arrange(discplot999H,discplot999A,discplot999r,discplot999theta, nrow=2)
+```
+
+# Discussion
+
+## Evaluation of Models
+
+```{r predfxns, cache=TRUE}
+# posterior mean   --> minimize sq err
+# posterior median --> minimize abs err
+
+# we want S predictions per shot. an N x S matrix. then we take MCMC average.
+pred_glm <- function(Xpred = NA, MCMC = NA){
+  
+  Xmat <- Xpred %>% 
+    mutate(logr = log(r),
+           away = 1-home) %>%
+    arrange(time) %>%
+    select(away, home, logr, theta) %>% 
+    as.matrix()
+
+  # the baseline 1 intercept = "away"
+  # we should only multiply by that one if home = 0
+  #params.glm <- t(MCMC)
+  A <- Xmat
+  B <- t(MCMC)
+  pred.glm <-  arm::invlogit(A %*% B) %>% apply(., 1, median) #MCMC median
+  
+  return(as.matrix(pred.glm))
+}
+
+pred_me <- function(Xpred = NA, MCMC = NA){
+
+  Xmat <- Xpred %>% 
+    mutate(logr = log(r),
+           away = 1-home) %>%
+    arrange(time) %>%
+    select(away, home, logr, theta, globalplayerid) %>% 
+    as.matrix()
+
+  pred.me <- array(NA, c(nrow(Xmat), 1))
+  for(r in 1:nrow(Xmat)){
+    gpid <- Xmat[r,"globalplayerid"]
+    Asub <- Xmat[r,1:4] # 1 x p
+    playerinds <- grep(gpid, colnames(MCMC))
+    Bsub <- t(MCMC[,playerinds]) # p x S
+    if(length(playerinds) == 0){
+      Bsub <- t(MCMC[,which(!grepl("\\]", colnames(MCMC)))])
+    }
+    pred.me[r,] <- median(arm::invlogit(Asub %*% Bsub)) #MCMC avg
+  }
+
+  return(pred.me)
+}
+
+pred_disc <- function(Xpred = NA, MCMC.LIST=NA){
+  
+  pred.disc.large <- lapply(X=MCMC.LIST, FUN=pred_me, Xpred=Xpred) %>% 
+    as.data.frame() %>%
+    as.matrix()
+  
+  rownames(pred.disc.large) <- Xpred$gameid   #N
+  colnames(pred.disc.large) <- gamemap$gameid #G, from the list
+  
+  pred.disc <- array(NA, c(nrow(Xpred), 1))
+
+  for(i in 1:nrow(Xpred)){
+    keepcol <- colnames(pred.disc.large) == Xpred[i,"gameid"]
+    pred.disc[i,] <- pred.disc.large[i, keepcol]
+  }
+
+  return(pred.disc)
+  
+}
+
+
+if(!load_chains){
+  
+  pred.team     <- pred_glm(Xtest, glmtot)
+  pred.player   <- pred_me(Xtest, player.mcmc)
+  eval(parse(
+    text=paste0("pred.game.",deltas_str," <- pred_disc(Xtest, game.mcmc.list.", deltas_str, ");\nprint(",deltas_str,");")
+  ))
+  savepreds <- ls() %>% grep(pattern="pred.",fixed=TRUE,value=TRUE)
+  temp <- lapply(as.list(savepreds), function(x){
+    save(list=x, 
+         file=paste0(rdatafiles,gsub(patt=".",rep="",x=x,fixed=TRUE),".RData"))
+    })
+  
+  fitted.team     <- pred_glm(Xtrain, glmtot)
+  fitted.player   <- pred_me(Xtrain, player.mcmc)
+  eval(parse(
+    text=paste0("fitted.game.", deltas_str," <- pred_disc(Xtrain, game.mcmc.list.", deltas_str, ");\nprint(",deltas_str,");")
+  ))
+  savefitteds <- ls() %>% grep(pattern="fitted.",fixed=TRUE,value=TRUE)
+  temp <- lapply(as.list(savefitteds), function(x){
+    save(list=x, 
+         file=paste0(rdatafiles,gsub(patt=".",rep="",x=x,fixed=TRUE),".RData"))
+  })
+  
+
+}else{
+  
+  prefixes <- c("pred", "fitted")
+  suffixes <- paste0(c("team", "player", paste0("game",deltas_str)),".RData")
+  loadfiles <- merge(prefixes, suffixes) %>% apply(1, paste0, collapse="") %>% paste0(rdatafiles, .)
+  temp <- lapply(as.list(loadfiles), load, envir=globalenv())
+
+}
+
+```
+
+```{r evalfxns, cache=TRUE}
+
+#confusion matrix, classification rate, and brier score
+classify <- function(observed = NA, predicted = NA, cutoff = 0.5, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+    
+    tab <- array(NA, c(2,2))
+    rownames(tab) <- c("predicted miss", "predicted make")
+    colnames(tab) <- c("observed miss", "observed make")
+    pred01 <- ifelse(pred < cutoff, 0, 1)
+    
+    tab[1,1] <- sum(obs==0 & pred01==0)
+    tab[1,2] <- sum(obs==1 & pred01==0)
+    tab[2,1] <- sum(obs==0 & pred01==1)
+    tab[2,2] <- sum(obs==1 & pred01==1)
+    
+    rate <- (tab[1,1]+tab[2,2])/length(obs)
+    
+    eval.list[[as.character(g)]] <-  rate
+  }
+    
+  if(gameids == 1){
+    return(rate)
+  }else{
+    return(eval.list)
+  }
+}
+
+meansquare <- function(observed = NA, predicted = NA, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+    
+    MSE <- mean((obs - pred)^2)
+    
+    eval.list[[as.character(g)]] <-  MSE
+  }
+    
+  if(gameids == 1){
+    return(MSE)
+  }else{
+    return(eval.list)
+  }
+}
+
+loglikelify <- function(observed = NA, predicted = NA, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+    
+    #deviance
+    loglik <- sum(
+      obs*log(pred) + (1-obs)*log((1-pred))
+    )
+    eval.list[[as.character(g)]] <-  loglik
+  }
+  
+  if(gameids == 1){
+    return(loglik)
+  }else{
+    return(eval.list)
+  }
+}
+
+#data for calibration plots
+calibrate <- function(observed = NA, predicted = NA, nbins = 20, gameids = NA){
+
+  eval.list <- list()
+  
+  if(is.na(gameids[1])){
+    gameids <- 1
+  }
+  
+  for(i in 1:n_distinct(gameids)){
+    g <- unique(gameids)[i]
+    pred <- predicted[gameids == g]
+    obs <- observed[gameids == g]
+
+    if(n_distinct(pred) < nbins){
+      calib <- NA
+    }else{
+      
+      predquants <- c(0, quantile(pred, (1:nbins)/nbins))
+      predmidpts <- ((predquants + c(0,predquants[-length(predquants)]))/2) %>% '['(-1)
+    
+      pred1N <- sapply(pred, findInterval, vec=predquants, all.inside=TRUE, rightmost.closed=TRUE, left.open=TRUE)
+  
+      calibtab <- table(pred1N, obs)
+      rownames(calibtab) <- predmidpts
+      calib <- calibtab %>% 
+        as.data.frame() %>%
+        dcast(pred1N ~ obs, value.var = "Freq") %>%
+        mutate(p  = `1`/(`0`+`1`),
+               pl = p - 2*sqrt(p*(1-p)/(`0` + `1`)),
+               pu = p + 2*sqrt(p*(1-p)/(`0` + `1`)),
+               binl = predquants[-(nrow(.)+1)],
+               binu = predquants[-1])
+      colnames(calib) <- c("bin", "obs0", "obs1", "p", "pl", "pu", "binl", "binu")
+
+    }
+    
+    eval.list[[as.character(g)]] <- calib
+  }
+  
+  if(gameids == 1){
+    return(calib)
+  }else{
+    return(eval.list)
+  }
+}
+
+plot_calibration <- function(dat, title="Calibration Plot"){
+  
+  ggplot(data = dat, aes(x=as.numeric(as.character(bin)), y=p, group=0)) + 
+    geom_errorbar(aes(ymin=pl, ymax=pu), width=0) + 
+    geom_errorbarh(aes(xmin=binl, xmax=binu), height=0) + 
+    geom_abline(slope=1, color="red") +
+    coord_cartesian(xlim=c(0,1), ylim=c(0,1)) + 
+    theme(panel.grid = element_blank()
+          #,panel.border = element_blank(), axis.text = element_blank(), axis.ticks =   element_blank()
+          ) + 
+    theme_bw() + 
+    labs(x="Bins",y="Empirical Probability" , title=title)
+}
+
+if(!load_chains){
+  
+  class.team  <- classify(Xtest$result, pred.team)
+  class.player <- classify(Xtest$result, pred.player)
+  eval(parse(
+    text=paste0("class.games <- c(",
+           paste0("classify(Xtest$result,pred.game.",deltas_str,collapse="),"),"))"
+         )
+  ))
+
+  mse.team  <- meansquare(Xtest$result, pred.team)
+  mse.player <- meansquare(Xtest$result, pred.player)
+  eval(parse(
+    text=paste0("mse.games <- c(",
+           paste0("meansquare(Xtest$result, pred.game.",deltas_str,collapse="),"),"))"
+          )
+    ))
+  
+  lik.team  <- loglikelify(Xtrain$result, fitted.team)
+  lik.player <- loglikelify(Xtrain$result, fitted.player)
+  eval(parse(
+    text=paste0("lik.games <- c(",
+           paste0("loglikelify(Xtrain$result, fitted.game.",deltas_str,collapse="),"),"))"
+          )
+    ))
+  eval.df <- data.frame(
+    class = c(class.team, class.player, class.games),
+    mse = c(mse.team, mse.player, mse.games),
+    lik = c(lik.team, lik.player, lik.games),
+    type = c("GLM", "Mixed Effects",rep("Discount Likelihood", length(deltas))),
+    delta = c(NA, NA, deltas_str),
+    k = k0
+  )
+
+  save(eval.df, file=paste0(rdatafiles, "evaldf.RData"))
+  
+}else{
+  
+  tempenv <- new.env()
+  eval.df <- NULL
+  
+  for(i in 1:k){
+    
+    load(file = paste0(get_rdatafiles(i), "evaldf.RData"), tempenv)
+    eval.df <- rbind(eval.df, tempenv$eval.df)
+    
+  }
+    
+  eval.df$k <- as.factor(eval.df$k)
+  eval.df$delta <- factor(eval.df$delta,sort(as.character(levels(eval.df$delta)))) #making sure that the deltas are in order
+
+}
+
+df_delta <- eval.df %>% filter(!is.na(delta))
+df <- eval.df %>% filter(is.na(delta))
+df_delta$delta <- df_delta$delta %>%
+  as.character() %>%
+  as.numeric() %>%
+  '/'(1000) %>%
+  as.character() %>%
+  str_pad(width=5, side="right", pad="0") %>%
+  as.factor()
+  
+g1 <- ggplot(data=df_delta, aes(x=delta,y=class, col=k)) +
+   geom_point() + 
+   geom_hline(data=df, aes(yintercept=class, linetype=type, col=k)) +
+   theme_bw() + 
+   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+   labs(y="Classification Rate \n (0.5 cutoff)", x=expression(delta), linetype = "")
+
+
+g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  labs(y="Log-Likelihood \n", x=expression(delta), linetype = "")
+
+g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
+  geom_point() +
+  geom_hline(data=df, aes(yintercept=mse, linetype=type, col=k)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  labs(y="Brier Score (MSE)", x=expression(delta), linetype = "")
+```
+
+```{r evalplot, fig.cap="Model Evaluation", fig.height=5}
+grid.arrange(g1, g2, g3, nrow=2)
+```
+
+## Calibration Plots
+
+```{r caliplot, fig.cap="Calibration Plots for Discounted Likelihood Model, $\\delta$ = 0.850", fig.height=5}
+
+randtrain <- sample(Xtrain$gameid, 1)
+randtest  <- sample(Xtest$gameid, 1)
+randtrainrows <- Xtrain$gameid == randtrain
+randtestrows  <- Xtest$gameid == randtest
+
+calitrain <- Xtrain$result %>% 
+  calibrate(observed=., predicted=fitted.game.850) %>% 
+  plot_calibration(., "Training Set")
+
+calitest <- Xtest$result %>% 
+  calibrate(observed=., predicted=pred.game.850) %>% 
+  plot_calibration(., "Testing Set")
+
+# calitrain1 <- Xtrain$result[randtrainrows] %>% 
+#   calibrate(observed=., predicted=fitted.game.850[randtrainrows], nbins=5) %>% 
+#   plot_calibration(., "Training Game")
+# 
+# calitest1 <- Xtest$result[randtestrows] %>% 
+#   calibrate(observed=., predicted=pred.game.850[randtestrows]) %>% 
+#   plot_calibration(., "Testing Game")
+
+grid.arrange(calitrain, calitest, ncol=2)
+
+```
+
+## Results from Model with $\delta$ = 0.850
+
+```{r discplot850, fig.cap="Parameters for Two Players and Population over Time, $\\delta$ = 0.850", fig.height=5, fig.align="right"}
+
+game.params.850_sub <- game.params.850 %>% 
+  mutate(season = get_season(gameid)) %>% 
+  filter(season == 2016)
+IDS <- c(0, id1, id4) 
+z_IDS <- c("Team", "Player 1", "Player 4")
+
+discplot850H <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="intH", main="Intercept (Home)", zlab = z_IDS, yrange = c(-2, 4))
+discplot850A <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="intA", main="Intercept (Away)", zlab = z_IDS, yrange = c(-2, 4))
+discplot850r <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="r", main="Distance", zlab = z_IDS, yrange = c(-1, 0.1))
+discplot850theta <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="theta", main="Angle", zlab = z_IDS, yrange = c(-1.5, 0.75))
+
+grid.arrange(discplot850H,discplot850A,discplot850r,discplot850theta, nrow=2)
+
+```
+
+## Conclusion
+
+* Some weak evidence for time-dependency in shooting success rate.
+
+* Angle only matters for certain players.
+
+* Effects of Home-court advantage are not strong in this dataset.
+
+## Future Goals
+
+* Incorporate more advanced predictors.
+
+* Add random effects on discount factor.
+
+## Acknowledgments 
+
+* Mike West, for advising me through this project.
+
+* Merlise Clyde, for introducing me to the ones trick in JAGS.
+
+* My thesis committee of Cliburn Chan, Merlise Clyde, and Mike West.
+
+* Kevin Cullen, Basketball Director of Information Technology for the Duke Men's Basketball team, for providing data for this research.

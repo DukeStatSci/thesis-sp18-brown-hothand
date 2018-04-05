@@ -5,7 +5,13 @@ Our results so far suggest that some insights can be taken by predicting basketb
 
 ## Evaluation of Models
 
-To evaluate these models, we use 5-fold cross-validation. This process used as many as 20 simultaneous RStudio Pro servers provided by the Duke University Statistical Science Department. In each train-test split, we evaluate a model's out-of-sample classification rate (using a cutoff probability of 0.5), Brier score (mean squared error), and log likelihood. The predictions and fitted values are obtained using MCMC averages; to calculate the probability for an individual shot, we calculate a response for each of the 9,500 posterior simulations, then take the average of those responses. The results are plotted below:
+To evaluate these models, we use 5-fold cross-validation. In each train-test split, we evaluate the models' out-of-sample classification rates (using a cutoff probability of 0.5), Brier scores (mean squared error), and log-likelihoods. The predictions and fitted values are obtained using MCMC averages; to calculate the probability for an individual shot, we calculate a response for each of the 9,500 posterior simulations, then take the average of those responses. This process used up to 20 simultaneous RStudio Pro servers provided by the Duke University Statistical Science Department. The results are plotted below in Figure \@ref(fig:evalplot):
+
+```{r, fig.height=3.5}
+ggblank
+```
+
+\pagebreak
 
 ```{r predfxns, cache=TRUE}
 # posterior mean   --> minimize sq err
@@ -111,7 +117,6 @@ if(!load_chains){
 }
 
 ```
-
 
 ```{r evalfxns, cache=TRUE}
 
@@ -340,7 +345,7 @@ g2 <- ggplot(data=df_delta, aes(x=delta,y=lik, col=k)) +
   geom_hline(data=df, aes(yintercept=lik, linetype=type, col=k)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
-  labs(y="Log Likelihood \n", x=expression(delta), linetype = "")
+  labs(y="Log-Likelihood \n", x=expression(delta), linetype = "")
 
 g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   geom_point() +
@@ -350,15 +355,17 @@ g3 <- ggplot(data=df_delta, aes(x=delta,y=mse, col=k)) +
   labs(y="Brier Score (MSE)", x=expression(delta), linetype = "")
 ```
 
-```{r evalplot, fig.cap="Model Evaluation"}
+```{r evalplot, fig.cap="Model Evaluation", fig.height=4.75, fig.align="center"}
 grid.arrange(g1, g2, g3, nrow=2)
 ```
 
-From Figure \@ref(fig:evalplot), we can observe that the models have different strengths. The discounted likelihood model with the smallest value of $\delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of $\delta$, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may overfit the model to the training data. The generalized linear models perform best in Brier score, but worst in log likelihood. The hierarchical models are about the same, but they have a better log likelihood performance than the GLMs. A model that balances the trade-off between predictive accuracy and likelihood is a discounted likelihood model with $\delta$ = 0.850.
 
-In addition, we can see that the variation in model performance is small. For example, most of the out-of-sample classification rates fall between 0.58 and 0.62. This is within the 95% confidence interval for a random binomial proportion of 0.6 using a sample size of `r n <- k*(length(deltas) + 2); n` (for each combination of `r k`-fold cross-validation and `r length(deltas)+2` different models), which is `r err <- sqrt(0.6*(1-0.6)/n); paste0("(", round(0.6-err, 4), ", " , round(0.6+err, 4), ")")`. Therefore, the evidence that certain models predict better than others is not particularly strong.
+From Figure \@ref(fig:evalplot), we can observe that all of the models have different strengths. The discounted likelihood model with the smallest value of $\delta$ consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of $\delta$, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may overfit the model to the training data. The generalized linear models perform best in Brier score, but worst in log-likelihood. The hierarchical models are about the same as the GLMs, but they have a better log-likelihood performance. A model that balances the trade-off between predictive accuracy and likelihood is a discounted likelihood model with $\delta$ = 0.850.
 
-For the discounted likelihood model with $\delta$ = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. To make these plots, we divide the predicted probabilities into 20 equally-sized bins, then plot these bins on the x-axis versus the proportions of the actual outcomes within the bins on the y-axis. The horizontal bars represent the bin width, and the vertical bars represent a 95% confidence interval of the proportions. The red line of slope 1 represents equality between the bin medians and the empirical probabilities within the bins. In Figure \@ref(fig:caliplot), we present these plots for a full training set and a testing set.
+In addition, we can see that the overall variation in model performance is small. For example, most of the out-of-sample classification rates fall between 0.58 and 0.62. This is within the 95% confidence interval for a random binomial proportion of 0.6 using a sample size of `r n <- k*(length(deltas) + 2); n` (because there are `r length(deltas)+2` different models and `r k` train-test splits for each model), which is `r err <- sqrt(0.6*(1-0.6)/n); paste0("(", round(0.6-err, 4), ", " , round(0.6+err, 4), ")")`. Therefore, the evidence that the models without discounting predict better than the ones with discounting is not particularly strong.
+
+For the discounted likelihood model with $\delta$ = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. To make these plots, we divide the predicted probabilities into 20 equally-sized bins, then plot these bins on the x-axis with the proportions of the actual outcomes within the bins on the y-axis. The horizontal bars represent the bin width, and the vertical bars represent a 95% confidence interval of the proportions. The red line of slope 1 represents equality between the bin medians and the empirical probabilities within the bins. In Figure \@ref(fig:caliplot), we present these plots for a full training set and a testing set.
+
 
 ```{r caliplot, fig.cap="Calibration Plots for Discounted Likelihood Model, $\\delta$ = 0.850"}
 
@@ -387,34 +394,40 @@ grid.arrange(calitrain, calitest, ncol=2)
 
 ```
 
-In this model, we can see that the confidence intervals on the training set all cross the line of slope, which shows that the model reliably estimates the probabilities. In the testing set, however, the predictions only cross this line between about 0.3 and 0.75. In addition, the fact that the bins are so much thinner in the middle shows that the model is not likely to predict values close to 0 or 1.
+\pagebreak
 
-## Results from Model
+We can see that the confidence intervals on the training set all cross the line of slope 1, which shows that the model output reliably fits the probabilities. In the testing set, however, the predictions only cross this line between about 0.3 and 0.75. In addition, the widths of the bins on the edges show that the model is not likely to predict values close to 0 or 1.
 
-To illustrate results from the discounted likelihood model with $\delta$ = 0.850, we plot the location parameters over time for a high-usage player and a low-usage player that play the same position, and for the overall team. **make this sound more academic**
+## Results from Model with $\delta$ = 0.850
 
-```{r discplot850, fig.cap="Parameters Over Time, $\\delta$ = 0.850"}
+To illustrate results from the discounted likelihood model with $\delta$ = 0.850, we replicate the plots in Figures \@ref(fig:discplot750) and \@ref(fig:discplot999). The results are shown in Figure \@ref(fig:discplot850).
 
-idhi <- 842297
-idlo <- 551769
+```{r discplot850, fig.cap="Parameters for Two Players and Population over Time, $\\delta$ = 0.850", out.width="90%", fig.align="right"}
 
-plot_time_effect(game.params.850, id=idhi, parameters=c("intH","intA", "r", "theta"), main="High-Usage Player", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
+game.params.850_sub <- game.params.850 %>% 
+  mutate(season = get_season(gameid)) %>% 
+  filter(season == 2016)
+IDS <- c(0, id1, id4) 
+z_IDS <- c("Team", "Player 1", "Player 4")
 
-plot_time_effect(game.params.850, id=idlo, parameters=c("intH","intA", "r", "theta"), main="Low-Usage Player", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
+discplot850H <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="intH", main="Intercept (Home)", zlab = z_IDS, yrange = c(-2, 4))
+discplot850A <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="intA", main="Intercept (Away)", zlab = z_IDS, yrange = c(-2, 4))
+discplot850r <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="r", main="Distance", zlab = z_IDS, yrange = c(-1, 0.1))
+discplot850theta <- plot_time_effect(game.params.850_sub, ids=IDS, parameters="theta", main="Angle", zlab = z_IDS, yrange = c(-1.5, 0.75))
 
-plot_time_effect(game.params.850, id=0, parameters=c("intH","intA", "r", "theta"), main="Team Effects", zlab=c("Intercept (Home)", "Intercept (Away)", "Distance", "Angle"))
+grid.arrange(discplot850H,discplot850A,discplot850r,discplot850theta, nrow=2)
+
 ```
 
 
-We can see that the parameters move over time. **elaborate. like the team parameters move the most over time. and the intercepts have wider uncertainty.**
-The distance parameter moves the least. This suggests that the ability to shoot long-range shots did not drastically increase or decrease between games in the data.
+Figure \@ref(fig:discplot850) has smoother changes over time than in Figure \@ref(fig:discplot750), where $\delta$ = 0.750, which could indicate that there is less overfitting. One surprising result from this model is how the distance parameters slightly increase over time, and the intercepts slightly decrease. This could be a result of team shot selection evolving throughout the season, or just a coincidental signal.
 
 ## Conclusion
 
-The evaluations of the models show that there is not a lot of time-dependency in shooting success rate in this dataset of player-tracking data from the Duke Men's Basketball team. Allowing predictors of shot success to shift based on recent success does not significantly improve the predictive accuracy or the likelihood of a model. However, we do see a systematic improvement in likelihood for smaller discount factors (i.e., more emphasis on recent shots, and therefore support of "streakiness"). 
+The evaluations of the models show that there is some weak evidence for time-dependency in shooting success rate in this dataset of player-tracking data from the Duke Men's Basketball team. Allowing predictors of shot success to shift based on recent success does not significantly improve the predictive accuracy of a model. However, we do see a systematic improvement in likelihood for smaller discount factors (i.e., more emphasis on recent shots, and therefore support of "streakiness"). Weaknesses of the discounting model include a smaller sample size and poorer out-of-sample prediction. Takeaways that we observed in other models include the fact that the angle of the shot only matters for certain players, and it is not a significant predictor of shot success between all players. Also, the effects of home-court advantage are not strong in this dataset, possibly due to the fact that most of the games away from home are missing.
 
-To account for possible unexplained variation between seasons, and variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in the 2015 season (25 games), and shots from home games (82 games). **results!** (show these results in Appendix?)
+To account for possible unexplained variation between seasons, and for variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in one season (25 games), and shots from all home games (82 games). The results were similar, except for increased uncertainty due to smaller sample sizes. The model evaluation plots show similar patterns to the ones in Figure \@ref(fig:evalplot), and they are presented in Appendix B.
 
 ## Future Goals
 
-Future goals for this research are to build a better-fitting model to predict basketball shots using more advanced factors that can be approximated from the dataset; possibilities for this include using the distance of the nearest defender as a proxy for defense quality, or using the amount of time a player has played without a substitution or timeout to approximate fatigue.
+Future goals for this research are to build a better-fitting model to predict basketball shots using more advanced factors that can be approximated from the dataset. Possibilities for this include reparametrizing the location of a shot using categories (e.g., corner three-point shots, heaves from half-court) using the distance of the nearest defender as a proxy for defense quality, or using the amount of time a player has played without a substitution or timeout to approximate fatigue. In addition, we make the unrealistic assumption that every player exhibits the same amount of shooting streakiness with our discounted likelihood models. We could improve upon this assumption in the discounted likelihood models by adding a random effect on $\delta$, to allow it to vary by player. 
