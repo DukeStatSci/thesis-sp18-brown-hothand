@@ -8,11 +8,9 @@ output:
   slidy_presentation: default
 ---
 
-# Introduction
-
 ## Objective
 
-* Investigate Bayesian modelling techniques on shooting data, and to learn more about time-dependency in the data.
+* Investigate Bayesian modelling techniques on shooting data, and to learn more about time-dependency and the "hot hand" concept in sports.
 
 <!--
 the factors we consider as predictors of shot success are:
@@ -25,19 +23,20 @@ the factors we consider as predictors of shot success are:
     * saves time
 -->
 
+<!--
 ## Previous Studies
 
 *  Gilovich, Vallone, & Tversky (1985) 
 
 <!--
 they use Walf-Wolfowitz run tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of successes, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. These statistical tests did not detect significant evidence supporting streakiness in basketball shooting data.
--->
+->
 
 * Wetzels (2016)
 
 <!--
 found evidence that a Hidden Markov Model with two states (representing a high shot success rate and a low rate) better fits Shaquille O'Neal's free throw shooting data than a Binomial model with one constant state
--->
+->
 
 * Bar-Eli, Avugos, & Raab (2006) 
 
@@ -45,8 +44,6 @@ found evidence that a Hidden Markov Model with two states (representing a high s
 completed a review of previous statistical papers whose authors research the concept of streaky success rates in data with a binomial response; the applications include basketball shooting, baseball hitting, baseball pitching, horeshoes, cognitive science, and economics. They summarize 11 papers that support evidence of streakiness in binomial data, and 13 that do not.
 -->
 
-
-# Data
 
 ## Description of Dataset
 
@@ -120,7 +117,7 @@ tabsum[,4] <- c("globalplayerid","categorical", "NA", "31 unique values")
 tabsum[,5] <- c("r","continuous", "[0, $\\infty$)", "Distance of shot from hoop (feet)")
 tabsum[,6] <- c("theta","continuous ", "[-$\\pi$, $\\pi$]", "Angle of shot (radians)")
 tabsum[,7] <- c("home","categorical", "{0,1}", "1 if shot occured during a home game")
-tabsum[,8] <- c("result","categorical", "{0,1}", "1 if shot was made(response)")
+tabsum[,8] <- c("result","categorical", "{0,1}", "1 if shot was made (response)")
 colnames(tabsum) <- NULL
 tabsum <- t(tabsum)
 
@@ -139,8 +136,6 @@ tabsum <- t(tabsum)
 * Convert the x-y coordinates (feet) to polar coordinates (feet and radians).
 
 * Add an indicator for home games.
-
-* Only use the shots that Duke players attempt (no opposing players appear in more than 5 games).
 
 ## Data Cleaning (cont.)
 
@@ -205,15 +200,9 @@ plt
 
 ## Exploratory Data Analysis
 
-* Visualize changes in success rate over time in individuals and in population.
-
-* Moving average only accounts for shot order and outcome. 
-
-## Exploratory Data Analysis (cont.)
-
 ```{r smoothplot0}
 
-plotshottime <- function(playerid, season, main){
+plotshottime <- function(playerid, season, main, showstats = FALSE){
   Xtot_sub <- Xtot[Xtot$globalplayerid %in% playerid & Xtot$season %in% season,]
   par(las=1)
   if(nrow(Xtot_sub) < 10){
@@ -221,11 +210,16 @@ plotshottime <- function(playerid, season, main){
     plot(0,0,type="n", yaxt="n",xaxt="n", ylab="",xlab="")
     text(0,0,label="Not Enough Data", cex=2)
   }else{
-    Y <- Xtot_sub$result #zoo::rollmean((Xtot_sub$result), 4)
+    Y <- Xtot_sub$result 
     X <- 1:length(Y)
     scatter.smooth(X,Y,span=20/length(Y), main = main,
                    yaxt="n",ylab="Result",xlab="Order")
     axis(side=2,at=c(0,1),labels=c("Miss","Make"))
+  }
+  if(showstats){
+    stats <- loess.smooth(X,Y,span=20/length(Y), main = main,
+                   yaxt="n",ylab="Result",xlab="Order")
+    print(c(nrow(Xtot_sub), length(stats$y)))
   }
 }
 
@@ -234,40 +228,20 @@ maxseason <- Xtot %>% group_by(globalplayerid, season) %>% summarize(num=n()) %>
 par(mfrow = c(2,2))
 for(i in 1:nrow(playerseasons)){
   r <- playerseasons[i,]
-  plotshottime(r[[1]],r[[2]], paste0("Player ",i))
+  plotshottime(r[[1]],r[[2]], paste0("Player ",i), showstats=TRUE)
 }
 ```
 
 ## Exploratory Data Analysis (cont.)
 
-```{r smoothplot, fig.cap = "Moving Average of Shot Success Rate", fig.height=5}
+```{r smoothplot, fig.cap = "Loess Smoothing Curve on Shot Success Rate", fig.height=5}
 plotshottime(Xtot$globalplayerid, Xtot$season, "Team Average")
 ```
 
-# Models & Analysis
+
+## Model-Building
 
 ```{r init, include=FALSE}
-
-# srv <- ""
-# k0 <- as.numeric(strsplit(srv, "")[[1]][1])
-# ltr <- strsplit(srv, "")[[1]][2]
-# fldr <- strsplit(srv, "")[[1]][3]
-# if(ltr == "A"){
-#   deltas <- c(0.750, 0.800, 0.850)
-# }else if(ltr == "B"){
-#   deltas <- c(0.900, 0.950, 0.999)
-# }
-# if(fldr == "H"){
-#   home_only <- TRUE
-#   season_2015 <- FALSE
-# }else if(fldr == "2"){
-#   home_only <- FALSE
-#   season_2015 <- TRUE
-# }
-
-# TODO:
-  # put some raw means and stuff  and shot distributions nad home/away splits on EDA section. simple things
-  # put diagnostic plots in the Appendix...but not all of them!
 
 set.seed(49301)
 
@@ -324,13 +298,11 @@ rownames(gamemap) <- NULL
 
 ```
 
-## Model-Building
-
 * Types of Models
   
-  - Generalized Linear Model
-  - Hierarchical Generalized Linear Model
-  - Discounted Likelihood Hierarchical Model
+    - Generalized Linear Model
+    - Hierarchical Generalized Linear Model
+    - Discounted Likelihood Hierarchical Model
 
 * All models based off a logistic regression model
 
@@ -516,7 +488,7 @@ grid.arrange(glmplot1,glmplot2,glmplot3,glmplot4, nrow=2)
 
 ## Generalized Linear Model: Results (cont.)
 
-```{r glmplot, fig.cap = "GLM Posterior Distributions for Four Players", out.width="90%", fig.align="right", cache=TRUE}
+```{r glmplot, fig.cap = "Posterior Distributionsof GLM Parameters", out.width="90%", fig.align="right", cache=TRUE}
 glmplot5
 ```
 
@@ -714,7 +686,7 @@ fourparams <- merge(playerseasons, player.params ,all=FALSE) %>% select(globalpl
 
 ```
 
-```{r hierplot, fig.height = 5, fig.cap = "Population Distribution with Four Player Effects"}
+```{r hierplot, fig.height = 5, fig.cap = "Median Player Effects over Population Distribution"}
 
 meplotA <- ggplot(data = player.mcmc, aes(x=beta_intA0)) + 
   geom_density() + 
@@ -834,7 +806,7 @@ plot_contours <- function(probsxy = NA, flipx=FALSE, main=""){
   
   img <- readPNG(img.path)
 
-a <- 0.7
+a <- 0.8
 contplot <- ggplot(probsxy_melt, aes(x = -x, y = y, z = value)) +
   annotation_custom(rasterGrob(img,
                                x=0.50, y=0.50,
@@ -845,7 +817,7 @@ contplot <- ggplot(probsxy_melt, aes(x = -x, y = y, z = value)) +
   scale_fill_gradient2(low = rgb(1,1,1), # white
                        mid = rgb(1,1,0), # yellow 
                        high= rgb(1,0,0), # red 
-                       midpoint=0.45) +
+                       midpoint=0.58) +
   labs(title = main, y="", x="") +
   guides(fill = guide_colorbar(title = "Probability")) + # the legend
   theme_bw() + 
@@ -890,7 +862,7 @@ grid.arrange(contplot1, contplot2, contplot3, contplot4, nrow=2)
 
 ## Hierarchical Model: Contour Plots (cont.)
 
-```{r contplot, fig.cap = "Contour Plots for Four Players and Population of Players", out.width="90%", fig.align="right"}
+```{r contplot, fig.cap = "Contour Plots", out.width="90%", fig.align="right"}
 contplotteam
 ```
 
@@ -977,7 +949,7 @@ $$
 
 ## Discounted Model: Weighting
 
-```{r discplot, fig.height=5, fig.cap = "Illustration of Discounted Weighting"}
+```{r discplot, fig.height=5, fig.cap = "Discount Weights by $\\delta$ and Time Difference"}
 t <- as.matrix(seq(-10, 10))
 #D <- as.matrix(seq(0.1, 1, by=0.1))
 D <- as.matrix(c(seq(0.75, 0.95, 0.05),0.999))
@@ -1245,7 +1217,10 @@ plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=N
       guides(linetype=FALSE, size=FALSE) + 
       geom_line() +   
       theme_bw() +
-      labs(title=main, y="Estimate", x="Game Index", color = "Parameters") +
+      labs(title=main, 
+           y="Estimate", 
+           x=expression(Anchor ~ Game ~ Index ~ (g[0])), 
+           color = "Parameters") +
       scale_color_manual(values = 1:length(parameters), labels = zlab) + 
       theme(panel.grid = element_blank()) +
       coord_cartesian(ylim = yrange) 
@@ -1263,7 +1238,10 @@ plot_time_effect <- function(game.params = NA, ids = NA, parameters = NA, main=N
       guides(linetype=FALSE, size=FALSE) + 
       geom_line() +   
       theme_bw() +
-      labs(title=main, y="Estimate", x="Game Index", color = "Players") +
+      labs(title=main, 
+           y="Estimate", 
+           x=expression(Anchor ~ Game ~ Index ~ (g[0])), 
+           color = "Players") +
       scale_color_manual(values = 1:length(ids), labels = zlab) + 
       theme(panel.grid = element_blank()) +
       coord_cartesian(ylim = yrange) 
@@ -1331,7 +1309,6 @@ grid.arrange(discplot750H,discplot750A,discplot750r,discplot750theta, nrow=2)
 grid.arrange(discplot999H,discplot999A,discplot999r,discplot999theta, nrow=2)
 ```
 
-# Discussion
 
 ## Evaluation of Models
 
@@ -1577,7 +1554,7 @@ calibrate <- function(observed = NA, predicted = NA, nbins = 20, gameids = NA){
   }
 }
 
-plot_calibration <- function(dat, title="Calibration Plot"){
+plot_calibration <- function(dat, title="Calibration Plot", xlab=NA){
   
   ggplot(data = dat, aes(x=as.numeric(as.character(bin)), y=p, group=0)) + 
     geom_errorbar(aes(ymin=pl, ymax=pu), width=0) + 
@@ -1588,7 +1565,7 @@ plot_calibration <- function(dat, title="Calibration Plot"){
           #,panel.border = element_blank(), axis.text = element_blank(), axis.ticks =   element_blank()
           ) + 
     theme_bw() + 
-    labs(x="Bins",y="Empirical Probability" , title=title)
+    labs(x=xlab,y="Actual Probability" , title=title)
 }
 
 if(!load_chains){
@@ -1692,11 +1669,11 @@ randtestrows  <- Xtest$gameid == randtest
 
 calitrain <- Xtrain$result %>% 
   calibrate(observed=., predicted=fitted.game.850) %>% 
-  plot_calibration(., "Training Set")
+  plot_calibration(., "Training Set", "Fitted Probabilities")
 
 calitest <- Xtest$result %>% 
   calibrate(observed=., predicted=pred.game.850) %>% 
-  plot_calibration(., "Testing Set")
+  plot_calibration(., "Testing Set", "Predicted Probabilities")
 
 # calitrain1 <- Xtrain$result[randtrainrows] %>% 
 #   calibrate(observed=., predicted=fitted.game.850[randtrainrows], nbins=5) %>% 
@@ -1737,11 +1714,6 @@ grid.arrange(discplot850H,discplot850A,discplot850r,discplot850theta, nrow=2)
 
 * Effects of Home-court advantage are not strong in this dataset.
 
-## Future Goals
-
-* Incorporate more advanced predictors.
-
-* Add random effects on discount factor.
 
 ## Acknowledgments 
 
