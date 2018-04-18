@@ -32,8 +32,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-
-<link rel="next" href="literature-review.html">
+<link rel="prev" href="2-models.html">
+<link rel="next" href="A-code-for-models.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -156,24 +156,65 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Bayesian Analysis of Player Performance over Time</h1>
-<h4 class="author"><em>Nathaniel Brown</em></h4>
-<h4 class="date"><em>April 10, 2018</em></h4>
+<div id="disc" class="section level1">
+<h1><span class="header-section-number">Chapter 3</span> Discussion</h1>
+<!--
+Our results so far suggest that some insights can be taken by predicting basketball shooting outcomes, but none of our results are more insightful than common intuition (i.e. the most frequent shooters are usually above average shooters, or the probability of making a shot decreases as distance from the basket increases). None of the models that we have built predict the out-of-sample data well. We could refine our models by including more predictors such as a proxy for fatigue (using information about total minutes played, or consecutive minutes played without a timeout), or shot difficulty (using information about the nearest defender). -->
+<div id="evaluation-of-models" class="section level2">
+<h2><span class="header-section-number">3.1</span> Evaluation of Models</h2>
+<p>To evaluate these models, we use 5-fold cross-validation. In each train-test split, we evaluate the models’ out-of-sample classification rates (using a cutoff probability of 0.5), Brier scores (mean squared error), and log-likelihoods. The predictions and fitted values are obtained using MCMC averages; to calculate the probability for an individual shot, we calculate a response for each of the 9,500 posterior simulations, then take the average of those responses. This process used up to 20 simultaneous RStudio Pro servers provided by the Duke University Statistical Science Department. The results are plotted below in Figure <a href="3-disc.html#fig:evalplot">3.1</a>:</p>
+<p><img src="thesis_files/figure-html/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p></p>
+<div class="figure" style="text-align: center"><span id="fig:evalplot"></span>
+<img src="thesis_files/figure-html/evalplot-1.png" alt="Model Evaluation" width="672" />
+<p class="caption">
+Figure 3.1: Model Evaluation
+</p>
 </div>
-<div id="introduction" class="section level1 unnumbered">
-<h1>Introduction</h1>
-<p>In the sport of basketball, points are awarded by the binary event of shooting the ball into the goal. Some factors that may affect the success rate include the location of the shooter, the individual skill of the shooter, whether the shooter is shooting on his team’s home court or on an away court, and his shooting success in recent games. There have been previous studies investigating the effect of recent shooting success on current shooting success, and the results vary. For example, <span class="citation">Gilovich, Vallone, &amp; Tversky (1985)</span> use Walf-Wolfowitz runs tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of successes, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. These statistical tests did not detect significant evidence supporting streakiness in basketball shooting data. In addition, <span class="citation">Wetzels et al. (2016)</span> found evidence that a Hidden Markov Model with two states (representing a high shot success rate and a low rate) better fits Shaquille O’Neal’s free throw shooting data than a Binomial model with one constant state. <span class="citation">Bar-Eli, Avugos, &amp; Raab (2006)</span> completed a review of previous statistical papers whose authors research the concept of streaky success rates in data with a binomial response; the applications include basketball shooting, baseball hitting, baseball pitching, horeshoes, cognitive science, and economics. They summarize 11 papers that support evidence of streakiness in binomial data, and 13 that do not.</p>
-<p>The purpose of this paper is to investigate Bayesian modelling techniques on basketball shooting data, and to learn more about time-dependency in the data.</p>
+<p>From Figure <a href="3-disc.html#fig:evalplot">3.1</a>, we can observe that all of the models have different strengths. The discounted likelihood model with the smallest value of <span class="math inline">\(\delta\)</span> consistently has the highest likelihood. However, it does not test as well as the other models in areas of out-of-sample classification rate and Brier score. This suggests that models with smaller values of <span class="math inline">\(\delta\)</span>, where the likelihood of an observed shot is more heavily influenced by shots closer to it, may overfit the model to the training data. The generalized linear models perform best in Brier score, but worst in log-likelihood. The hierarchical models are about the same as the GLMs, but they have a better log-likelihood performance. A model that balances the trade-off between predictive accuracy and likelihood is a discounted likelihood model with <span class="math inline">\(\delta\)</span> = 0.850.</p>
+<p>In addition, we can see that the overall variation in model performance is small. For example, most of the out-of-sample classification rates fall between 0.58 and 0.62. This is within the 95% confidence interval for a random binomial proportion of 0.6 using a sample size of 40 (because there are 8 different models and 5 train-test splits for each model), which is (0.5225, 0.6775). Therefore, the evidence that the models without discounting predict better than the ones with discounting is not particularly strong.</p>
+<p>For the discounted likelihood model with <span class="math inline">\(\delta\)</span> = 0.850, we build calibration plots to assess how well the estimated probabilities fit the actual proportions. To make these plots, we divide the predicted probabilities into 20 equally-sized bins, then plot these bins on the x-axis with the proportions of the actual outcomes within the bins on the y-axis. The horizontal bars represent the bin width, and the vertical bars represent a 95% confidence interval of the proportions. The red line of slope 1 represents equality between the bin medians and the empirical probabilities within the bins. In Figure <a href="3-disc.html#fig:caliplot">3.2</a>, we present these plots for a full training set and a testing set.</p>
+<div class="figure" style="text-align: center"><span id="fig:caliplot"></span>
+<img src="thesis_files/figure-html/caliplot-1.png" alt="Calibration Plots for Discounted Likelihood Model, $\delta$ = 0.850" width="672" />
+<p class="caption">
+Figure 3.2: Calibration Plots for Discounted Likelihood Model, <span class="math inline">\(\delta\)</span> = 0.850
+</p>
+</div>
+<p></p>
+<p>We can see that the confidence intervals on the training set all cross the line of slope 1, which shows that the model output reliably fits the probabilities. In the testing set, however, the predictions only cross this line between about 0.3 and 0.75. In addition, the widths of the bins on the edges show that the model is not likely to predict values close to 0 or 1.</p>
+</div>
+<div id="results-from-model-with-delta-0.850" class="section level2">
+<h2><span class="header-section-number">3.2</span> Results from Model with <span class="math inline">\(\delta\)</span> = 0.850</h2>
+<p>To illustrate results from the discounted likelihood model with <span class="math inline">\(\delta\)</span> = 0.850, we replicate the plots in Figures <a href="2-models.html#fig:discplot750">2.5</a> and <a href="2-models.html#fig:discplot999">2.6</a>. The results are shown in Figure <a href="3-disc.html#fig:discplot850">3.3</a>.</p>
+<div class="figure" style="text-align: right"><span id="fig:discplot850"></span>
+<img src="thesis_files/figure-html/discplot850-1.png" alt="Parameters for Two Players and Population over Time, $\delta$ = 0.850" width="90%" />
+<p class="caption">
+Figure 3.3: Parameters for Two Players and Population over Time, <span class="math inline">\(\delta\)</span> = 0.850
+</p>
+</div>
+<p>Figure <a href="3-disc.html#fig:discplot850">3.3</a> has smoother changes over time than in Figure <a href="2-models.html#fig:discplot750">2.5</a>, where <span class="math inline">\(\delta\)</span> = 0.750, which could indicate that there is less overfitting. One surprising result from this model is how the distance parameters slightly increase over time, and the intercepts slightly decrease. This could be a result of team shot selection evolving throughout the season, or just a coincidental signal.</p>
+</div>
+<div id="conclusion" class="section level2">
+<h2><span class="header-section-number">3.3</span> Conclusion</h2>
+<p>The evaluations of the models show that there is some weak evidence for time-dependency in shooting success rate in this dataset of player-tracking data from the Duke Men’s Basketball team. Allowing predictors of shot success to shift based on recent success does not significantly improve the predictive accuracy of a model. However, we do see a systematic improvement in likelihood for smaller discount factors (i.e., more emphasis on recent shots, and therefore support of “streakiness”). Weaknesses of the discounting model include a smaller sample size and poorer out-of-sample prediction. Takeaways that we observed in other models include the fact that the angle of the shot only matters for certain players, and it is not a significant predictor of shot success between all players. Also, the effects of home-court advantage are not strong in this dataset, possibly due to the fact that most of the games away from home are missing.</p>
+<p>To account for possible unexplained variation between seasons, and for variation introduced from having such a small population of road games, I repeated this analysis on a subset of the data that only consisted of shots from available games in one season (25 games), and shots from all home games (82 games). The results were similar, except for increased uncertainty due to smaller sample sizes. The model evaluation plots show similar patterns to the ones in Figure <a href="3-disc.html#fig:evalplot">3.1</a>, and they are presented in Appendix B.</p>
+</div>
+<div id="future-goals" class="section level2">
+<h2><span class="header-section-number">3.4</span> Future Goals</h2>
+<p>Future goals for this research are to build a better-fitting model to predict basketball shots using more advanced factors that can be approximated from the dataset. Possibilities for this include reparametrizing the location of a shot using categories (e.g., corner three-point shots, heaves from half-court) using the distance of the nearest defender as a proxy for defense quality, or using the amount of time a player has played without a substitution or timeout to approximate fatigue. In addition, we make the unrealistic assumption that every player exhibits the same amount of shooting streakiness with our discounted likelihood models. We could improve upon this assumption in the discounted likelihood models by adding a random effect on <span class="math inline">\(\delta\)</span>, to allow it to vary by player.</p>
 
 </div>
+</div>
+
+
+
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="literature-review.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="2-models.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="A-code-for-models.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

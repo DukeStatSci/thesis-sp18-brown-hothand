@@ -32,8 +32,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   
   
-
-<link rel="next" href="literature-review.html">
+<link rel="prev" href="A-code-for-models.html">
+<link rel="next" href="references.html">
 <script src="libs/jquery-2.2.3/jquery.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
@@ -156,24 +156,33 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="header">
-<h1 class="title">Bayesian Analysis of Player Performance over Time</h1>
-<h4 class="author"><em>Nathaniel Brown</em></h4>
-<h4 class="date"><em>April 10, 2018</em></h4>
+<div id="reproducing-evaluation-plots" class="section level1">
+<h1><span class="header-section-number">B</span> Reproducing Evaluation Plots</h1>
+<div id="home-games-only" class="section level2">
+<h2><span class="header-section-number">B.1</span> Home Games Only</h2>
+<p><img src="thesis_files/figure-html/home-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="introduction" class="section level1 unnumbered">
-<h1>Introduction</h1>
-<p>In the sport of basketball, points are awarded by the binary event of shooting the ball into the goal. Some factors that may affect the success rate include the location of the shooter, the individual skill of the shooter, whether the shooter is shooting on his team’s home court or on an away court, and his shooting success in recent games. There have been previous studies investigating the effect of recent shooting success on current shooting success, and the results vary. For example, <span class="citation">Gilovich, Vallone, &amp; Tversky (1985)</span> use Walf-Wolfowitz runs tests, autocorrelation tests on consecutive shot attempts, goodness-of-fit tests for the distribution of successes, and paired t-tests comparing the mean of makes following a make to that of makes following a miss. These statistical tests did not detect significant evidence supporting streakiness in basketball shooting data. In addition, <span class="citation">Wetzels et al. (2016)</span> found evidence that a Hidden Markov Model with two states (representing a high shot success rate and a low rate) better fits Shaquille O’Neal’s free throw shooting data than a Binomial model with one constant state. <span class="citation">Bar-Eli, Avugos, &amp; Raab (2006)</span> completed a review of previous statistical papers whose authors research the concept of streaky success rates in data with a binomial response; the applications include basketball shooting, baseball hitting, baseball pitching, horeshoes, cognitive science, and economics. They summarize 11 papers that support evidence of streakiness in binomial data, and 13 that do not.</p>
-<p>The purpose of this paper is to investigate Bayesian modelling techniques on basketball shooting data, and to learn more about time-dependency in the data.</p>
+<div id="one-season-only" class="section level2">
+<h2><span class="header-section-number">B.2</span> One Season Only</h2>
+<p><img src="thesis_files/figure-html/2015-1.png" width="672" style="display: block; margin: auto;" /></p>
 
+<!--
+The bib chunk below must go last in this document according to how R Markdown renders.  More info is at http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
+-->
+<p></p>
+<!-- 
+If you'd like to change the name of the bibliography to something else,
+delete "References" and replace it.
+-->
+</div>
 </div>
             </section>
 
           </div>
         </div>
       </div>
-
-<a href="literature-review.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="A-code-for-models.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="references.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
