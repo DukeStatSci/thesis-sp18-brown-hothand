@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Bayesian Analysis of Player Performance over Time</title>
+  <meta name="description" content="Bayesian Analysis of Player Performance over Time">
+  <meta name="generator" content="bookdown 0.5 and GitBook 2.6.7">
+
+  <meta property="og:title" content="Bayesian Analysis of Player Performance over Time" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Bayesian Analysis of Player Performance over Time" />
+  
+  
+  
+
+<meta name="author" content="Nathaniel Brown">
+
+
+<meta name="date" content="2018-04-10">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="1-data.html">
+<link rel="next" href="3-disc.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./"></a></li>
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i>Introduction</a></li>
+<li class="chapter" data-level="" data-path="literature-review.html"><a href="literature-review.html"><i class="fa fa-check"></i>Literature Review</a></li>
+<li class="chapter" data-level="1" data-path="1-data.html"><a href="1-data.html"><i class="fa fa-check"></i><b>1</b> Data</a><ul>
+<li class="chapter" data-level="1.1" data-path="1-data.html"><a href="1-data.html#description-of-dataset"><i class="fa fa-check"></i><b>1.1</b> Description of Dataset</a></li>
+<li class="chapter" data-level="1.2" data-path="1-data.html"><a href="1-data.html#data-cleaning"><i class="fa fa-check"></i><b>1.2</b> Data Cleaning</a></li>
+<li class="chapter" data-level="1.3" data-path="1-data.html"><a href="1-data.html#exploratory-data-analysis"><i class="fa fa-check"></i><b>1.3</b> Exploratory Data Analysis</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="2-models.html"><a href="2-models.html"><i class="fa fa-check"></i><b>2</b> Models &amp; Analysis</a><ul>
+<li class="chapter" data-level="2.1" data-path="2-models.html"><a href="2-models.html#description-of-models"><i class="fa fa-check"></i><b>2.1</b> Description of Models</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="2-models.html"><a href="2-models.html#generalized-linear-model"><i class="fa fa-check"></i><b>2.1.1</b> Generalized Linear Model</a></li>
+<li class="chapter" data-level="2.1.2" data-path="2-models.html"><a href="2-models.html#hierarchical-generalized-linear-model"><i class="fa fa-check"></i><b>2.1.2</b> Hierarchical Generalized Linear Model</a></li>
+<li class="chapter" data-level="2.1.3" data-path="2-models.html"><a href="2-models.html#discounted-likelihood-hierarchical-model"><i class="fa fa-check"></i><b>2.1.3</b> Discounted Likelihood Hierarchical Model</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="2-models.html"><a href="2-models.html#analysis"><i class="fa fa-check"></i><b>2.2</b> Analysis</a><ul>
+<li class="chapter" data-level="2.2.1" data-path="2-models.html"><a href="2-models.html#generalized-linear-model-1"><i class="fa fa-check"></i><b>2.2.1</b> Generalized Linear Model</a></li>
+<li class="chapter" data-level="2.2.2" data-path="2-models.html"><a href="2-models.html#hierarchical-generalized-linear-model-1"><i class="fa fa-check"></i><b>2.2.2</b> Hierarchical Generalized Linear Model</a></li>
+<li class="chapter" data-level="2.2.3" data-path="2-models.html"><a href="2-models.html#discounted-likelihood-hierarchical-model-1"><i class="fa fa-check"></i><b>2.2.3</b> Discounted Likelihood Hierarchical Model</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="3-disc.html"><a href="3-disc.html"><i class="fa fa-check"></i><b>3</b> Discussion</a><ul>
+<li class="chapter" data-level="3.1" data-path="3-disc.html"><a href="3-disc.html#evaluation-of-models"><i class="fa fa-check"></i><b>3.1</b> Evaluation of Models</a></li>
+<li class="chapter" data-level="3.2" data-path="3-disc.html"><a href="3-disc.html#results-from-model-with-delta-0.850"><i class="fa fa-check"></i><b>3.2</b> Results from Model with <span class="math inline">\(\delta\)</span> = 0.850</a></li>
+<li class="chapter" data-level="3.3" data-path="3-disc.html"><a href="3-disc.html#conclusion"><i class="fa fa-check"></i><b>3.3</b> Conclusion</a></li>
+<li class="chapter" data-level="3.4" data-path="3-disc.html"><a href="3-disc.html#future-goals"><i class="fa fa-check"></i><b>3.4</b> Future Goals</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="A-code-for-models.html"><a href="A-code-for-models.html"><i class="fa fa-check"></i><b>A</b> Code for Models</a><ul>
+<li class="chapter" data-level="A.1" data-path="A-code-for-models.html"><a href="A-code-for-models.html#generalized-linear-model-2"><i class="fa fa-check"></i><b>A.1</b> Generalized Linear Model</a></li>
+<li class="chapter" data-level="A.2" data-path="A-code-for-models.html"><a href="A-code-for-models.html#hierarchical-generalized-linear-model-2"><i class="fa fa-check"></i><b>A.2</b> Hierarchical Generalized Linear Model</a></li>
+<li class="chapter" data-level="A.3" data-path="A-code-for-models.html"><a href="A-code-for-models.html#discounted-likelihood-hierarchical-model-2"><i class="fa fa-check"></i><b>A.3</b> Discounted Likelihood Hierarchical Model</a></li>
+</ul></li>
+<li class="chapter" data-level="B" data-path="B-reproducing-evaluation-plots.html"><a href="B-reproducing-evaluation-plots.html"><i class="fa fa-check"></i><b>B</b> Reproducing Evaluation Plots</a><ul>
+<li class="chapter" data-level="B.1" data-path="B-reproducing-evaluation-plots.html"><a href="B-reproducing-evaluation-plots.html#home-games-only"><i class="fa fa-check"></i><b>B.1</b> Home Games Only</a></li>
+<li class="chapter" data-level="B.2" data-path="B-reproducing-evaluation-plots.html"><a href="B-reproducing-evaluation-plots.html#one-season-only"><i class="fa fa-check"></i><b>B.2</b> One Season Only</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Bayesian Analysis of Player Performance over Time</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="models" class="section level1">
+<h1><span class="header-section-number">Chapter 2</span> Models &amp; Analysis</h1>
+<div id="description-of-models" class="section level2">
+<h2><span class="header-section-number">2.1</span> Description of Models</h2>
+<p>For our models, we consider the shot location, a home court indicator, the shooter’s identity, and his shooting outcomes in nearby games as factors that can affect a shot’s outcome. We use the Just Another Gibbs Sampler library in R (<code>R2jags</code>) to build these models. Each one is based on a logistic regression model that provides the posterior distribution of the shot location parameters (distance and angle) and an additional intercept to capture the influence of home-court advantage. The models do not account for covariance between these predictors. We expand upon this model by adding mixed effects and discounted likelihood models to control for shooter identity and between-game variability, respectively. In our Gibbs Samplers, we estimate the posterior distributions using 10,000 simulations and a burn-in of 500. Our prior distributions are constructed from the corresponding maximum likelihood estimates for the first four games in the dataset, and we initialize our Monte Carlo Markov Chains using values of 0 for all means, and 1 for all variances. The <code>R2jags</code> code used to build these models can be found in Appendix A.</p>
+<div id="generalized-linear-model" class="section level3">
+<h3><span class="header-section-number">2.1.1</span> Generalized Linear Model</h3>
+<p>We start with a logistic regression model for each shot attempt <span class="math inline">\(i\)</span>:</p>
+<p><span class="math display">\[
+\text{logit}(p_{i}) = 
+\beta_{\text{int}} +
+x_{\text{r,i}}\beta_{\text{r}} +
+x_{\theta,\text{i}}\beta_{\theta} +
+x_{\text{H,i}}\beta_{\text{H}}.
+\]</span></p>
+<p>In this model, the <span class="math inline">\(x\)</span> refers to the data, and the <span class="math inline">\(\beta\)</span>s are the parameters from the model. The subscripts <span class="math inline">\(\textit{int}\)</span>, <span class="math inline">\(\textit{r}\)</span>, <span class="math inline">\(\theta\)</span>, and <span class="math inline">\(\textit{H}\)</span> respectively refer to the intercept, the log-distance of the shot, the angle of the shot, and whether shot was taken on Duke’s home court or another gym. This fourth <span class="math inline">\(\beta\)</span> accounts for the possibility of “home-court advantage”, which can affect shot outcomes.</p>
+</div>
+<div id="hierarchical-generalized-linear-model" class="section level3">
+<h3><span class="header-section-number">2.1.2</span> Hierarchical Generalized Linear Model</h3>
+<p>Our second model is a hierarchical model, with random effects on the <span class="math inline">\(\textit{j}\)</span> players in the dataset. These random effects occur for each of the four parameters of interest—the intercept, the distance effect, the angle effect, and the home effect. Each individual player’s parameter values are sampled from a Normal distribution centered at the population values. A benefit of this type of model is that the parameters for players with few shot attempts are shrunk towards the population means. The model has the form below for each player <span class="math inline">\(j\)</span> and shot attempt <span class="math inline">\(i\)</span>:</p>
+<p><span class="math display">\[
+\text{logit}(p_{\text{ji}}) = 
+\beta_{\text{int, j}} +
+x_{\text{r,ji}}\beta_{\text{r, j}} +
+x_{\theta,\text{ji}}\beta_{\theta, \text{j}} +
+x_{\text{H, ji}}\beta_{\text{H, j}},
+\]</span> <span class="math display">\[
+\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
+\]</span> <span class="math display">\[
+\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}}),
+\]</span> <span class="math display">\[
+\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta}),
+\]</span> <span class="math display">\[
+\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
+\]</span></p>
+</div>
+<div id="discounted-likelihood-hierarchical-model" class="section level3">
+<h3><span class="header-section-number">2.1.3</span> Discounted Likelihood Hierarchical Model</h3>
+<p>In the discounted likelihood models, the likelihood function for all model parameters at a given time is more heavily influenced by the observations close to that specific time point than the observations far away from it. We measure the “distance” between observations by the number of games between them; a shot attempt that occurs in the next or the preceding game will influence the likelihood function for the parameters “anchored” at that game more than a shot that occurs two games away. <!--BEGIN MIKE WEST EDITS!!! --> We chose to analyze time-dependency in the data using a discounted likelihood model instead of a full dynamic model because a discounted likelihood model would have fewer complications in the context of a hierarchical model. <!--(**what are my citations for this claim?**)--> The methodology behind our discounted likelihood model relates closely to Bayesian dynamic modeling that uses power discounting to reduce the effect of data that occurs further in the past. We begin defining this model with the concept of forward filtering. This is implied by a power-discount Bayesian time series model (Smith, 1979) that uses a “discounted” Bayes Theorem in which the posterior disitribution of the model parameters at any chosen time <span class="math inline">\(t\)</span> is proportional to the product of the prior, <span class="math inline">\(p(\Theta)\)</span>, and the discount likelihood function, which has the form</p>
+<p><img src="thesis_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p></p>
+<p><span class="math display">\[
+p_t(X_{1:t}|\Theta) = p_t(X_{1:t-1}|\Theta)p(X_t|\Theta),
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+p_t(X_{1:t-1}|\Theta) \propto
+p(X_{1}  |\Theta)^{\delta^{t-1}}...
+p(X_{t-2}|\Theta)^{\delta^{2}}
+p(X_{t-1}|\Theta)^{\delta}
+\]</span></p>
+<p>for some discount factor <span class="math inline">\(0 &lt; \delta &lt; 1\)</span>, typically closer to 1 to allow for the discounting of past data without omitting its information content.</p>
+<p>This equation shows that as distance increases backward in time, the effect on the likelihood function—and hence on the resulting posterior for <span class="math inline">\(\Theta\)</span> at our current time <span class="math inline">\(t\)</span>—decreases. The corresponding discount likelihood for <span class="math inline">\(\Theta\)</span> at time <span class="math inline">\(t\)</span> given both past and future data up to a time <span class="math inline">\(T &gt; t\)</span> has a similar form, but with two-sided discounting. This relates to dynamic models with time-varying parameters, which apply backwards updating to update their posteriors. The form of the two-sided likelihood function of <span class="math inline">\(\Theta\)</span> at a chosen time <span class="math inline">\(t\)</span> is:</p>
+<p><span class="math display">\[
+p_t(X_{1:T}|\Theta) = 
+p_t(X_{1:t-1}|\Theta)
+p(X_{t}|\Theta)
+p_t(X_{t+1:T}|\Theta),
+\]</span></p>
+<p>where the past data component <span class="math inline">\(p_t(X_{1:t-1}|\Theta)\)</span> is the same as above, and the future data component is:</p>
+<p><span class="math display">\[
+p_t(X_{t+1:T}|\Theta) \propto
+p(X_{t+1}|\Theta)^{\delta}
+p(X_{t+2}|\Theta)^{\delta^2}...
+p(X_{T}|\Theta)^{\delta^{T-t}}.
+\]</span></p>
+<p>Specifically for our model, given an observed shot <span class="math inline">\(\textit{i}\)</span> in game <span class="math inline">\(g\)</span>, attempted by player <span class="math inline">\(\textit{j}\)</span>, we apply the above reasoning to discount the likelihood of a made shot in the hierarchical model. First we begin with a hierarchical logistic regression model:</p>
+<p><span class="math display">\[
+\text{logit}(p_{\text{gji}}) = 
+\beta_{\text{int, gj}} +
+x_{\text{r,gji}}\beta_{\text{r, gj}} +
+x_{\theta,\text{gji}}\beta_{\theta, \text{gj}} +
+x_{\text{H, gji}}\beta_{\text{H, gj}},
+\]</span> <span class="math display">\[
+\beta_{\text{int, j}} \sim N(\beta_{\text{int}}, \tau^2_{\text{int}}),
+\]</span> <span class="math display">\[
+\beta_{\text{r, j}} \sim N(\beta_{\text{r}}, \tau^2_{\text{r}}),
+\]</span> <span class="math display">\[
+\beta_{\theta, j} \sim N(\beta_{\theta}, \tau^2_{\theta}),
+\]</span> <span class="math display">\[
+\beta_{\text{H, j}} \sim N(\beta_{\text{H}}, \tau^2_{\text{H}}).
+\]</span></p>
+<p>Without discounting, the likelihood term controbuted from a shot’s outcome, <span class="math inline">\(\text{y}_\text{gji}\)</span>, that is attempted by player <span class="math inline">\(\textit{j}\)</span> in game <span class="math inline">\(\textit{g}\)</span>, is:</p>
+<p><span class="math display">\[
+L_\text{gj}(\Theta) =
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}{
+  p(\text{y}_{\text{gji}} | \Theta) 
+}
+\propto 
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}{
+  p_\text{gji}^{\text{y}_\text{gji}} 
+  (1 - p_\text{gji})^{1-\text{y}_\text{gji}}
+}.
+\]</span></p>
+<p>When we apply the exponential discounting to the outcomes like so:</p>
+<p><span class="math display">\[
+\pi_{\text{gji}} =
+\left(
+  p_\text{gji}^{\text{y}_\text{gji}} 
+  (1 - p_\text{gji})^{1-\text{y}_\text{gji}}
+\right)
+^{\delta^{|g-g_0|}},
+\]</span></p>
+<p>our likelihood becomes:</p>
+<p><span class="math display">\[
+\Lambda_{\text{gj}}(\Theta) = 
+\prod_{\text{i}=1}^{\text{n}_\text{gj}}
+  \pi_{\text{gji}},
+\]</span></p>
+<p>where <span class="math inline">\({g}\)</span> is the game index of the current shot <span class="math inline">\(\textit{i}\)</span>, and <span class="math inline">\(g_0\)</span> is a fixed game index, which we refer to as the “anchor game”.</p>
+<p>In this model, <span class="math inline">\(p\)</span> represents the binomial probability, and <span class="math inline">\(\pi\)</span> is the discounted probability. Both of these quantities are probabilities that are bounded in the interval [0,1]. Similarly, <span class="math inline">\(L\)</span> is the likelihood and <span class="math inline">\(\Lambda\)</span> is the discounted likelihood. <!-- The contribution of shot outcomes (in the anchor game $g_0$) to the likelihood of the current shot outcome (in game $g$) decreases as the distance between the observations increases, and as $\delta$ decreases.--> The contribution of shot outcomes from games <span class="math inline">\(g\)</span> that are more distant from the anchor game <span class="math inline">\(g_0\)</span> are more heavily discounted, and the discounting increases for smaller values of <span class="math inline">\(\delta\)</span>. In a model with <span class="math inline">\(\delta\)</span> = 0, only shots taken in the same game as shot <span class="math inline">\(i\)</span> can contribute to the likelihood, while <span class="math inline">\(\delta\)</span> = 1 is equivalent to a model with no discounting. If models with larger values of <span class="math inline">\(\delta\)</span> best fit the data, this suggests that shooting success is consistent throughout a career. If smaller values of <span class="math inline">\(\delta\)</span> are more likely in the data, however, then we can assume there is a substantial amount of time variation, or “streakiness”, in the data on the game level. <!-- This model specification results in an MCMC chain for each combination of $g_0$ and $\delta$--> Figure <a href="2-models.html#fig:discplot">2.1</a> illustrates how the exponential weight on the likelihood depends on the selected value of <span class="math inline">\(\delta\)</span> and the distance from the anchor game (<span class="math inline">\(g - g_0\)</span>).</p>
+<p><img src="thesis_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p></p>
+<div class="figure" style="text-align: center"><span id="fig:discplot"></span>
+<img src="thesis_files/figure-html/discplot-1.png" alt="Illustration of Discounted Weighting" width="672" />
+<p class="caption">
+Figure 2.1: Illustration of Discounted Weighting
+</p>
+</div>
+<p>This model specification is specific to the chosen anchor game <span class="math inline">\(g_0\)</span>, so that the resulting posterior distribution for all model parameters is indexed by <span class="math inline">\(g_0\)</span> and represents inferences “local” to that game. Repeating the analysis across all games as anchors results in a sequence of posteriors, where their differences reflect time variation. As a result, we refit the model using MCMC for each combination of game index and <span class="math inline">\(\delta\)</span>, which involves substantial computation.</p>
+<p><img src="thesis_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p></p>
+<p>To build these discounted likelihood models in the <code>R2jags</code> library, we apply the “ones trick”. This technique allows us to use a sampling distribution that does not exist in the library by modifying a common distribution—in this case, the Binomial. The probability <span class="math inline">\(p\)</span> is estimated in the same way as the Bayesian hierarchical model. We discount this probability to estimate <span class="math inline">\(\pi\)</span>, and then we specify that it comes from Binomial data that consists only of ones; this is equivalent to sampling from a distribution with discounted outcomes. In the code excerpt below, <code>result</code> and <code>prob</code> are the binomial outcomes and probabilities, while <code>y</code> represents the “trick” outcomes (a vector of 1s), and <code>pi</code> is the discounted probability.</p>
+<p><img src="thesis_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">    for(i in <span class="dv">1</span>:N){
+      
+      <span class="co"># delta = discount rate for game g relative to anchor game g0</span>
+      wt[i] &lt;-<span class="st"> </span>delta^<span class="kw">abs</span>(games[i]-g0)  
+      
+      <span class="co"># player-level random effects</span>
+      <span class="kw">logit</span>(prob[i]) &lt;-<span class="st"> </span>beta_int[player[i]]*int[i] +<span class="st"> </span>
+<span class="st">                        </span>beta_home[player[i]]*home[i] +<span class="st"> </span>
+<span class="st">                        </span>beta_r[player[i]]*logr[i] +<span class="st"> </span>
+<span class="st">                        </span>beta_theta[player[i]]*theta[i] 
+
+      <span class="co"># likelihood function</span>
+      p1[i] &lt;-<span class="st"> </span>prob[i]^result[i]
+      p2[i] &lt;-<span class="st"> </span>(<span class="dv">1</span>-prob[i])^(<span class="dv">1</span>-result[i])
+      
+      <span class="co"># discounted likelihood function</span>
+      pi[i] &lt;-<span class="st"> </span>(p1[i] *<span class="st"> </span>p2[i])^wt[i]  
+      
+      <span class="co"># defines correct discounted likelihood function</span>
+      y[i] ~<span class="st"> </span><span class="kw">dbern</span>(pi[i]) 
+      
+    }
+    
+    <span class="co"># Priors</span>
+    for(j in <span class="dv">1</span>:M){
+      beta_int[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_int0,tau_int)
+      beta_home[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_home0, tau_int)
+      beta_r[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_r0,tau_r)
+      beta_theta[j] ~<span class="st"> </span><span class="kw">dnorm</span>(beta_theta0,tau_theta)
+    }</code></pre></div>
+<p>See Appendix A.3 for the full <code>R</code> code.</p>
+</div>
+</div>
+<div id="analysis" class="section level2">
+<h2><span class="header-section-number">2.2</span> Analysis</h2>
+<div id="generalized-linear-model-1" class="section level3">
+<h3><span class="header-section-number">2.2.1</span> Generalized Linear Model</h3>
+<p>In our generalized linear model, we only look at shot location and the home court indicator as predictors of shot outcome. This is a logistic regression model where the intercepts correspond to the log-odds of making a shot when the angle is zero (the middle of the court) and the log-distance is zero (one foot away from the rim). To illustrate these effects for individual players, we simply subset the dataset to include only shots attempted by that player before running the Gibbs Sampler. In Figure <a href="2-models.html#fig:glmplot">2.2</a>, The 95% credible intervals of the posterior parameters are reported for the same four players that were introduced in Figure <a href="1-data.html#fig:smoothplot">1.2</a>.</p>
+<p><img src="thesis_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="thesis_files/figure-html/glmplot0-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center"><span id="fig:glmplot"></span>
+<img src="thesis_files/figure-html/glmplot-1.png" alt="GLM Posterior Distributions for Four Players" width="480" />
+<p class="caption">
+Figure 2.2: GLM Posterior Distributions for Four Players
+</p>
+</div>
+<p>From these plots, we see that the team-wide 95% credible interval of the angle effect is centered at zero, and it is therefore probably not predictive of a made shot. The average distance effect shows us that the log-odds of a made shot decrease by <span class="math inline">\(\beta_r =\)</span> 0.5372 as the log-distance increases by one unit and the other predictors remain constant. This effect is translated to the probability scale using the expression</p>
+<p><span class="math display">\[
+\frac{\text{e}^{\beta_r}}{1 + \text{e}^{\beta_r}},
+\]</span></p>
+<p>which equals 0.3689.</p>
+<p>We also see that the 95% credible interval on the effect of distance is completely negative, which follows the intuitive idea that the probability of a made shot significantly decreases as distance from the basket increases. The intercepts show us that there is not a substantial difference in baseline shooting performance between home games and away games. The interval for away games is wider because there are fewer of them in the dataset.</p>
+</div>
+<div id="hierarchical-generalized-linear-model-1" class="section level3">
+<h3><span class="header-section-number">2.2.2</span> Hierarchical Generalized Linear Model</h3>
+<p>To make the hierarchical model, we add random effects that allow the parameters to vary for each player in the dataset. For every linear covariate in the model, we model player-specific effects as sampled from a Normal distribution roughly centered at the covariate’s population mean. We present the results in Figure <a href="2-models.html#fig:hierplot">2.3</a> by comparing the effects of the four high-usage players of interest to the population density of each covariate.</p>
+<p></p>
+<div class="figure" style="text-align: center"><span id="fig:hierplot"></span>
+<img src="thesis_files/figure-html/hierplot-1.png" alt="Population Distribution with Four Player Effects" width="672" />
+<p class="caption">
+Figure 2.3: Population Distribution with Four Player Effects
+</p>
+</div>
+<p>The plots in Figure <a href="2-models.html#fig:hierplot">2.3</a> show us that Player 2 excels at scoring under baseline conditions (close to the basket), but he has a steeper-than-average drop in his odds of scoring as his distance from the basket increases. We can also see that Player 1 strongly increases his odds of scoring when his angle is negative, which corresponds to the left side of the basket, while the other three players’ effects are all close to zero.</p>
+<p>In Figure <a href="2-models.html#fig:contplot">2.4</a>, we present contour plots showing the players’ expected field goal percentages at all locations on the half of the court where they are shooting. We compute these from the fitted probabilities of shot success from the hierarchical model. This plot confirms that Player 1 is more effective on the left side of the basket than the others. Other takeaways that were not noticeable in Figure <a href="2-models.html#fig:hierplot">2.3</a> are that Player 2 has the darkest overall contour plot, which suggests that he has the highest overall probability of scoring, and that Player 4 has lightest plot, suggesting he is the least reliable scorer among these four players.</p>
+<p><img src="thesis_files/figure-html/contplot0-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: right"><span id="fig:contplot"></span>
+<img src="thesis_files/figure-html/contplot-1.png" alt="Contour Plots for Four Players and Population of Players" width="90%" />
+<p class="caption">
+Figure 2.4: Contour Plots for Four Players and Population of Players
+</p>
+</div>
+</div>
+<div id="discounted-likelihood-hierarchical-model-1" class="section level3">
+<h3><span class="header-section-number">2.2.3</span> Discounted Likelihood Hierarchical Model</h3>
+<p>The values of <span class="math inline">\(\delta\)</span> that we use to fit the discounted likelihood models are 0.750, 0.800, 0.850, 0.900, 0.950, and 0.999. For each of these values, we refit the model to generate a full MCMC sample from the posterior, using every game as the anchor game <span class="math inline">\(g_0\)</span>. We calculate predictions and fitted values for a particular shot in game <span class="math inline">\(g\)</span> using the posterior median of the MCMC chain where <span class="math inline">\(g\)</span> is the anchor game <span class="math inline">\(g_0\)</span>. The plots in Figure <a href="2-models.html#fig:discplot750">2.5</a> and <a href="2-models.html#fig:discplot999">2.6</a> show how the posterior parameter distributions (95% credible intervals) change over the course of one season on the team level and for two players (the other two players are not shown here because they did not play during this season). Figure <a href="2-models.html#fig:discplot750">2.5</a> illustrates the results for our smallest value of <span class="math inline">\(\delta\)</span>, 0.750, and <a href="2-models.html#fig:discplot999">2.6</a> shows them for our largest value of <span class="math inline">\(\delta\)</span>, 0.999.</p>
+<div class="figure" style="text-align: center"><span id="fig:discplot750"></span>
+<img src="thesis_files/figure-html/discplot750-1.png" alt="Parameters for Two Players and Population over Time, $\delta$ = 0.750" width="672" />
+<p class="caption">
+Figure 2.5: Parameters for Two Players and Population over Time, <span class="math inline">\(\delta\)</span> = 0.750
+</p>
+</div>
+<div class="figure" style="text-align: center"><span id="fig:discplot999"></span>
+<img src="thesis_files/figure-html/discplot999-1.png" alt="Parameters for Two Players and Population over Time, $\delta$ = 0.999" width="672" />
+<p class="caption">
+Figure 2.6: Parameters for Two Players and Population over Time, <span class="math inline">\(\delta\)</span> = 0.999
+</p>
+</div>
+<p>These plots illustrate how smaller values of <span class="math inline">\(\delta\)</span> allow for more variation in the posteriors over time. Another observation from this plot is that the credible intervals are wider when <span class="math inline">\(\delta\)</span> is smaller. Between the two plots of the home game intercepts, we can see that the 95% credible in the first game when <span class="math inline">\(\delta\)</span> = 0.750 ranges from about -1 to 3, while the corresponding interval in the plot where <span class="math inline">\(\delta\)</span> = 0.999 ranges from about 0 to 2. The uncertainty in the posteriors increases as the discounting parameter <span class="math inline">\(\delta\)</span> decreases because a smaller <span class="math inline">\(\delta\)</span> corresponds to fewer observations contributing to the likelihood.</p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="1-data.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="3-disc.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": [["thesis.pdf", "PDF"], ["thesis.epub", "EPUB"], ["thesis.docx", "Word"]],
+"toc": {
+"collapse": "section"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

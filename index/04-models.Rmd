@@ -1,9 +1,3 @@
----
-output:
-  thesisdowndss::thesis_pdf: default
-  thesisdowndss::thesis_gitbook: default
----
-
 # Models & Analysis {#models}
 
 ## Description of Models

@@ -36,4 +36,4 @@ This is just for testing with more citations for the bibliography at the end.  A
 nocite: | 
 @smith79
 <!--  @west10, @miller16 -->
-...
+---

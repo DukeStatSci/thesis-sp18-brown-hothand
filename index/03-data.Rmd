@@ -1,9 +1,3 @@
----
-output:
-  thesisdowndss::thesis_gitbook: default
-  thesisdowndss::thesis_pdf: default
----
-
 # Data {#data}
 
 ```{r dat, include=FALSE}
